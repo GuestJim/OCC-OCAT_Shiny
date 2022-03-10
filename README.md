@@ -26,3 +26,4 @@ The purpose is presently not to enable the downloading of data, statistics, or g
 
 At present the scripts can be set to work with a provided CSV (or compressed CSV) or to allow a file to be uploaded and processed.
 For clarity and simplicity, I believe the static-data version is best for sharing.
+However, the ***app.r*** script is configured for upload presently, as I am not including data in this repository (at the moment, at least).

@@ -25,11 +25,6 @@ ecdfFPS	=	function(DATA, listFPS = NULL, r = 2)	{
 	listFPS		=	unique(sort(c(default, listFPS), decreasing = TRUE))
 	
 	setNames(100 * (1 - ecdf(DATA)(1000 / listFPS)),	paste0(listFPS, " FPS"))
-	# out			=	100 * (1 - ecdf(DATA)(1000 / listFPS))
-	# names(out)	=	paste0(listFPS, " FPS")
-
-	# return(round(out, r))	#rounding is achieved differently
-	# return(out)
 }
 
 namePERC	=	function(listPERC = NULL)	{
@@ -48,7 +43,6 @@ nameECDF	=	function(listFPS = NULL)	{
 DATA$nameMEAN	=	c("Mean", "Median")
 # DATA$namePERC	=	paste0(c(0.1, 1, 99, 99.9), "%")
 DATA$namePERC	=	namePERC()
-# DATA$nameECDF	=	paste0(c(60, 50, 30, 20, 15), " FPS")
 # DATA$nameECDF	=	paste0(c(60, 30), " FPS")
 DATA$nameECDF	=	nameECDF()
 nameDEFs	=	c("Mean", "1%", "99%", "60 FPS")

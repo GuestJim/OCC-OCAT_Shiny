@@ -1,5 +1,5 @@
 library(shiny)
-# setwd("C:/Users/Jim/Documents/Respond/R-Shiny/@OCAT Upload")
+# setwd("C:/Users/Jim/Documents/OCC/@Reviews/@OCAT R Scripts/OCC-OCAT_Shiny")
 # runApp()
 # options(shiny.error = browser)
 library(readr)
@@ -15,7 +15,7 @@ BRUSH	=	new.env()
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
 
 # DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
-DATA$FILE	=	"Chorus - Epic.csv.bz2"
+# DATA$FILE	=	"Chorus - Epic.csv.bz2"
 # DATA$FILE	=	"Crysis Remastered - Small.csv.bz2"
 #	by giving this a file, we can avoid needing to upload a file
 
