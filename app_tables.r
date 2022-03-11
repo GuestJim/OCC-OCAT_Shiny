@@ -17,7 +17,7 @@
 	})
 
 	DATA$tableSUMM	=	reactiveVal()
-	observeEvent(list(input$dataInput, input$manuPERC, input$datatype),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuPERC, input$datatype),	{
 		req(DATA$results)
 		
 		outMEAN	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, meanMS))
@@ -40,7 +40,7 @@
 	})
 	
 	DATA$tableECDF	=	reactiveVal()
-	observeEvent(list(input$dataInput, input$manuECDF, input$datatype),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuECDF, input$datatype),	{
 		req(DATA$results)
 		
 		outECDF	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, ecdfFPS, to.NUM(c(input$manuECDF))))
@@ -72,7 +72,8 @@
 		return(out[filtROW, filtCOL])
 	}
 	
-	observeEvent(list(input$dataInput, input$manuRefresh, input$roundTerm),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh, input$roundTerm),	{
+		test	<<-	DATA$tableSUMM()
 		output$tableSUMM	=	renderTable({
 			tableFILT(DATA$tableSUMM())
 		},	digits	=	input$roundTerm,	striped	=	TRUE)

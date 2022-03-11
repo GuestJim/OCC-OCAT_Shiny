@@ -30,14 +30,14 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 	DATA$results$API			=	ordered(DATA$results$API,		unique(DATA$results$API))
 
 	DATA$GROUPS	=	list(GPU = DATA$results$GPU,	Quality = DATA$results$Quality, API = DATA$results$API,	Location = DATA$results$Location)
-	DATA$checkAPI	=	TRUE
-	if (length(unique(DATA$GROUPS$API)) == 1)		DATA$checkAPI	=	FALSE
-	if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
-
 	DATA$GPUs	=	LEVs(DATA$results$GPU)
 	DATA$QUAs	=	LEVs(DATA$results$Quality)
 	DATA$LOCs	=	LEVs(DATA$results$Location)
 	DATA$APIs	=	LEVs(DATA$results$API)
+	
+	DATA$checkAPI	=	TRUE
+	if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
+	if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 }
 
 noCOL	=	c("ProcessID", "SwapChainAddress", "SyncInterval", "PresentFlags", "AllowsTearing", "PresentMode", "DwmNotified")

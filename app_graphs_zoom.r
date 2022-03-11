@@ -55,6 +55,8 @@
 			if (!is.null(brushFILT$API))	{
 				brushSUMMzoom$API		<-	brushFILT$API
 				brushSUMMzoom$FILTER	<-	intersect(brushSUMMzoom$FILTER, which(DATA$results$API	==	brushSUMMzoom$API))
+			}	else	{
+				if (exists("APIs", DATA))	brushSUMMzoom$API	<-	DATA$APIs
 			}
 		}
 		
@@ -112,6 +114,8 @@
 			if (!is.null(brushFILT$API))	{
 				brushCOURSEzoom$API		<-	brushFILT$API
 				brushCOURSEzoom$FILTER	<-	intersect(brushCOURSEzoom$FILTER, which(DATA$results$API	==	brushCOURSEzoom$API))
+			}	else	{
+				if (exists("APIs", DATA))	brushCOURSEzoom$API	<-	DATA$APIs
 			}
 
 		} else {
@@ -273,6 +277,8 @@
 			if (!is.null(brushFILT$API))	{
 				brushFREQzoom$API		<-	brushFILT$API
 				brushFREQzoom$FILTER	<-	intersect(brushFREQzoom$FILTER, which(DATA$results$API	==	brushFREQzoom$API))
+			}	else	{
+				if (exists("APIs", DATA))	brushFREQzoom$API	<-	DATA$APIs
 			}
 		}
 		
@@ -338,6 +344,8 @@
 			if (!is.null(brushFILT$API))	{
 				brushQQzoom$API		<-	brushFILT$API
 				brushQQzoom$FILTER	<-	intersect(brushQQzoom$FILTER, which(DATA$results$API	==	brushQQzoom$API))
+			}	else	{
+				if (exists("APIs", DATA))	brushQQzoom$API	<-	DATA$APIs
 			}
 		}
 
@@ -499,6 +507,8 @@
 			if (!is.null(brushFILT$API))	{
 				brushDIFFzoom$API		<-	brushFILT$API
 				brushDIFFzoom$FILTER	<-	intersect(brushDIFFzoom$FILTER, which(DATA$results$API	==	brushDIFFzoom$API))
+			}	else	{
+				if (exists("APIs", DATA))	brushDIFFzoom$API	<-	DATA$APIs
 			}
 		}
 		

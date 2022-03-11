@@ -1,6 +1,6 @@
 GRAPH$STATS	=	reactiveVal()
 if (exists("results", envir = DATA))	GRAPH$STATS(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
-observeEvent(list(input$dataInput, input$datatypeG, input$QUANrefresh), {
+observeEvent(list(input$dataInput, DATA$LOAD, input$datatypeG, input$QUANrefresh), {
 	req(DATA$results)
 	GRAPH$STATS(sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS, statGRAPH, quan=GRAPH$QUAN())))
 },	ignoreInit	=	TRUE)
@@ -42,7 +42,7 @@ diffLimRefresh	=	eventReactive(input$diffLimRefresh,	{
 },	ignoreNULL	=	FALSE,	label	=	"diffLimRefresh")
 
 
-observeEvent(input$fileInput, {
+observeEvent(list(input$dataInput, DATA$LOAD), {
 	FAC	=	c("GPU", "API", "Quality")
 	if (!DATA$checkAPI)	FAC	=	c("GPU", "Quality")
 
