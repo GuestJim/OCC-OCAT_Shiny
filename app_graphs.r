@@ -43,6 +43,7 @@ diffLimRefresh	=	eventReactive(input$diffLimRefresh,	{
 
 
 observeEvent(list(input$dataInput, DATA$LOAD), {
+	req(DATA$results)
 	FAC	=	c("GPU", "API", "Quality")
 	if (!DATA$checkAPI)	FAC	=	c("GPU", "Quality")
 
