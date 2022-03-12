@@ -236,6 +236,11 @@ ui <- fluidPage(
 						type	=	"tabs"
 					),
 				),
+				tabPanel("System Specs",
+					# uiOutput()
+					includeHTML("Specs_Desktop.html"),
+					includeHTML("Specs_Test.html")
+				),
 				id	=	"outputs",
 				type	=	"pills"
 			),
