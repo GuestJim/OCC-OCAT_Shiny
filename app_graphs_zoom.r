@@ -386,8 +386,9 @@
 	observeEvent(input$brushQQdbl,	{
 		brush 		<-	input$brushQQdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
-
+		
 		brushQQzoom$x	=	c(qnorm(0.000000001), qnorm(0.999999999))
+		brushQQzoom$y	=	c(0, as.numeric(input$FtimeLimitMS))
 
 		brushQQzoom$GPU			<-	brushFILT$GPU
 		brushQQzoom$Quality		<-	brushFILT$Quality
