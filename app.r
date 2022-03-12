@@ -15,7 +15,7 @@ BRUSH	=	new.env()
 #	rather than using super-assignment and pushing variables to Global, I'm putting them into this environment
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
 
-# DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
+DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
 # DATA$FILE	=	"Chorus - Epic.csv.bz2"
 # DATA$FILE	=	"Crysis Remastered - Small.csv.bz2"
 #	by giving this a file, we can avoid needing to upload a file

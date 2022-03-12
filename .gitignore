@@ -1,23 +1,7 @@
-*.zip
-*.pdf
-*.lnk
-*N++ Session.txt
-*.aux
-*.log
-*.out
-*.toc
-*.lof
-*.loi
-*.bcf
-*.nav
-*.snm
-*.run.xml
-*.synctex.gz
-LaTeX Notes.txt
-* - Old.*
 *.csv
 *.csv.*
 Shiny Apps Signup.r
 ShinyApps Upload.r
 @Old
 rsconnect
+*.dcf

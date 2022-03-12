@@ -1,8 +1,8 @@
+.gitattributes
+.gitignore
+.git
+README.md
+Shiny Apps Signup.r
 OCAT Data
 Chorus - Epic.csv.bz2
 Crysis Remastered - Small.csv.bz2
-Dying Light 2 - All.csv.bz2
-*.csv.bz2
-*.csv
-Shiny Apps Signup.r
-README.md
