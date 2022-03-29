@@ -72,8 +72,7 @@
 		return(out[filtROW, filtCOL])
 	}
 	
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh, input$roundTerm),	{
-		test	<<-	DATA$tableSUMM()
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh, input$roundTerm, input$datatype),	{
 		output$tableSUMM	=	renderTable({
 			tableFILT(DATA$tableSUMM())
 		},	digits	=	input$roundTerm,	striped	=	TRUE)
