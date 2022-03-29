@@ -191,7 +191,7 @@ scaleX	=	function(graphtype, datatype){
 		stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
 		# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
 		# FACET("graphMEANS") +
-		scale_x_discrete(labels = labelBreak, drop = FALSE) +
+		scale_x_discrete(labels = labelBreak, drop = !(length(unique(DATA$results$GPU))>1)) +
 		scaleY("graphMEANS", input$datatypeG) +
 		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
 		guides(fill = guide_legend(nrow = 1)) + theme(legend.position = "bottom", plot.title.position = "plot")
