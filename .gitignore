@@ -1,5 +1,6 @@
 *.csv
 *.csv.*
+*.rdata
 Shiny Apps Signup.r
 ShinyApps Upload.r
 @Old

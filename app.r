@@ -25,11 +25,15 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 	if (is.null(datapath))	datapath	=	name
 
 	DATA$game	=	unlist(strsplit(name, " - "))[1]
-	DATA$results	=	read_csv(datapath, guess_max = 10, lazy = TRUE, col_select=!noCOL,	show_col_types = FALSE)
-	DATA$results$GPU			=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
-	DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
-	DATA$results$Location		=	ordered(DATA$results$Location,	unique(DATA$results$Location))
-	DATA$results$API			=	ordered(DATA$results$API,		unique(DATA$results$API))
+	if (endsWith(datapath, ".RData"))	{
+		DATA$results	=	readRDS(datapath)
+	}	else	{
+		DATA$results	=	read_csv(datapath, guess_max = 10, lazy = TRUE, col_select=!all_of(noCOL),	show_col_types = FALSE)
+		DATA$results$GPU			=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
+		DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
+		DATA$results$Location		=	ordered(DATA$results$Location,	unique(DATA$results$Location))
+		DATA$results$API			=	ordered(DATA$results$API,		unique(DATA$results$API))
+	}
 
 	DATA$GROUPS	=	list(GPU = DATA$results$GPU,	Quality = DATA$results$Quality, API = DATA$results$API,	Location = DATA$results$Location)
 	DATA$GPUs	=	LEVs(DATA$results$GPU)
