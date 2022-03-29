@@ -61,4 +61,5 @@ if	(!is.null(listLOC)) resultsFull$Location	=	ordered(resultsFull$Location,	leve
 resultsFull$API		=	ordered(resultsFull$API)
 if	(!is.null(listAPI)) resultsFull$API			=	ordered(resultsFull$API,		levels = listAPI)
 
+# saveRDS(resultsFull, paste0(FILEname, ".RData"))
 saveRDS(resultsFull, paste0(FILEname, ".RData"), compress = "bzip2")
