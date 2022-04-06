@@ -12,6 +12,7 @@ options(shiny.maxRequestSize = 100*1024^2)
 DATA	=	new.env()
 DATA$LOAD	=	FALSE	#used for tracking if data has been loaded automatically
 GRAPH	=	new.env()
+TABLES	=	new.env()
 BRUSH	=	new.env()
 #	rather than using super-assignment and pushing variables to Global, I'm putting them into this environment
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
@@ -19,31 +20,34 @@ BRUSH	=	new.env()
 # DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
 # DATA$FILE	=	"Chorus - Epic.csv.bz2"
 # DATA$FILE	=	"Crysis Remastered - Small.csv.bz2"
+# DATA$FILE	=	"Dying Light 2 - All.RData"
 #	by giving this a file, we can avoid needing to upload a file
+
+mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
 
 dataLOAD	=	function(name, datapath	=	NULL)	{
 	if (is.null(datapath))	datapath	=	name
 
 	DATA$game	=	unlist(strsplit(name, " - "))[1]
 	if (endsWith(datapath, ".RData"))	{
-		DATA$results	=	readRDS(datapath)
+		mergeENV(DATA, readRDS(datapath))
 	}	else	{
 		DATA$results	=	read_csv(datapath, guess_max = 10, lazy = TRUE, col_select=!all_of(noCOL),	show_col_types = FALSE)
 		DATA$results$GPU			=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
 		DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
 		DATA$results$Location		=	ordered(DATA$results$Location,	unique(DATA$results$Location))
 		DATA$results$API			=	ordered(DATA$results$API,		unique(DATA$results$API))
+		
+		DATA$GROUPS	=	list(GPU = DATA$results$GPU,	Quality = DATA$results$Quality, API = DATA$results$API,	Location = DATA$results$Location)
+		DATA$GPUs	=	LEVs(DATA$results$GPU)
+		DATA$QUAs	=	LEVs(DATA$results$Quality)
+		DATA$LOCs	=	LEVs(DATA$results$Location)
+		DATA$APIs	=	LEVs(DATA$results$API)
+		
+		DATA$checkAPI	=	TRUE
+		if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
+		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 	}
-
-	DATA$GROUPS	=	list(GPU = DATA$results$GPU,	Quality = DATA$results$Quality, API = DATA$results$API,	Location = DATA$results$Location)
-	DATA$GPUs	=	LEVs(DATA$results$GPU)
-	DATA$QUAs	=	LEVs(DATA$results$Quality)
-	DATA$LOCs	=	LEVs(DATA$results$Location)
-	DATA$APIs	=	LEVs(DATA$results$API)
-	
-	DATA$checkAPI	=	TRUE
-	if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
-	if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 }
 
 noCOL	=	c("ProcessID", "SwapChainAddress", "SyncInterval", "PresentFlags", "AllowsTearing", "PresentMode", "DwmNotified")

@@ -43,9 +43,8 @@ diffLimRefresh	=	eventReactive(input$diffLimRefresh,	{
 
 
 observeEvent(list(input$dataInput, DATA$LOAD), {
-	req(DATA$results)
 	FAC	=	c("GPU", "API", "Quality")
-	if (!DATA$checkAPI)	FAC	=	c("GPU", "Quality")
+	if (exists("checkAPI", envir = DATA))	if (!DATA$checkAPI)	FAC	=	c("GPU", "Quality")
 
 	updateCheckboxGroupInput(
 		inputId	=	"listFACETS",
@@ -225,17 +224,13 @@ scaleX	=	function(graphtype, datatype){
 	})
 
 	graphFREQ	=	function(FILT)	{
-		datatypeG	<<-	input$datatypeG
-		test	<<-	FILT
-		results	<<-	DATA$results
-		
 		LINES	=	list(
 			geom_vline(data = GRAPH$STATS(), aes(xintercept = Mean), color = "darkgreen"),
 			geom_vline(data = GRAPH$STATS(), aes(xintercept = Median), color = "darkcyan", linetype="dotdash")
 		)
 		if (!is.logical(FILT))	{
 			hold	=	as.data.frame(t(
-				statGRAPH(as.data.frame(DATA$results)[FILT, as.character(datatypeG)])
+				statGRAPH(as.data.frame(DATA$results)[FILT, as.character(input$datatypeG)])
 				))
 			#	tibbles complicating things
 			#	output is numeric, so must convert to data frame, and transpose it to stats in columns instead of rows
@@ -369,85 +364,6 @@ scaleX	=	function(graphtype, datatype){
 		scale_Y +
 		theme(plot.title.position = "plot")
 	}
-
-	graphDIFFfacet	=	reactive({
-		diffLimRefresh()
-		req(DATA$results)
-
-		limX	=	c(0, GRAPH$FtimeLimitMS())
-		limY	=	c(-GRAPH$diffLim(), GRAPH$diffLim())
-
-		scale_X	=	scale_x_continuous(
-			name	=	"ms",
-			breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-			expand	=	c(0.02, 0)
-		)
-		scale_Y	=	scale_y_continuous(
-			name	=	"Consecutive Time Difference (ms)",
-			breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-			expand	=	c(0.02, 0)
-		)
-
-		if	(input$datatypeG == "MsBetweenPresents")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Frame Time (ms)",
-				breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Frame Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-		if	(input$datatypeG == "MsBetweenDisplayChange")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Refresh Cycles Later (1/60 s)",
-				breaks	=	ybreaks,	labels	=	labelDisp,		limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Display Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),
-				limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-		if	(input$datatypeG == "MsUntilRenderComplete")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Render Time (ms)",
-				breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Render Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-		if	(input$datatypeG == "MsEstimatedDriverLag")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Estimated Driver Lag (ms)",
-				breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Lag Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-
-		ggplot(data = DATA$results, aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
-		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")) +
-		geom_point(alpha = 0.1) +
-		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c() +
-		# stat_density_2d(geom = "polygon", aes(fill = stat(nlevel), alpha = stat(nlevel)), show.legend = FALSE) + 	scale_fill_viridis_c() +
-		FACET("graphDIFF") +
-		scale_X +
-		scale_Y +
-		theme(plot.title.position = "plot")
-		},	label	=	"graphDIFFfacet")
 
 	output$graphDIFFfacet	=	renderPlot({
 		req(DATA$results)

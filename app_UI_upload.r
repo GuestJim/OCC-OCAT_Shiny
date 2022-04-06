@@ -5,7 +5,7 @@ ui <- fluidPage(
 		sidebarPanel(
 				fileInput(inputId	=	"dataInput",
 					label	=	"CSV Data to Import",
-					accept	=	c(".csv", ".csv.bz2", ".csv.gz", ".csv.xz", ".rdata"),
+					accept	=	c(".csv", ".csv.bz2", ".csv.gz", ".csv.xz", ".RData"),
 					placeholder	=	"No File Selected"
 				),
 				actionButton(inputId	=	"manuRefresh",
