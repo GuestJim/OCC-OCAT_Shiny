@@ -1,8 +1,9 @@
 GRAPH$STATS	=	reactiveVal()
 if (exists("results", envir = DATA))	GRAPH$STATS(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
-observeEvent(list(input$dataInput, DATA$LOAD, input$datatypeG, input$QUANrefresh), {
+observeEvent(list(input$dataInput, DATA$LOAD, input$datatypeG, input$QUANrefresh, input$listFACETS), {
 	req(DATA$results)
-	GRAPH$STATS(sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS, statGRAPH, quan=GRAPH$QUAN())))
+	# GRAPH$STATS(sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS, statGRAPH, quan=GRAPH$QUAN())))
+	GRAPH$STATS(sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN())))
 },	ignoreInit	=	TRUE)
 
 GRAPH$QUAN	=	reactiveVal(c(1, 99)/100)
@@ -43,8 +44,8 @@ diffLimRefresh	=	eventReactive(input$diffLimRefresh,	{
 
 
 observeEvent(list(input$dataInput, DATA$LOAD), {
-	FAC	=	c("GPU", "API", "Quality")
-	if (exists("checkAPI", envir = DATA))	if (!DATA$checkAPI)	FAC	=	c("GPU", "Quality")
+	FAC	=	c("GPU", "API", "Quality", "Location")
+	if (exists("checkAPI", envir = DATA))	if (!DATA$checkAPI)	FAC	=	c("GPU", "Quality", "Location")
 
 	updateCheckboxGroupInput(
 		inputId	=	"listFACETS",
@@ -52,39 +53,40 @@ observeEvent(list(input$dataInput, DATA$LOAD), {
 	)
 })
 
-FACET = function(graphtype)	{
-		facWRAP	=	labeller(	Location	=	label_wrap_gen(input$facWID),
-								API			=	label_wrap_gen(input$facWID),
-								Quality		=	label_wrap_gen(input$facWID),
-								GPU			=	label_wrap_gen(input$facWID)	)
-	#	label_wrap_gen will wrap the text of the facet labels, based on the number of characters set by facWID
-	#	could just use labeller = label_wrap_gen(facWID) in the facet_grid call, without specifying for the variables, but I like this for reference at least
-		multiGPU	=	"GPU"		%in%	input$listFACETS
-		testAPI		=	"API" 		%in%	input$listFACETS
-		testQUA		=	"Quality"	%in%	input$listFACETS
 
-		if	(graphtype	%in%	c("graphMEANS"))	{
-			if	(testAPI	&	!testQUA)	return(facet_grid(rows = vars(API),				cols = vars(Location), switch = "y",	labeller = facWRAP))
-			if	(!testAPI	&	testQUA)	return(facet_grid(rows = vars(Quality),			cols = vars(Location), switch = "y",	labeller = facWRAP))
-			if	(testAPI	&	testQUA)	return(facet_grid(rows = vars(API, Quality),	cols = vars(Location), switch = "y",	labeller = facWRAP))
 
-			return(facet_grid(cols = vars(Location), switch = "y",	labeller = facWRAP))
-		}
+facWRAP	=	labeller(	Location	=	label_wrap_gen(input$facWID),
+						API			=	label_wrap_gen(input$facWID),
+						Quality		=	label_wrap_gen(input$facWID),
+						GPU			=	label_wrap_gen(input$facWID)	)
 
-		if	(graphtype	%in%	c("graphCOURSE", "graphFREQ", "graphQQ", "graphDIFF"))	{
-			if	(multiGPU)	{
-				if	(testAPI	&	!testQUA)	return(facet_grid(rows = vars(Location, API),			cols = vars(GPU), switch = "y",	labeller = facWRAP))
-				if	(!testAPI	&	testQUA)	return(facet_grid(rows = vars(Location, Quality),		cols = vars(GPU), switch = "y",	labeller = facWRAP))
-				if	(testAPI	&	testQUA)	return(facet_grid(rows = vars(Location, API, Quality),	cols = vars(GPU), switch = "y",	labeller = facWRAP))
-			}	else	{
-				if	(testAPI	&	!testQUA)	return(facet_grid(rows = vars(API),				cols = vars(Location, GPU), switch = "y",	labeller = facWRAP))
-				if	(!testAPI	&	testQUA)	return(facet_grid(rows = vars(Quality),			cols = vars(Location, GPU), switch = "y",	labeller = facWRAP))
-				if	(testAPI	&	testQUA)	return(facet_grid(rows = vars(API, Quality),	cols = vars(Location, GPU), switch = "y",	labeller = facWRAP))
-			}
-
-			return(facet_grid(rows = vars(Location), cols = vars(GPU), switch = "y",	labeller = facWRAP))
-		}
+FACET	=	function(graphtype, IN)	{
+	FACS	=	c(
+		GPU			=	"GPU"		%in%	IN,
+		Location	=	"Location"	%in%	IN,
+		API			=	"API" 		%in%	IN,
+		Quality		=	"Quality"	%in%	IN
+		)
+	
+	FACETselect	=	function(IN2)	paste0(names(FACS[IN2])[FACS[IN2]], collapse = ", ")
+	#	this will return only the names that are present in FACS and are desired, as set below
+	
+	if (graphtype == "graphMEANS")	{
+		ROWS	=	FACETselect(c("Quality", "API"))
+		COLS	=	FACETselect(c("Location"))
 	}
+	if	(graphtype	%in%	c("graphCOURSE", "graphFREQ", "graphQQ", "graphDIFF"))	{
+		ROWS	=	FACETselect(c("Location", "Quality", "API"))
+		COLS	=	FACETselect(c("GPU"))
+	}
+	
+	outROW	=	NULL	;	outCOL	=	NULL
+	if (ROWS != "")	outROW	=	paste0("rows = vars(", ROWS, ")")
+	if (COLS != "")	outCOL	=	paste0("cols = vars(", COLS, ")")
+	
+	out	=	paste0("facet_grid(", paste(outROW, outCOL, sep = ", "), ", switch = 'y', labeller = facWRAP)")
+	return(eval(parse(text = out)))
+}
 
 scaleY	=	function(graphtype, datatype){
 	nameYP	=	"ms"
@@ -198,7 +200,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphMEANfacet	=	renderPlot({
 		req(DATA$results)
-		graphSUMM() + FACET("graphMEANS")
+		graphSUMM() + FACET("graphMEANS", input$listFACETS)
 	})
 
 	graphCOURSE	=	function(FILT)	{
@@ -220,7 +222,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphCOURSEfacet	=	renderPlot({
 		req(DATA$results)
-		graphCOURSE(TRUE) + FACET("graphCOURSE")
+		graphCOURSE(TRUE) + FACET("graphCOURSE", input$listFACETS)
 	})
 
 	graphFREQ	=	function(FILT)	{
@@ -254,19 +256,21 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphFREQfacet	=	renderPlot({
 		req(DATA$results)
-		graphFREQ(TRUE) + FACET("graphCOURSE")
+		graphFREQ(TRUE) + FACET("graphCOURSE", input$listFACETS)
 	})
 
 	graphQQ	=	function(FILT)	{
 		PERCS	=	c(.001, .01, .5, .99, .999)
 		PERCS	=	sort(unique(	c(PERCS, GRAPH$QUAN())	))
-
+		
+		# STATS	=	sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN()))
+		
 		RECT	=	list(
-			geom_rect(aes(ymax = get("0.1"),	xmax = qnorm(.001)), alpha=0.1, fill=c("blue"), color = "grey"),
+			geom_rect(aes(ymax = get("0.1"),		xmax = qnorm(.001)), alpha=0.1, fill=c("blue"), color = "grey"),
 			geom_rect(aes(ymax = get("1"),		xmax = qnorm(.010)), alpha=0.1, fill=c("blue"), color = "grey"),
 			geom_rect(aes(ymax = get("Median"),	xmax = qnorm(.500)), alpha=0.1, fill=c("blue"), color = "grey"),
 			geom_rect(aes(ymax = get("99"),		xmax = qnorm(.990)), alpha=0.1, fill=c("red"), color = "grey"),
-			geom_rect(aes(ymax = get("99.9"),	xmax = qnorm(.999)), alpha=0.1, fill=c("red"), color = "grey")
+			geom_rect(aes(ymax = get("99.9"),		xmax = qnorm(.999)), alpha=0.1, fill=c("red"), color = "grey")
 		)
 		if (!is.logical(FILT))	RECT	=	NULL
 
@@ -286,7 +290,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphQQfacet	=	renderPlot({
 		req(DATA$results)
-		graphQQ(TRUE) + FACET("graphQQ")
+		graphQQ(TRUE) + FACET("graphQQ", input$listFACETS)
 	})
 
 	graphDIFF	=	function(FILT)	{
@@ -369,7 +373,7 @@ scaleX	=	function(graphtype, datatype){
 		req(DATA$results)
 		# graphDIFFfacet()
 		diffLimRefresh()
-		graphDIFF(TRUE) + FACET("graphDIFF")
+		graphDIFF(TRUE) + FACET("graphDIFF", input$listFACETS)
 	})
 
 source("app_graphs_zoom.r", local = TRUE)

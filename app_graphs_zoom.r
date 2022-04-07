@@ -328,19 +328,20 @@
 		brushQQzoom$Quality		<-	NULL
 		brushQQzoom$Location	<-	NULL
 		brushQQzoom$FILTER		<-	TRUE
+		
+		filtGPU	<-	1:nrow(DATA$results)
+		filtQUA	<-	1:nrow(DATA$results)
+		filtLOC	<-	1:nrow(DATA$results)
 		if (!is.null(brush)) {
 			brushQQzoom$x			<-	c(brush$xmin, brush$xmax)
 			brushQQzoom$y			<-	c(brush$ymin, brush$ymax)
 
-			brushQQzoom$GPU			<-	brushFILT$GPU
-			brushQQzoom$Quality		<-	brushFILT$Quality
-			brushQQzoom$Location	<-	brushFILT$Location
+			if (!is.null(brushQQzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushQQzoom$GPU)
+			if (!is.null(brushQQzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushQQzoom$Quality)
+			if (!is.null(brushQQzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushQQzoom$Location)
 
-			brushQQzoom$FILTER		<-	which(
-				DATA$results$GPU		==	brushQQzoom$GPU		&
-				DATA$results$Quality	==	brushQQzoom$Quality	&
-				DATA$results$Location	==	brushQQzoom$Location
-				)
+			brushQQzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
+		
 			if (!is.null(brushFILT$API))	{
 				brushQQzoom$API		<-	brushFILT$API
 				brushQQzoom$FILTER	<-	intersect(brushQQzoom$FILTER, which(DATA$results$API	==	brushQQzoom$API))
@@ -362,6 +363,12 @@
 		updateSelectInput(inputId	=	"brushQQapi",	selected	=	brushQQzoom$API			)
 		updateSelectInput(inputId	=	"brushQQqua",	selected	=	brushQQzoom$Quality		)
 		updateSelectInput(inputId	=	"brushQQloc",	selected	=	brushQQzoom$Location	)
+	})
+	observeEvent(input$listFACETS,	{
+		if (!("GPU"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQgpu",	selected	=	""	)
+		if (!("API"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQapi",	selected	=	""	)
+		if (!("Quality"		%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQqua",	selected	=	""	)
+		if (!("Location"	%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQloc",	selected	=	""	)
 	})
 	observeEvent(list(input$brushQQupdate),	{
 		req(DATA$results)
@@ -386,9 +393,8 @@
 	observeEvent(input$brushQQdbl,	{
 		brush 		<-	input$brushQQdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
-		
+
 		brushQQzoom$x	=	c(qnorm(0.000000001), qnorm(0.999999999))
-		brushQQzoom$y	=	c(0, as.numeric(input$FtimeLimitMS))
 
 		brushQQzoom$GPU			<-	brushFILT$GPU
 		brushQQzoom$Quality		<-	brushFILT$Quality

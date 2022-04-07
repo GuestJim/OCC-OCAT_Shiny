@@ -99,20 +99,17 @@ server <- function(input, output, session) {
 	hideTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
 
 	observeEvent(list(input$dataInput, DATA$LOAD), {
-		updateCheckboxGroupInput(
-			inputId	=	"listGPU",
+		#Table Controls
+		updateCheckboxGroupInput(	inputId	=	"listGPU",
 			choices		=	DATA$GPUs,	selected	=	DATA$GPUs
 		)
-		updateCheckboxGroupInput(
-			inputId	=	"listQUA",
+		updateCheckboxGroupInput(	inputId	=	"listQUA",
 			choices		=	DATA$QUAs,	selected	=	DATA$QUAs
 		)
-		updateCheckboxGroupInput(
-			inputId	=	"listLOC",
+		updateCheckboxGroupInput(	inputId	=	"listLOC",
 			choices		=	DATA$LOCs,	selected	=	DATA$LOCs
 		)
-		updateCheckboxGroupInput(
-			inputId	=	"listAPI",
+		updateCheckboxGroupInput(	inputId	=	"listAPI",
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
 			choices		=	DATA$APIs,	selected	=	DATA$APIs
 		)
@@ -121,6 +118,21 @@ server <- function(input, output, session) {
 			data	=	DATA$results[, !(names(DATA$results) %in% nodataCOL)],
 			selected	=	"MsBetweenPresents"
 		)
+		#Graph Controls
+		updateCheckboxGroupInput(	inputId	=	"filtGPU",
+			choices		=	DATA$GPUs,	selected	=	DATA$GPUs
+		)
+		updateCheckboxGroupInput(	inputId	=	"filtQUA",
+			choices		=	DATA$QUAs,	selected	=	DATA$QUAs
+		)
+		updateCheckboxGroupInput(	inputId	=	"filtLOC",
+			choices		=	DATA$LOCs,	selected	=	DATA$LOCs
+		)
+		updateCheckboxGroupInput(	inputId	=	"filtAPI",
+			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
+			choices		=	DATA$APIs,	selected	=	DATA$APIs
+		)
+
 		updateVarSelectInput(
 			inputId	=	"datatypeG",
 			data	=	DATA$results[, !(names(DATA$results) %in% nodataCOL)],

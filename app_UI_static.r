@@ -23,6 +23,10 @@ ui <- fluidPage(
 						data	=	data.frame(list(MsBetweenPresents = 0))	)	#	the dummy frame is so "datatype" has an initial value
 				),
 				tabPanel("Groups",
+					checkboxGroupInput(inputId	=	"listGROUPS",	label	=	"Groups to use:",
+						choices		=	c("GPU", "API", "Quality", "Location"),
+						selected	=	c("GPU", "API", "Quality", "Location")
+					),
 					checkboxGroupInput(inputId	=	"listGPU",	label	=	"GPUs to show:"),
 					checkboxGroupInput(inputId	=	"listAPI",	label	=	"APIs to show:"),
 					checkboxGroupInput(inputId	=	"listQUA",	label	=	"Qualities to show:"),
@@ -40,9 +44,17 @@ ui <- fluidPage(
 					actionButton(inputId	=	"FtimeLimitRefresh",
 						label	=	"Refresh Scale"
 					),
+					# checkboxGroupInput(inputId	=	"filtGPU",	label	=	"GPUs to include:",
+						# choices		=	NULL	),
+					# checkboxGroupInput(inputId	=	"filtAPI",	label	=	"APIs to include:",
+						# choices		=	NULL	),
+					# checkboxGroupInput(inputId	=	"filtQUA",	label	=	"Qualities to include:",
+						# choices		=	NULL	),
+					# checkboxGroupInput(inputId	=	"filtLOC",	label	=	"Locations to include:",
+						# choices		=	NULL	),
 					checkboxGroupInput(inputId	=	"listFACETS",	label	=	"Facets to use:",
-						choices		=	c("GPU", "API", "Quality"),
-						selected	=	c("GPU", "API", "Quality")
+						choices		=	c("GPU", "API", "Quality", "Location"),
+						selected	=	c("GPU", "API", "Quality", "Location")
 					),
 					varSelectInput(inputId	=	"datatypeG",	label	=	"Data Type (Graph)",	multiple	=	FALSE,
 						data	=	data.frame(list(MsBetweenPresents = 0))	),	#	the dummy frame is so "datatype" has an initial value
@@ -236,16 +248,10 @@ ui <- fluidPage(
 						type	=	"tabs"
 					),
 				),
-				tabPanel("System Specs",
-					includeHTML("CSS.html"),
-					includeHTML("Specs_Desktop.html"),
-					HTML("<br>"),
-					includeHTML("Specs_Test.html")
-				),
 				id	=	"outputs",
 				type	=	"pills"
 			),
 			width	=	9
 		)
-	),
+	)
 )

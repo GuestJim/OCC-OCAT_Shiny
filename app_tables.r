@@ -6,10 +6,16 @@
 	
 	tableFILT	=	function(TAB)	{
 		req(input$listGPU, input$listQUA, input$listLOC)
-
-		out	=	TAB[TAB$GPU %in% input$listGPU & TAB$Quality %in% input$listQUA & TAB$Location %in% input$listLOC, ]
+		
+		rowGPU	=	TRUE	;	rowQUA	=	TRUE	;	rowAPI	=	TRUE	;	rowLOC	=	TRUE
+		if ("GPU"		%in% colnames(TAB))	rowGPU	=	TAB$GPU			%in% input$listGPU
+		if ("Quality"	%in% colnames(TAB))	rowQUA	=	TAB$Quality		%in% input$listQUA
+		if ("Location"	%in% colnames(TAB))	rowLOC	=	TAB$Location	%in% input$listLOC
+		if ("API"		%in% colnames(TAB))	rowAPI	=	TAB$API			%in% input$listAPI
+		
+		out	=	TAB[rowGPU & rowQUA & rowLOC, ]
 		groups	=	names(out)[!sapply(out, is.numeric)]
-		if (DATA$checkAPI)	out	=	out[out$API %in% input$listAPI, ]
+		if (DATA$checkAPI)	out	=	out[rowAPI, ]
 
 		filtCOL	=	names(out) %in% c(groups, input$tabCOLs)
 		#	for some reason, Shiny does not like searching by name, but this gets around that
@@ -44,13 +50,14 @@
 	#	these will load a pre-computed version of the table into the applet, rather than needing to wait for the work to be done
 	#	only relevant with the Static version, rather than Upload
 
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuPERC, input$datatype),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuPERC, input$datatype, input$listGROUPS),	{
 		req(DATA$results)
 
 		# outMEAN	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, meanMS))
 		# outPERC	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, percMS, to.NUM(c(input$manuPERC))))
 		# out	=	merge(outMEAN,	outPERC, sort = FALSE)
-		out	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, summMS, to.NUM(c(input$manuPERC))))
+		# out	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, summMS, to.NUM(c(input$manuPERC))))
+		out	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listGROUPS], summMS, to.NUM(c(input$manuPERC))))
 
 		DATA$namePERC	=	namePERC(to.NUM(input$manuPERC))
 
@@ -67,10 +74,11 @@
 		DATA$tableSUMM(out[, c(which(!colDATA), which(colDATA))])
 	})
 
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuECDF, input$datatype),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuECDF, input$datatype, input$listGROUPS),	{
 		req(DATA$results)
 
-		outECDF	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, ecdfFPS, to.NUM(c(input$manuECDF))))
+		# outECDF	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, ecdfFPS, to.NUM(c(input$manuECDF))))
+		outECDF	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listGROUPS], ecdfFPS, to.NUM(c(input$manuECDF))))
 		out	=	outECDF
 
 		DATA$nameECDF	=	nameECDF(to.NUM(input$manuECDF))
@@ -83,7 +91,7 @@
 	})
 
 
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh, input$roundTerm, input$datatype),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh, input$roundTerm, input$datatype, input$listGROUPS),	{
 		output$tableSUMM	=	renderTable({
 			tableFILT(DATA$tableSUMM())
 		},	digits	=	input$roundTerm,	striped	=	TRUE)
