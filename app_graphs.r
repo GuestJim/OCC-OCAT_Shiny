@@ -20,21 +20,19 @@ observeEvent(input$QUANrefresh, {
 },	label	=	"QUANrefreshValues"	)
 
 observeEvent(input$FtimeLimitFPS, {
-	updateTextInput(inputId	=	"FtimeLimitMS",
-		value		=	paste0(round(1000/as.numeric(input$FtimeLimitFPS), 2)),
-		placeholder	=	paste0(round(1000/as.numeric(input$FtimeLimitFPS), 2))
+	updateNumericInput(inputId	=	"FtimeLimitMS",
+		value		=	round(1000/input$FtimeLimitFPS, 2)
 	)
 })
 observeEvent(input$FtimeLimitMS, {
-	updateTextInput(inputId	=	"FtimeLimitFPS",
-		value		=	paste0(round(1000/as.numeric(input$FtimeLimitMS), 0)),
-		placeholder	=	paste0(round(1000/as.numeric(input$FtimeLimitMS), 0))
+	updateNumericInput(inputId	=	"FtimeLimitFPS",
+		value		=	round(1000/input$FtimeLimitMS, 0)
 	)
 },	ignoreInit	=	TRUE)
 
 GRAPH$FtimeLimitMS	=	reactiveVal(1000/15)
 observeEvent(input$FtimeLimitRefresh,	{
-	GRAPH$FtimeLimitMS(as.numeric(input$FtimeLimitMS))
+	GRAPH$FtimeLimitMS(input$FtimeLimitMS)
 },	ignoreNULL	=	FALSE,	label	=	"FtimeLimitRefresh")
 
 GRAPH$diffLim	=	reactiveVal(20)
@@ -256,7 +254,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphFREQfacet	=	renderPlot({
 		req(DATA$results)
-		graphFREQ(TRUE) + FACET("graphCOURSE", input$listFACETS)
+		graphFREQ(TRUE) + FACET("graphFREQ", input$listFACETS)
 	})
 
 	graphQQ	=	function(FILT)	{

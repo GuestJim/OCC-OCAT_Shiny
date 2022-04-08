@@ -1,22 +1,21 @@
-	observeEvent(input$roundTerm,	{
-		DATA$r	=	input$roundTerm
-	})
+	observeEvent(input$roundTerm,	{	DATA$r	=	input$roundTerm	})
 
 	tableCOLs	=	reactiveVal(c(DATA$nameMEAN, DATA$namePERC, DATA$nameECDF))
-	
+
 	tableFILT	=	function(TAB)	{
 		req(input$listGPU, input$listQUA, input$listLOC)
-		
+
 		rowGPU	=	TRUE	;	rowQUA	=	TRUE	;	rowAPI	=	TRUE	;	rowLOC	=	TRUE
 		if ("GPU"		%in% colnames(TAB))	rowGPU	=	TAB$GPU			%in% input$listGPU
 		if ("Quality"	%in% colnames(TAB))	rowQUA	=	TAB$Quality		%in% input$listQUA
 		if ("Location"	%in% colnames(TAB))	rowLOC	=	TAB$Location	%in% input$listLOC
 		if ("API"		%in% colnames(TAB))	rowAPI	=	TAB$API			%in% input$listAPI
-		
-		out	=	TAB[rowGPU & rowQUA & rowLOC, ]
-		groups	=	names(out)[!sapply(out, is.numeric)]
-		if (DATA$checkAPI)	out	=	out[rowAPI, ]
 
+		out	=	TAB[rowGPU & rowQUA & rowLOC & rowAPI, ]
+		#	the check above for API should be enough to handle if API is not present in the data
+		groups	=	names(out)[!sapply(out, is.numeric)]
+		# if (DATA$checkAPI)	out	=	out[rowAPI, ]
+		
 		filtCOL	=	names(out) %in% c(groups, input$tabCOLs)
 		#	for some reason, Shiny does not like searching by name, but this gets around that
 		filtROW	=	TRUE
@@ -24,7 +23,7 @@
 		if (!("ms" %in% input$tabUNIT))		filtROW	=	out$Unit != "ms"
 		if (!("FPS" %in% input$tabUNIT))	filtROW	=	out$Unit != "FPS"
 
-		return(out[filtROW, filtCOL])
+		return(out[which(filtROW), which(filtCOL)])
 	}
 
 	observeEvent(list(input$fileInput, input$manuPERC, input$manuECDF), {
@@ -38,7 +37,7 @@
 			choices		=	tableCOLs(),	selected	=	c(nameDEFs, paste0(to.NUM(input$manuPERC), "%"), paste0(to.NUM(input$manuECDF), " FPS"), input$tabCOLs)
 		)
 	})
-	
+
 	DATA$tableSUMM	=	reactiveVal(NULL)	;	DATA$tableECDF	=	reactiveVal(NULL)
 	observeEvent(list(input$dataInput, DATA$LOAD),	{
 		if (exists("tableSUMM", envir = DATA))	DATA$tableSUMM	=	reactiveVal(DATA$tableSUMM)

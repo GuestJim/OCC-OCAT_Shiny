@@ -33,13 +33,13 @@ ui <- fluidPage(
 					checkboxGroupInput(inputId	=	"listLOC",	label	=	"Locations to show:"),
 				),
 				tabPanel("Graphs",
-					textInput(inputId	=	"FtimeLimitFPS",
+					numericInput(inputId	=	"FtimeLimitFPS",
 						label	=	"Frame Time Scale Upper Limit (FPS)",
-						value	=	"15"
+						value	=	15,	min	=	0,	max	=	1000,	step	=	1
 					),
-					textInput(inputId	=	"FtimeLimitMS",
+					numericInput(inputId	=	"FtimeLimitMS",
 						label	=	"Frame Time Scale Upper Limit (ms)",
-						value	=	paste0(round(1000/15, 2))
+						value	=	round(1000/15, 2),	min = 0,	max = 1000, step = 0.1
 					),
 					actionButton(inputId	=	"FtimeLimitRefresh",
 						label	=	"Refresh Scale"
@@ -247,6 +247,12 @@ ui <- fluidPage(
 						id	=	"graphsFACET",
 						type	=	"tabs"
 					),
+				),
+				tabPanel("System Specs",
+					includeHTML("CSS.html"),
+					includeHTML("Specs_Desktop.html"),
+					HTML("<br>"),
+					includeHTML("Specs_Test.html"),
 				),
 				id	=	"outputs",
 				type	=	"pills"
