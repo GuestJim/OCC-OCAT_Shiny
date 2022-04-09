@@ -117,5 +117,5 @@ funcSUMM	=	function()	{
 }
 DATA$tableSUMM	=	funcSUMM()
 
-# saveRDS(resultsFull, paste0(FILEname, ".RData"))
-saveRDS(DATA, paste0(FILEname, ".RData"), compress = "bzip2")
+saveRDS(DATA, paste0(FILEname, ".RData"))
+# saveRDS(DATA, paste0(FILEname, ".RData"), compress = "bzip2")
