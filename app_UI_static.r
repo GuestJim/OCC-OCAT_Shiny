@@ -83,9 +83,11 @@ ui <- fluidPage(
 			# textOutput("textTest"),
 			tabsetPanel(
 				tabPanel("Tables",
-					tableOutput("tableSUMM"),
-					tableOutput("tableECDF"),
-					# tableOutput("testTable"),
+					# tabsetPanel(	 tabPanel("Summary Table",
+						tableOutput("tableSUMM"),
+					# ),	tabPanel("FPS Targets Table",
+						tableOutput("tableECDF"),
+					# ), ),
 				),
 				tabPanel("Graphs",
 					tabsetPanel(

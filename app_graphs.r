@@ -1,4 +1,7 @@
-GRAPH$FILT	=	reactiveVal(1:nrow(DATA$results))
+require(ggplot2)
+
+GRAPH$FILT	=	reactiveVal()
+observeEvent(list(input$dataInput, DATA$LOAD),	{GRAPH$FILT	=	reactiveVal(1:nrow(DATA$results))},	ignoreInit = TRUE)
 # GRAPH$STATS	=	reactiveVal()
 # GRAPH$STATS	=	reactiveVal(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
 observeEvent(input$filtSEL,	{

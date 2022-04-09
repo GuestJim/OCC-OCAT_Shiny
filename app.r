@@ -4,8 +4,6 @@ library(shiny)
 # runApp()
 # options(shiny.error = browser)
 # options(shiny.reactlog=TRUE) 
-library(readr)
-library(ggplot2)
 options(shiny.maxRequestSize = 100*1024^2)
 #	Shiny has a normal limit of 5 MB, so this raises it to 100 MB
 
@@ -17,9 +15,9 @@ BRUSH	=	new.env()
 #	rather than using super-assignment and pushing variables to Global, I'm putting them into this environment
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
 
-# DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
 # DATA$FILE	=	"Chorus - Epic.csv.bz2"
 # DATA$FILE	=	"Crysis Remastered - Small.csv.bz2"
+# DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
 # DATA$FILE	=	"Dying Light 2 - All.RData"
 #	by giving this a file, we can avoid needing to upload a file
 
@@ -32,6 +30,7 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 	if (endsWith(datapath, ".RData"))	{
 		mergeENV(DATA, readRDS(datapath))
 	}	else	{
+		require(readr)
 		DATA$results	=	read_csv(datapath, guess_max = 10, lazy = TRUE, col_select=!all_of(noCOL),	show_col_types = FALSE)
 		DATA$results$GPU			=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
 		DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
@@ -113,8 +112,7 @@ server <- function(input, output, session) {
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
 			choices		=	DATA$APIs,	selected	=	DATA$APIs
 		)
-		updateVarSelectInput(
-			inputId	=	"datatype",
+		updateVarSelectInput(		inputId	=	"datatype",
 			data	=	DATA$results[, !(names(DATA$results) %in% nodataCOL)],
 			selected	=	"MsBetweenPresents"
 		)
@@ -132,6 +130,7 @@ server <- function(input, output, session) {
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
 			choices		=	DATA$APIs,	selected	=	DATA$APIs
 		)
+		GRAPH$FILT	<-	reactiveVal(1:nrow(DATA$results))
 
 		updateVarSelectInput(
 			inputId	=	"datatypeG",

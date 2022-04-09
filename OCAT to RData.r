@@ -117,5 +117,8 @@ funcSUMM	=	function()	{
 }
 DATA$tableSUMM	=	funcSUMM()
 
-saveRDS(DATA, paste0(FILEname, ".RData"))
-# saveRDS(DATA, paste0(FILEname, ".RData"), compress = "bzip2")
+# saveRDS(resultsFull, paste0(FILEname, ".RData"))
+saveRDS(DATA, paste0(FILEname, ".RData"), compress = "bzip2")
+# library(fst)
+# write_fst(DATA$results, paste0(FILEname, ".Rfst"))
+#	fst has "faster" saving and loading, but the file size is larger and it is only for data frames
