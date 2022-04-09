@@ -1,10 +1,41 @@
-GRAPH$STATS	=	reactiveVal()
-if (exists("results", envir = DATA))	GRAPH$STATS(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
-observeEvent(list(input$dataInput, DATA$LOAD, input$datatypeG, input$QUANrefresh, input$listFACETS), {
+GRAPH$FILT	=	reactiveVal(1:nrow(DATA$results))
+# GRAPH$STATS	=	reactiveVal()
+# GRAPH$STATS	=	reactiveVal(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
+observeEvent(input$filtSEL,	{
 	req(DATA$results)
-	# GRAPH$STATS(sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS, statGRAPH, quan=GRAPH$QUAN())))
-	GRAPH$STATS(sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN())))
-},	ignoreInit	=	TRUE)
+	# for (x in c("filtGPU", "filtQUA", "filtAPI", "filtLOC"))	assign(x, 1:nrow(DATA$results))
+	filtGPU	<-	1:nrow(DATA$results)
+	filtAPI	<-	1:nrow(DATA$results)
+	filtQUA	<-	1:nrow(DATA$results)
+	filtLOC	<-	1:nrow(DATA$results)
+	
+	if (isTruthy(input$filtGPU))	filtGPU		<-	which(DATA$results$GPU		%in%	input$filtGPU)
+	if (isTruthy(input$filtQUA))	filtQUA		<-	which(DATA$results$Quality	%in%	input$filtQUA)
+	if (isTruthy(input$filtAPI))	filtAPI		<-	which(DATA$results$API		%in%	input$filtAPI)
+	if (isTruthy(input$filtLOC))	filtLOC		<-	which(DATA$results$Location	%in%	input$filtLOC)
+
+	GRAPH$FILT(Reduce(intersect, list(filtGPU, filtQUA, filtAPI, filtLOC)))
+})
+
+GRAPH$STATS	<-	reactive({
+	req(DATA$results)
+	GROUPS	<-	list(
+		GPU			=	DATA$results[GRAPH$FILT(), ]$GPU,
+		Quality		=	DATA$results[GRAPH$FILT(), ]$Quality,
+		API			=	DATA$results[GRAPH$FILT(), ]$API,
+		Location	=	DATA$results[GRAPH$FILT(), ]$Location
+	)
+	
+	sepCOL(aggregate(DATA$results[GRAPH$FILT(), input$datatypeG], GROUPS[input$listFACETS], statGRAPH, quan=c(1, 99)/100))
+})
+
+# GRAPH$STATS	=	reactiveVal()
+# if (exists("results", envir = DATA))	GRAPH$STATS(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
+
+# observeEvent(list(input$dataInput, DATA$LOAD, input$datatypeG, input$QUANrefresh, input$listFACETS), {
+	# req(DATA$results)
+	# GRAPH$STATS(sepCOL(aggregate(DATA$results[, input$datatypeG], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN())))
+# },	ignoreInit	=	TRUE)
 
 GRAPH$QUAN	=	reactiveVal(c(1, 99)/100)
 observeEvent(input$QUANrefresh, {
@@ -194,7 +225,8 @@ scaleX	=	function(graphtype, datatype){
 		stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
 		# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
 		# FACET("graphMEANS") +
-		scale_x_discrete(labels = labelBreak, drop = !(length(unique(DATA$results$GPU))>1)) +
+		# scale_x_discrete(labels = labelBreak, drop = !(length(unique(DATA$results$GPU))>1)) +
+		scale_x_discrete(labels = labelBreak, drop = TRUE) +
 		scaleY("graphMEANS", input$datatypeG) +
 		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
 		guides(fill = guide_legend(nrow = 1)) + theme(legend.position = "bottom", plot.title.position = "plot")
@@ -202,15 +234,15 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphMEANfacet	=	renderPlot({
 		req(DATA$results)
-		graphSUMM() + FACET("graphMEANS", input$listFACETS)
+		graphSUMM(GRAPH$FILT()) + FACET("graphMEANS", input$listFACETS)
 	})
 
-	graphCOURSE	=	function(FILT)	{
+	graphCOURSE	=	function(FILT, zoom = FALSE)	{
 		ALPHA	=	0.05
 		if	(length(unique(DATA$results$Location)) == 1)	ALPHA	=	1
 		
 		GEOM	=	list(geom_point(alpha = ALPHA), geom_smooth(method="gam", formula= y ~ s(x, bs = "cs")))
-		if (!is.logical(FILT))	GEOM	=	geom_step()
+		if (zoom)	GEOM	=	geom_step()
 		
 		ggplot(data = DATA$results[FILT, ], aes(x = TimeInSeconds, y = get(input$datatypeG))) +
 		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Course")) +
@@ -224,7 +256,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphCOURSEfacet	=	renderPlot({
 		req(DATA$results)
-		graphCOURSE(TRUE) + FACET("graphCOURSE")
+		graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE")
 	})
 
 	graphFREQ	=	function(FILT)	{
@@ -258,10 +290,10 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphFREQfacet	=	renderPlot({
 		req(DATA$results)
-		graphFREQ(TRUE) + FACET("graphFREQ", input$listFACETS)
+		graphFREQ(GRAPH$FILT()) + FACET("graphFREQ", input$listFACETS)
 	})
 
-	graphQQ	=	function(FILT)	{
+	graphQQ	=	function(FILT, zoom = FALSE)	{
 		PERCS	=	c(.001, .01, .5, .99, .999)
 		PERCS	=	sort(unique(	c(PERCS, GRAPH$QUAN())	))
 		
@@ -269,12 +301,12 @@ scaleX	=	function(graphtype, datatype){
 		
 		RECT	=	list(
 			geom_rect(aes(ymax = get("0.1"),		xmax = qnorm(.001)), alpha=0.1, fill=c("blue"), color = "grey"),
-			geom_rect(aes(ymax = get("1"),		xmax = qnorm(.010)), alpha=0.1, fill=c("blue"), color = "grey"),
-			geom_rect(aes(ymax = get("Median"),	xmax = qnorm(.500)), alpha=0.1, fill=c("blue"), color = "grey"),
-			geom_rect(aes(ymax = get("99"),		xmax = qnorm(.990)), alpha=0.1, fill=c("red"), color = "grey"),
+			geom_rect(aes(ymax = get("1"),			xmax = qnorm(.010)), alpha=0.1, fill=c("blue"), color = "grey"),
+			geom_rect(aes(ymax = get("Median"),		xmax = qnorm(.500)), alpha=0.1, fill=c("blue"), color = "grey"),
+			geom_rect(aes(ymax = get("99"),			xmax = qnorm(.990)), alpha=0.1, fill=c("red"), color = "grey"),
 			geom_rect(aes(ymax = get("99.9"),		xmax = qnorm(.999)), alpha=0.1, fill=c("red"), color = "grey")
 		)
-		if (!is.logical(FILT))	RECT	=	NULL
+		if (zoom)	RECT	=	NULL
 
 		ggplot(data = GRAPH$STATS(), aes(ymin = -Inf, xmin = -Inf)) +
 		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - QQ Distribution")) +
@@ -292,7 +324,8 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphQQfacet	=	renderPlot({
 		req(DATA$results)
-		graphQQ(TRUE) + FACET("graphQQ", input$listFACETS)
+		test	<<-	GRAPH$STATS()
+		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS)
 	})
 
 	graphDIFF	=	function(FILT)	{
@@ -375,7 +408,7 @@ scaleX	=	function(graphtype, datatype){
 		req(DATA$results)
 		# graphDIFFfacet()
 		diffLimRefresh()
-		graphDIFF(TRUE) + FACET("graphDIFF", input$listFACETS)
+		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS)
 	})
 
 source("app_graphs_zoom.r", local = TRUE)

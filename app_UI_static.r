@@ -4,63 +4,74 @@ ui <- fluidPage(
 	sidebarLayout(
 		sidebarPanel(
 			tabsetPanel(
-				tabPanel("Stats",
-					checkboxGroupInput(inputId	=	"tabUNIT",	label	=	"FPS or ms",	inline	=	TRUE,
-						choices	=	c("FPS", "ms"),	selected	=	"FPS"),
-					numericInput(inputId	=	"roundTerm",
-						label	=	"Decimals in Tables",	value	=	2,
-						min	=	0,	step	=	1
+				tabPanel("Table Control",
+					tabsetPanel(
+						tabPanel("Stats",
+							checkboxGroupInput(inputId	=	"tabUNIT",	label	=	"FPS or ms",	inline	=	TRUE,
+								choices	=	c("FPS", "ms"),	selected	=	"FPS"),
+							numericInput(inputId	=	"roundTerm",
+								label	=	"Decimals in Tables",	value	=	2,
+								min	=	0,	step	=	1
+							),
+							textInput(inputId	=	"manuPERC",
+								label	=	"Additional Percentiles"
+							),
+							textInput(inputId	=	"manuECDF",
+								label	=	"Additional FPS Targets"
+							),
+							checkboxGroupInput(inputId	=	"tabCOLs",	label	=	"Table Columns",
+								choices	=	c(DATA$nameMEAN, DATA$namePERC, DATA$nameECDF),	selected	=	nameDEFs),
+							varSelectInput(inputId	=	"datatype",	label	=	"Data Type",	multiple	=	FALSE,
+								data	=	data.frame(list(MsBetweenPresents = 0))	)	#	the dummy frame is so "datatype" has an initial value
+						),
+						tabPanel("Groups",
+							checkboxGroupInput(inputId	=	"listGROUPS",	label	=	"Groups to use:",
+								choices		=	c("GPU", "API", "Quality", "Location"),
+								selected	=	c("GPU", "API", "Quality", "Location")
+							),
+							checkboxGroupInput(inputId	=	"listGPU",	label	=	"GPUs to show:"),
+							checkboxGroupInput(inputId	=	"listAPI",	label	=	"APIs to show:"),
+							checkboxGroupInput(inputId	=	"listQUA",	label	=	"Qualities to show:"),
+							checkboxGroupInput(inputId	=	"listLOC",	label	=	"Locations to show:"),
+						),
 					),
-					textInput(inputId	=	"manuPERC",
-						label	=	"Additional Percentiles"
-					),
-					textInput(inputId	=	"manuECDF",
-						label	=	"Additional FPS Targets"
-					),
-					checkboxGroupInput(inputId	=	"tabCOLs",	label	=	"Table Columns",
-						choices	=	c(DATA$nameMEAN, DATA$namePERC, DATA$nameECDF),	selected	=	nameDEFs),
-					varSelectInput(inputId	=	"datatype",	label	=	"Data Type",	multiple	=	FALSE,
-						data	=	data.frame(list(MsBetweenPresents = 0))	)	#	the dummy frame is so "datatype" has an initial value
 				),
-				tabPanel("Groups",
-					checkboxGroupInput(inputId	=	"listGROUPS",	label	=	"Groups to use:",
-						choices		=	c("GPU", "API", "Quality", "Location"),
-						selected	=	c("GPU", "API", "Quality", "Location")
-					),
-					checkboxGroupInput(inputId	=	"listGPU",	label	=	"GPUs to show:"),
-					checkboxGroupInput(inputId	=	"listAPI",	label	=	"APIs to show:"),
-					checkboxGroupInput(inputId	=	"listQUA",	label	=	"Qualities to show:"),
-					checkboxGroupInput(inputId	=	"listLOC",	label	=	"Locations to show:"),
-				),
-				tabPanel("Graphs",
-					numericInput(inputId	=	"FtimeLimitFPS",
-						label	=	"Frame Time Scale Upper Limit (FPS)",
-						value	=	15,	min	=	0,	max	=	1000,	step	=	1
-					),
-					numericInput(inputId	=	"FtimeLimitMS",
-						label	=	"Frame Time Scale Upper Limit (ms)",
-						value	=	round(1000/15, 2),	min = 0,	max = 1000, step = 0.1
-					),
-					actionButton(inputId	=	"FtimeLimitRefresh",
-						label	=	"Refresh Scale"
-					),
-					# checkboxGroupInput(inputId	=	"filtGPU",	label	=	"GPUs to include:",
-						# choices		=	NULL	),
-					# checkboxGroupInput(inputId	=	"filtAPI",	label	=	"APIs to include:",
-						# choices		=	NULL	),
-					# checkboxGroupInput(inputId	=	"filtQUA",	label	=	"Qualities to include:",
-						# choices		=	NULL	),
-					# checkboxGroupInput(inputId	=	"filtLOC",	label	=	"Locations to include:",
-						# choices		=	NULL	),
-					checkboxGroupInput(inputId	=	"listFACETS",	label	=	"Facets to use:",
-						choices		=	c("GPU", "API", "Quality", "Location"),
-						selected	=	c("GPU", "API", "Quality", "Location")
-					),
-					varSelectInput(inputId	=	"datatypeG",	label	=	"Data Type (Graph)",	multiple	=	FALSE,
-						data	=	data.frame(list(MsBetweenPresents = 0))	),	#	the dummy frame is so "datatype" has an initial value
-					numericInput(inputId	=	"facWID",
-						label	=	"Facet Label Width",
-						value	=	25
+				tabPanel("Graph Control",
+					tabsetPanel(
+						tabPanel("Control",
+							numericInput(inputId	=	"FtimeLimitFPS",
+								label	=	"Frame Time Scale Upper Limit (FPS)",
+								value	=	15,	min	=	0,	max	=	1000,	step	=	1
+							),
+							numericInput(inputId	=	"FtimeLimitMS",
+								label	=	"Frame Time Scale Upper Limit (ms)",
+								value	=	round(1000/15, 2),	min = 0,	max = 1000, step = 0.1
+							),
+							actionButton(inputId	=	"FtimeLimitRefresh",
+								label	=	"Apply Scale"
+							),
+							checkboxGroupInput(inputId	=	"listFACETS",	label	=	"Facets to use:",
+								choices		=	c("GPU", "API", "Quality", "Location"),
+								selected	=	c("GPU", "API", "Quality", "Location")
+							),				
+							varSelectInput(inputId	=	"datatypeG",	label	=	"Data Type (Graph)",	multiple	=	FALSE,
+								data	=	data.frame(list(MsBetweenPresents = 0))	),	#	the dummy frame is so "datatype" has an initial value
+							numericInput(inputId	=	"facWID",
+								label	=	"Facet Label Width",
+								value	=	25
+							),
+						),
+					tabPanel("Selection",
+						checkboxGroupInput(inputId	=	"filtGPU",	label	=	"GPUs to include:",
+							choices		=	NULL	),
+						checkboxGroupInput(inputId	=	"filtAPI",	label	=	"APIs to include:",
+							choices		=	NULL	),
+						checkboxGroupInput(inputId	=	"filtQUA",	label	=	"Qualities to include:",
+							choices		=	NULL	),
+						checkboxGroupInput(inputId	=	"filtLOC",	label	=	"Locations to include:",
+							choices		=	NULL	),
+						actionButton(inputId	=	"filtSEL",	label	=	"Apply Selection"	),
+						),
 					),
 				),
 				id	=	"tables",
@@ -69,7 +80,7 @@ ui <- fluidPage(
 		width	=	3
 		),
 		mainPanel(
-			textOutput("textTest"),
+			# textOutput("textTest"),
 			tabsetPanel(
 				tabPanel("Tables",
 					tableOutput("tableSUMM"),
