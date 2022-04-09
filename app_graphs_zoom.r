@@ -31,10 +31,11 @@
 		if (!("Quality"		%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushSUMMqua",	selected	=	""	)
 		if (!("Location"	%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushSUMMloc",	selected	=	""	)
 
-		if (!("GPU"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEgpu",	selected	=	""	)
-		if (!("API"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEapi",	selected	=	""	)
-		if (!("Quality"		%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEqua",	selected	=	""	)
-		if (!("Location"	%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEloc",	selected	=	""	)
+		# if (!("GPU"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEgpu",	selected	=	""	)
+		# if (!("API"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEapi",	selected	=	""	)
+		# if (!("Quality"		%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEqua",	selected	=	""	)
+		# if (!("Location"	%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushCOURSEloc",	selected	=	""	)
+		#	Course graph will not use facet control because it is inappropriate to do so
 
 		if (!("GPU"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushFREQgpu",	selected	=	""	)
 		if (!("API"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushFREQapi",	selected	=	""	)
@@ -55,7 +56,7 @@
 
 #	Summary
 	brushSUMMzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
-		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL)
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
 	observeEvent(input$brushSUMMdbl,	{
 		req(DATA$results)
 		brush 		<- input$brushSUMMdbl
@@ -92,8 +93,9 @@
 		updateSelectInput(inputId	=	"brushSUMMapi",	selected	=	brushSUMMzoom$API			)
 		updateSelectInput(inputId	=	"brushSUMMqua",	selected	=	brushSUMMzoom$Quality		)
 		updateSelectInput(inputId	=	"brushSUMMloc",	selected	=	brushSUMMzoom$Location	)
-	})
-	observeEvent(list(input$brushSUMMupdate),	{
+		brushSUMMzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
+	observeEvent(input$brushSUMMupdate,	{
 		req(DATA$results)
 		# brushSUMMzoom$x			=	c(input$brushSUMMstart, input$brushSUMMstart + input$brushSUMMlength)
 		# brushSUMMzoom$GPU			<-	input$brushSUMMgpu
@@ -113,20 +115,24 @@
 		
 		if (!is.null(brushSUMMzoom$API))	brushSUMMzoom$FILTER	<-	intersect(brushSUMMzoom$FILTER,
 			which(DATA$results$API	==	brushSUMMzoom$API)	)
-	})
+		brushSUMMzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 
 	observeEvent(list(input$brushSUMMdbl, input$brushSUMMupdate),	{
 		output$brushSUMMfacet	=	renderPlot({
-			req(DATA$results)
+			# req(DATA$results)
+			req(DATA$results, brushSUMMzoom$CHANGE)
+			# req(brushSUMMzoom$CHANGE)
 			graphSUMM(brushSUMMzoom$FILTER)	+ labs(caption = paste0(
 				paste(c(brushSUMMzoom$API, brushSUMMzoom$Quality, brushSUMMzoom$Location), collapse = ", ")
 			)	)
 		})
 	},	ignoreInit	=	TRUE)
 
+
 #	Course
 	brushCOURSEzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
-		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL)
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
 	observeEvent(input$brushCOURSE, {
 		req(DATA$results)
 		brush 		<- input$brushCOURSE
@@ -171,8 +177,10 @@
 		updateSelectInput(inputId	=	"brushCOURSEapi",	selected	=	brushCOURSEzoom$API			)
 		updateSelectInput(inputId	=	"brushCOURSEqua",	selected	=	brushCOURSEzoom$Quality		)
 		updateSelectInput(inputId	=	"brushCOURSEloc",	selected	=	brushCOURSEzoom$Location	)
-	})
-	observeEvent(list(input$brushCOURSEupdate),	{
+		
+		brushCOURSEzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
+	observeEvent(input$brushCOURSEupdate,	{
 		req(DATA$results)
 		brushCOURSEzoom$x			=	c(input$brushCOURSEstart, input$brushCOURSEstart + input$brushCOURSElength)
 		brushCOURSEzoom$GPU			<-	input$brushCOURSEgpu
@@ -193,7 +201,9 @@
 		
 		if (!is.null(brushCOURSEzoom$API))	brushCOURSEzoom$FILTER	<-	intersect(brushCOURSEzoom$FILTER,
 			which(DATA$results$API	==	brushCOURSEzoom$API)	)
-	})
+			
+		brushCOURSEzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 
 	observeEvent(input$brushCOURSEdbl,	{
 		brush 		<-	input$brushCOURSEdbl
@@ -224,7 +234,9 @@
 		updateSelectInput(inputId	=	"brushCOURSEapi",	selected	=	brushCOURSEzoom$API			)
 		updateSelectInput(inputId	=	"brushCOURSEqua",	selected	=	brushCOURSEzoom$Quality		)
 		updateSelectInput(inputId	=	"brushCOURSEloc",	selected	=	brushCOURSEzoom$Location	)
-	})
+		
+		brushCOURSEzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 	
 	output$brushCOURSEtext	=	renderText({	"Click and Drag to Zoom Below"	})
 	
@@ -241,7 +253,7 @@
 
 	observeEvent(list(input$brushCOURSE, input$brushCOURSEupdate),	{
 		output$brushCOURSEfacet	=	renderPlot({
-			req(DATA$results)
+			req(DATA$results, brushCOURSEzoom$CHANGE)
 
 			graphCOURSE(brushCOURSEzoom$FILTER) + labs(caption =
 				paste0("X: ", paste(round(brushCOURSEzoom$x, 4), collapse = " to "), " (s) : ",
@@ -291,7 +303,7 @@
 
 #	Frequency
 	brushFREQzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
-		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL)
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
 	observeEvent(input$brushFREQdbl,	{
 		req(DATA$results)
 		brush 		<- input$brushFREQdbl
@@ -327,9 +339,11 @@
 		updateSelectInput(inputId	=	"brushFREQgpu",	selected	=	brushFREQzoom$GPU			)
 		updateSelectInput(inputId	=	"brushFREQapi",	selected	=	brushFREQzoom$API			)
 		updateSelectInput(inputId	=	"brushFREQqua",	selected	=	brushFREQzoom$Quality		)
-		updateSelectInput(inputId	=	"brushFREQloc",	selected	=	brushFREQzoom$Location	)
-	})
-	observeEvent(list(input$brushFREQupdate),	{
+		updateSelectInput(inputId	=	"brushFREQloc",	selected	=	brushFREQzoom$Location		)
+		
+		brushFREQzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
+	observeEvent(input$brushFREQupdate,	{
 		req(DATA$results)
 		# brushFREQzoom$x			=	c(input$brushFREQstart, input$brushFREQstart + input$brushFREQlength)
 		brushFREQzoom$GPU			<-	input$brushFREQgpu
@@ -349,20 +363,23 @@
 		
 		if (!is.null(brushFREQzoom$API))	brushFREQzoom$FILTER	<-	intersect(brushFREQzoom$FILTER,
 			which(DATA$results$API	==	brushFREQzoom$API)	)
-	})
+		
+		brushFREQzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 
 	observeEvent(list(input$brushFREQdbl, input$brushFREQupdate),	{
 		output$brushFREQfacet	=	renderPlot({
-			req(DATA$results)
+			req(DATA$results, brushFREQzoom$CHANGE)
 			graphFREQ(brushFREQzoom$FILTER)	+ labs(caption = paste0(
 				paste(c(brushFREQzoom$GPU, brushFREQzoom$API, brushFREQzoom$Quality, brushFREQzoom$Location), collapse = ", ")
 			)	)
 		})
 	},	ignoreInit	=	TRUE)
 
+
 #	QQ
 	brushQQzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
-		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL)
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	TRUE)
 	observeEvent(input$brushQQ, {
 		req(DATA$results)
 		brush 		<-	input$brushQQ
@@ -410,7 +427,9 @@
 		updateSelectInput(inputId	=	"brushQQapi",	selected	=	brushQQzoom$API			)
 		updateSelectInput(inputId	=	"brushQQqua",	selected	=	brushQQzoom$Quality		)
 		updateSelectInput(inputId	=	"brushQQloc",	selected	=	brushQQzoom$Location	)
-	})
+		
+		brushQQzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 
 	ends	=	0.00001
 	observeEvent(list(input$brushQQupdate),	{
@@ -435,7 +454,9 @@
 		
 		if (!is.null(brushQQzoom$API))	brushQQzoom$FILTER	<-	intersect(brushQQzoom$FILTER,
 			which(DATA$results$API	==	brushQQzoom$API)	)
-	})
+		
+		brushQQzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 	
 	observeEvent(input$brushQQdbl,	{
 		brush 		<-	input$brushQQdbl
@@ -472,7 +493,9 @@
 		updateSelectInput(inputId	=	"brushQQapi",	selected	=	brushQQzoom$API			)
 		updateSelectInput(inputId	=	"brushQQqua",	selected	=	brushQQzoom$Quality		)
 		updateSelectInput(inputId	=	"brushQQloc",	selected	=	brushQQzoom$Location	)
-	})
+		
+		brushQQzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 	
 	# BRUSH$qqFILT	=	NULL
 	# observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate, input$datatypeG),	{
@@ -490,7 +513,7 @@
 	
 	observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate),	{
 		output$brushQQfacet	=	renderPlot({
-			req(DATA$results)
+			req(DATA$results, brushQQzoom$CHANGE)
 
 			graphQQ(brushQQzoom$FILTER) + 
 			labs(caption = paste0(
@@ -541,9 +564,10 @@
 		},	digits	=	input$roundTerm,	rownames	=	TRUE,	align	=	"r")
 	},	ignoreInit	=	TRUE)
 
+
 #	Consecutive Difference
 	brushDIFFzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
-		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL)
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
 	observeEvent(input$brushDIFFdbl,	{
 		req(DATA$results)
 		brush 		<- input$brushDIFFdbl
@@ -579,9 +603,11 @@
 		updateSelectInput(inputId	=	"brushDIFFgpu",	selected	=	brushDIFFzoom$GPU			)
 		updateSelectInput(inputId	=	"brushDIFFapi",	selected	=	brushDIFFzoom$API			)
 		updateSelectInput(inputId	=	"brushDIFFqua",	selected	=	brushDIFFzoom$Quality		)
-		updateSelectInput(inputId	=	"brushDIFFloc",	selected	=	brushDIFFzoom$Location	)
-	})
-	observeEvent(list(input$brushDIFFupdate),	{
+		updateSelectInput(inputId	=	"brushDIFFloc",	selected	=	brushDIFFzoom$Location		)
+		
+		brushDIFFzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
+	observeEvent(input$brushDIFFupdate,	{
 		req(DATA$results)
 		# brushDIFFzoom$x			=	c(input$brushDIFFstart, input$brushDIFFstart + input$brushDIFFlength)
 		brushDIFFzoom$GPU			<-	input$brushDIFFgpu
@@ -601,11 +627,13 @@
 		
 		if (!is.null(brushDIFFzoom$API))	brushDIFFzoom$FILTER	<-	intersect(brushDIFFzoom$FILTER,
 			which(DATA$results$API	==	brushDIFFzoom$API)	)
-	})
+		
+		brushDIFFzoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
 
 	observeEvent(list(input$brushDIFFdbl, input$brushDIFFupdate),	{
 		output$brushDIFFfacet	=	renderPlot({
-			req(DATA$results)
+			req(DATA$results, brushDIFFzoom$CHANGE)
 			graphDIFF(brushDIFFzoom$FILTER)	+ labs(caption = paste0(
 				paste(c(brushDIFFzoom$GPU, brushDIFFzoom$API, brushDIFFzoom$Quality, brushDIFFzoom$Location), collapse = ", ")
 			)	)

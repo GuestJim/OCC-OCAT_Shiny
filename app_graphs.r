@@ -58,7 +58,7 @@ facWRAP	=	labeller(	Location	=	label_wrap_gen(input$facWID),
 						Quality		=	label_wrap_gen(input$facWID),
 						GPU			=	label_wrap_gen(input$facWID)	)
 
-FACET	=	function(graphtype, IN)	{
+FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 	FACS	=	c(
 		GPU			=	"GPU"		%in%	IN,
 		Location	=	"Location"	%in%	IN,
@@ -69,11 +69,15 @@ FACET	=	function(graphtype, IN)	{
 	FACETselect	=	function(IN2)	paste0(names(FACS[IN2])[FACS[IN2]], collapse = ", ")
 	#	this will return only the names that are present in FACS and are desired, as set below
 	
-	if (graphtype == "graphMEANS")	{
+	if	(graphtype == "graphMEANS")	{
 		ROWS	=	FACETselect(c("Quality", "API"))
 		COLS	=	FACETselect(c("Location"))
 	}
-	if	(graphtype	%in%	c("graphCOURSE", "graphFREQ", "graphQQ", "graphDIFF"))	{
+	if	(graphtype == "graphCOURSE")	{
+		ROWS	=	"Location, Quality, API"
+		COLS	=	"GPU"
+	}
+	if	(graphtype	%in%	c("graphFREQ", "graphQQ", "graphDIFF"))	{
 		ROWS	=	FACETselect(c("Location", "Quality", "API"))
 		COLS	=	FACETselect(c("GPU"))
 	}
@@ -220,7 +224,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphCOURSEfacet	=	renderPlot({
 		req(DATA$results)
-		graphCOURSE(TRUE) + FACET("graphCOURSE", input$listFACETS)
+		graphCOURSE(TRUE) + FACET("graphCOURSE")
 	})
 
 	graphFREQ	=	function(FILT)	{
