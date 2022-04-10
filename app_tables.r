@@ -18,10 +18,10 @@
 		
 		filtCOL	=	names(out) %in% c(groups, input$tabCOLs)
 		#	for some reason, Shiny does not like searching by name, but this gets around that
-		filtROW	=	TRUE
+		filtROW	=	rep(TRUE, nrow(out))
 
-		if (!("ms" %in% input$tabUNIT))		filtROW	=	out$Unit != "ms"
 		if (!("FPS" %in% input$tabUNIT))	filtROW	=	out$Unit != "FPS"
+		if (!("ms" %in% input$tabUNIT))		filtROW	=	out$Unit != "ms"
 
 		return(out[which(filtROW), which(filtCOL)])
 	}

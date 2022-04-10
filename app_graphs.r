@@ -1,10 +1,11 @@
 require(ggplot2)
 
-GRAPH$FILT	=	reactiveVal()
+# GRAPH$FILT	=	reactiveVal()
 observeEvent(list(input$dataInput, DATA$LOAD),	{GRAPH$FILT	=	reactiveVal(1:nrow(DATA$results))},	ignoreInit = TRUE)
 # GRAPH$STATS	=	reactiveVal()
 # GRAPH$STATS	=	reactiveVal(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
-observeEvent(input$filtSEL,	{
+
+GRAPH$FILT	<-	eventReactive(input$filtSEL,	{
 	req(DATA$results)
 	# for (x in c("filtGPU", "filtQUA", "filtAPI", "filtLOC"))	assign(x, 1:nrow(DATA$results))
 	filtGPU	<-	1:nrow(DATA$results)
@@ -17,7 +18,7 @@ observeEvent(input$filtSEL,	{
 	if (isTruthy(input$filtAPI))	filtAPI		<-	which(DATA$results$API		%in%	input$filtAPI)
 	if (isTruthy(input$filtLOC))	filtLOC		<-	which(DATA$results$Location	%in%	input$filtLOC)
 
-	GRAPH$FILT(Reduce(intersect, list(filtGPU, filtQUA, filtAPI, filtLOC)))
+	Reduce(intersect, list(filtGPU, filtQUA, filtAPI, filtLOC))
 })
 
 GRAPH$STATS	<-	reactive({
@@ -31,14 +32,6 @@ GRAPH$STATS	<-	reactive({
 	
 	sepCOL(aggregate(DATA$results[GRAPH$FILT(), input$datatypeG], GROUPS[input$listFACETS], statGRAPH, quan=c(1, 99)/100))
 })
-
-# GRAPH$STATS	=	reactiveVal()
-# if (exists("results", envir = DATA))	GRAPH$STATS(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
-
-# observeEvent(list(input$dataInput, DATA$LOAD, input$datatypeG, input$QUANrefresh, input$listFACETS), {
-	# req(DATA$results)
-	# GRAPH$STATS(sepCOL(aggregate(DATA$results[, input$datatypeG], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN())))
-# },	ignoreInit	=	TRUE)
 
 GRAPH$QUAN	=	reactiveVal(c(1, 99)/100)
 observeEvent(input$QUANrefresh, {
@@ -262,13 +255,13 @@ scaleX	=	function(graphtype, datatype){
 		graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE")
 	})
 
-	graphFREQ	=	function(FILT)	{
+	graphFREQ	=	function(FILT, zoom = FALSE)	{
 		LINES	=	list(
 			geom_vline(data = GRAPH$STATS(), aes(xintercept = Mean), color = "darkgreen"),
 			geom_vline(data = GRAPH$STATS(), aes(xintercept = Median), color = "darkcyan", linetype="dotdash")
 		)
-		if (!is.logical(FILT))	{
-			hold	=	as.data.frame(t(
+		if (zoom)	{
+			hold	<-	as.data.frame(t(
 				statGRAPH(as.data.frame(DATA$results)[FILT, as.character(input$datatypeG)])
 				))
 			#	tibbles complicating things

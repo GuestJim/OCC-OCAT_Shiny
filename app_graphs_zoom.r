@@ -57,8 +57,7 @@
 #	Summary
 	brushSUMMzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
 		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
-	observeEvent(input$brushSUMMdbl,	{
-		req(DATA$results)
+	observeEvent(input$brushSUMMdbl,	{	req(DATA$results)
 		brush 		<- input$brushSUMMdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
@@ -95,8 +94,7 @@
 		updateSelectInput(inputId	=	"brushSUMMloc",	selected	=	brushSUMMzoom$Location	)
 		brushSUMMzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	observeEvent(input$brushSUMMupdate,	{
-		req(DATA$results)
+	observeEvent(input$brushSUMMupdate,	{	req(DATA$results)
 		# brushSUMMzoom$x			=	c(input$brushSUMMstart, input$brushSUMMstart + input$brushSUMMlength)
 		# brushSUMMzoom$GPU			<-	input$brushSUMMgpu
 		brushSUMMzoom$API			<-	input$brushSUMMapi
@@ -133,8 +131,7 @@
 #	Course
 	brushCOURSEzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
 		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
-	observeEvent(input$brushCOURSE, {
-		req(DATA$results)
+	observeEvent(input$brushCOURSE, {	req(DATA$results)
 		brush 		<- input$brushCOURSE
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
@@ -176,8 +173,7 @@
 		brushCOURSEzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 	
-	observeEvent(input$brushCOURSEupdate,	{
-		req(DATA$results)
+	observeEvent(input$brushCOURSEupdate,	{	req(DATA$results)
 		brushCOURSEzoom$x			=	c(input$brushCOURSEstart, input$brushCOURSEstart + input$brushCOURSElength)
 		brushCOURSEzoom$GPU			<-	input$brushCOURSEgpu
 		brushCOURSEzoom$API			<-	input$brushCOURSEapi
@@ -203,7 +199,7 @@
 		brushCOURSEzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
-	observeEvent(input$brushCOURSEdbl,	{
+	observeEvent(input$brushCOURSEdbl,	{	req(DATA$results)
 		brush 		<-	input$brushCOURSEdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
@@ -303,8 +299,7 @@
 #	Frequency
 	brushFREQzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
 		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
-	observeEvent(input$brushFREQdbl,	{
-		req(DATA$results)
+	observeEvent(input$brushFREQdbl,	{	req(DATA$results)
 		brush 		<- input$brushFREQdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
@@ -336,8 +331,7 @@
 		
 		brushFREQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	observeEvent(input$brushFREQupdate,	{
-		req(DATA$results)
+	observeEvent(input$brushFREQupdate,	{	req(DATA$results)
 		# brushFREQzoom$x			=	c(input$brushFREQstart, input$brushFREQstart + input$brushFREQlength)
 		brushFREQzoom$GPU			<-	input$brushFREQgpu
 		brushFREQzoom$API			<-	input$brushFREQapi
@@ -366,7 +360,7 @@
 	observeEvent(list(input$brushFREQdbl, input$brushFREQupdate),	{
 		output$brushFREQfacet	=	renderPlot({
 			req(DATA$results, brushFREQzoom$CHANGE)
-			graphFREQ(brushFREQzoom$FILTER)	+ labs(caption = paste0(
+			graphFREQ(brushFREQzoom$FILTER, zoom = TRUE)	+ labs(caption = paste0(
 				paste(c(brushFREQzoom$GPU, brushFREQzoom$API, brushFREQzoom$Quality, brushFREQzoom$Location), collapse = ", ")
 			)	)
 		})
@@ -375,9 +369,8 @@
 
 #	QQ
 	brushQQzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
-		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	TRUE)
-	observeEvent(input$brushQQ, {
-		req(DATA$results)
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
+	observeEvent(input$brushQQ, {	req(DATA$results)
 		brush 		<-	input$brushQQ
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 		
@@ -462,7 +455,7 @@
 		brushQQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 	
-	observeEvent(input$brushQQdbl,	{
+	observeEvent(input$brushQQdbl,	{	req(DATA$results)
 		brush 		<-	input$brushQQdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
@@ -581,8 +574,7 @@
 #	Consecutive Difference
 	brushDIFFzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
 		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
-	observeEvent(input$brushDIFFdbl,	{
-		req(DATA$results)
+	observeEvent(input$brushDIFFdbl,	{	req(DATA$results)
 		brush 		<- input$brushDIFFdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
@@ -627,8 +619,7 @@
 		
 		brushDIFFzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	observeEvent(input$brushDIFFupdate,	{
-		req(DATA$results)
+	observeEvent(input$brushDIFFupdate,	{	req(DATA$results)
 		# brushDIFFzoom$x			=	c(input$brushDIFFstart, input$brushDIFFstart + input$brushDIFFlength)
 		brushDIFFzoom$GPU			<-	input$brushDIFFgpu
 		brushDIFFzoom$API			<-	input$brushDIFFapi

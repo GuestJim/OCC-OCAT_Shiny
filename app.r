@@ -130,7 +130,7 @@ server <- function(input, output, session) {
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
 			choices		=	DATA$APIs,	selected	=	DATA$APIs
 		)
-		GRAPH$FILT	<-	reactiveVal(1:nrow(DATA$results))
+		# GRAPH$FILT	<-	reactiveVal(1:nrow(DATA$results))
 
 		updateVarSelectInput(
 			inputId	=	"datatypeG",
