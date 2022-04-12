@@ -63,8 +63,8 @@ observeEvent(input$FtimeLimitRefresh,	{
 },	ignoreNULL	=	FALSE,	label	=	"FtimeLimitRefresh")
 
 GRAPH$diffLim	=	reactiveVal(20)
-diffLimRefresh	=	eventReactive(input$diffLimRefresh,	{
-	GRAPH$diffLim(as.numeric(input$diffLim))
+GRAPH$diffLim	=	eventReactive(input$diffLimRefresh,	{
+	as.numeric(input$diffLim)
 },	ignoreNULL	=	FALSE,	label	=	"diffLimRefresh")
 
 
@@ -402,8 +402,6 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphDIFFfacet	=	renderPlot({
 		req(DATA$results)
-		# graphDIFFfacet()
-		diffLimRefresh()
 		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS)
 	})
 
