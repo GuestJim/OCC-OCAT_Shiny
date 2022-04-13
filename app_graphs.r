@@ -320,7 +320,6 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphQQfacet	=	renderPlot({
 		req(DATA$results)
-		test	<<-	GRAPH$STATS()
 		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS)
 	})
 
