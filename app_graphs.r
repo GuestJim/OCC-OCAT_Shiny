@@ -403,4 +403,4 @@ scaleX	=	function(graphtype, datatype){
 		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS)
 	})
 
-source("app_graphs_zoom.r", local = TRUE)
+if (VIEW$BRUSH)	source("app_graphs_zoom.r", local = TRUE)
