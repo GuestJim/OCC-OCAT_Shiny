@@ -1,7 +1,5 @@
 require(ggplot2)
 
-# GRAPH$FILT	=	reactiveVal()
-observeEvent(list(input$dataInput, DATA$LOAD),	{GRAPH$FILT	=	reactiveVal(1:nrow(DATA$results))},	ignoreInit = TRUE)
 # GRAPH$STATS	=	reactiveVal()
 # GRAPH$STATS	=	reactiveVal(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
 
@@ -19,7 +17,8 @@ GRAPH$FILT	<-	eventReactive(input$filtSEL,	{
 	if (isTruthy(input$filtLOC))	filtLOC		<-	which(DATA$results$Location	%in%	input$filtLOC)
 
 	Reduce(intersect, list(filtGPU, filtQUA, filtAPI, filtLOC))
-})
+},	ignoreNULL	=	FALSE)
+#	ignoreNULL is necessary here for GRAPH$FILT to have a value without hitting the button
 
 GRAPH$STATS	<-	reactive({
 	req(DATA$results)
