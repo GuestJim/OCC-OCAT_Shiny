@@ -103,17 +103,17 @@
 
 	output$tableSUMMdown	=	downloadHandler(
 		filename	=	function()	{paste0(DATA$game, " - Summary.csv")},
-		content	=	function(file)	{write_csv(tableROUND(tableFILT(tableSUMM()), input$roundTerm), file)}
+		content	=	function(file)	{write_csv(tableROUND(tableFILT(DATA$tableSUMM()), input$roundTerm), file)}
 	)
 	output$tableECDFdown	=	downloadHandler(
 		filename	=	function()	{paste0(DATA$game, " - ECDF.csv")},
-		content	=	function(file)	{write_csv(tableROUND(tableFILT(tableECDF()), input$roundTerm), file)}
+		content	=	function(file)	{write_csv(tableROUND(tableFILT(DATA$tableECDF()), input$roundTerm), file)}
 	)
 	output$tableSUMMhtml	=	downloadHandler(
 		filename	=	function()	{paste0(DATA$game, " - Summary.HTML")},
-		content	=	function(file)	{write_tableHTML(OCCHTML(tableROUND(tableFILT(tableSUMM()), input$roundTerm)), file)}
+		content	=	function(file)	{write_tableHTML(OCCHTML(tableROUND(tableFILT(DATA$tableSUMM()), input$roundTerm)), file)}
 	)
 	output$tableECDFhtml	=	downloadHandler(
 		filename	=	function()	{paste0(DATA$game, " - ECDF.HTML")},
-		content	=	function(file)	{write_tableHTML(OCCHTML(tableROUND(tableFILT(tableECDF()), input$roundTerm)), file)}
+		content	=	function(file)	{write_tableHTML(OCCHTML(tableROUND(tableFILT(DATA$tableECDF()), input$roundTerm)), file)}
 	)
