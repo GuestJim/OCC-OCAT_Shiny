@@ -9,6 +9,7 @@ options(shiny.maxRequestSize = 100*1024^2)
 
 DATA	=	new.env()
 DATA$LOAD	=	FALSE	#used for tracking if data has been loaded automatically
+VIEW	=	new.env()	#	for tracking what UI elements should be used
 GRAPH	=	new.env()
 TABLES	=	new.env()
 BRUSH	=	new.env()
@@ -20,6 +21,11 @@ BRUSH	=	new.env()
 # DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
 # DATA$FILE	=	"Dying Light 2 - All.RData"
 #	by giving this a file, we can avoid needing to upload a file
+VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
+VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
+						#	usually it would be !exists("FILE", envir=DATA)
+VIEW$GRAPHS	=	TRUE	#	control if Graphs should be included or not
+VIEW$BRUSH	=	TRUE	#	control if Graphs should be included or not
 
 mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
 
@@ -54,11 +60,8 @@ nodataCOL	=	c("Application", "Runtime", "WasBatched", "Dropped", "TimeInSeconds"
 
 source("app_functions.r", local	=	TRUE)
 
-if	(exists("FILE", envir=DATA))	{
-	source("app_UI_static.r", local	=	TRUE)
-}	else	{
-	source("app_UI_upload.r", local	=	TRUE)
-}
+source("app_UI.r", local	=	TRUE)
+# source("app_UI_static.r", local	=	TRUE)
 
 # Define server logic to summarize and view selected dataset ----
 server <- function(input, output, session) {
@@ -130,7 +133,6 @@ server <- function(input, output, session) {
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
 			choices		=	DATA$APIs,	selected	=	DATA$APIs
 		)
-		# GRAPH$FILT	<-	reactiveVal(1:nrow(DATA$results))
 
 		updateVarSelectInput(
 			inputId	=	"datatypeG",
@@ -145,8 +147,10 @@ server <- function(input, output, session) {
 		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
 	})
 
+	output$textTest	<-	renderText("Test")
+
 source("app_tables.r", local	=	TRUE)
-source("app_graphs.r", local	=	TRUE)
+if (VIEW$GRAPHS)	source("app_graphs.r", local	=	TRUE)
 
 }
 
