@@ -78,11 +78,12 @@ observeEvent(list(input$dataInput, DATA$LOAD), {
 })
 
 
-
-facWRAP	=	labeller(	Location	=	label_wrap_gen(input$facWID),
-						API			=	label_wrap_gen(input$facWID),
-						Quality		=	label_wrap_gen(input$facWID),
-						GPU			=	label_wrap_gen(input$facWID)	)
+GRAPH$facWID	=	25
+observeEvent(input$facWID, GRAPH$facWID	<-	input$facWID, ignoreInit = TRUE)
+facWRAP	=	labeller(	Location	=	label_wrap_gen(GRAPH$facWID),
+						API			=	label_wrap_gen(GRAPH$facWID),
+						Quality		=	label_wrap_gen(GRAPH$facWID),
+						GPU			=	label_wrap_gen(GRAPH$facWID)	)
 
 FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 	FACS	=	c(
@@ -310,7 +311,6 @@ scaleX	=	function(graphtype, datatype){
 		stat_qq_line(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG)), line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +
 		stat_qq(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG))) +
 		stat_qq_line(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG)), line.p = GRAPH$QUAN(), color = "green", alpha = 0.5, size = 1.1, linetype = "dotted") +
-		geom_label(data = GRAPH$STATS(), aes(x = Inf, y = -Inf, label = paste0("Slope: ", Slope)), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green") +
 		scaleY("graphQQ", input$datatypeG) +
 		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
 		scale_x_continuous(name = "Percentile", breaks = qnorm(unique(PERCS)), labels = labelBreakQQ, minor_breaks = NULL, expand = c(0.02, 0)) +
@@ -319,7 +319,8 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphQQfacet	=	renderPlot({
 		req(DATA$results)
-		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS)
+		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS) +
+		geom_label(data = GRAPH$STATS(), aes(x = Inf, y = -Inf, label = paste0("Slope: ", Slope)), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green")
 	})
 
 	graphDIFF	=	function(FILT)	{

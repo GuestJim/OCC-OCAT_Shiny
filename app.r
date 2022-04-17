@@ -3,7 +3,7 @@ library(shiny)
 # setwd("E:/Users/Jim/My Documents/OCC/@Reviews/@OCAT R Scripts/OCC-OCAT_Shiny")
 # runApp()
 # options(shiny.error = browser)
-# options(shiny.reactlog=TRUE) 
+# options(shiny.reactlog=TRUE)
 options(shiny.maxRequestSize = 100*1024^2)
 #	Shiny has a normal limit of 5 MB, so this raises it to 100 MB
 
@@ -42,13 +42,13 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
 		DATA$results$Location		=	ordered(DATA$results$Location,	unique(DATA$results$Location))
 		DATA$results$API			=	ordered(DATA$results$API,		unique(DATA$results$API))
-		
+
 		DATA$GROUPS	=	list(GPU = DATA$results$GPU,	Quality = DATA$results$Quality, API = DATA$results$API,	Location = DATA$results$Location)
 		DATA$GPUs	=	LEVs(DATA$results$GPU)
 		DATA$QUAs	=	LEVs(DATA$results$Quality)
 		DATA$LOCs	=	LEVs(DATA$results$Location)
 		DATA$APIs	=	LEVs(DATA$results$API)
-		
+
 		DATA$checkAPI	=	TRUE
 		if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
 		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
@@ -83,7 +83,9 @@ server <- function(input, output, session) {
 
 	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh),	{
 		req(DATA$game)
-		output$Title	=	renderUI({	titlePanel(paste0(DATA$game, " - Frame Time Statistics and Graphs"))	})
+		TITLE	=	paste0(DATA$game, " - Frame Time Statistics")
+		if (VIEW$GRAPHS)	TITLE	=	paste0(TITLE, " and Graphs")
+		output$Title	=	renderUI({	titlePanel(TITLE)	})
 	},	label	=	"updateTitle")
 
 	observeEvent(list(input$dataInput, DATA$LOAD), {

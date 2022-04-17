@@ -71,10 +71,10 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 					),				
 					varSelectInput(inputId	=	"datatypeG",	label	=	"Data Type (Graph)",	multiple	=	FALSE,
 						data	=	data.frame(list(MsBetweenPresents = 0))	),	#	the dummy frame is so "datatype" has an initial value
-					numericInput(inputId	=	"facWID",
-						label	=	"Facet Label Width",
-						value	=	25
-					),
+					# numericInput(inputId	=	"facWID",
+						# label	=	"Facet Label Width",
+						# value	=	25
+					# ),
 				),
 			tabPanel("Selection",
 				checkboxGroupInput(inputId	=	"filtGPU",	label	=	"GPUs to include:",

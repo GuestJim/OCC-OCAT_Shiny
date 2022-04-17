@@ -4,12 +4,12 @@
 		updateSelectInput(inputId	=	"brushSUMMapi",		choices	=	DATA$APIs)
 		updateSelectInput(inputId	=	"brushSUMMqua",		choices	=	DATA$QUAs)
 		updateSelectInput(inputId	=	"brushSUMMloc",		choices	=	DATA$LOCs)
-		
+
 		updateSelectInput(inputId	=	"brushCOURSEgpu",	choices	=	DATA$GPUs)
 		updateSelectInput(inputId	=	"brushCOURSEapi",	choices	=	DATA$APIs)
 		updateSelectInput(inputId	=	"brushCOURSEqua",	choices	=	DATA$QUAs)
 		updateSelectInput(inputId	=	"brushCOURSEloc",	choices	=	DATA$LOCs)
-		
+
 		updateSelectInput(inputId	=	"brushFREQgpu",		choices	=	DATA$GPUs)
 		updateSelectInput(inputId	=	"brushFREQapi",		choices	=	DATA$APIs)
 		updateSelectInput(inputId	=	"brushFREQqua",		choices	=	DATA$QUAs)
@@ -41,7 +41,7 @@
 		if (!("API"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushFREQapi",	selected	=	""	)
 		if (!("Quality"		%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushFREQqua",	selected	=	""	)
 		if (!("Location"	%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushFREQloc",	selected	=	""	)
-		
+
 		if (!("GPU"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQgpu",	selected	=	""	)
 		if (!("API"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQapi",	selected	=	""	)
 		if (!("Quality"		%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushQQqua",	selected	=	""	)
@@ -61,33 +61,30 @@
 		brush 		<- input$brushSUMMdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
-		# brushSUMMzoom$x				<-	NULL
 		# brushSUMMzoom$GPU			<-	NULL
 		brushSUMMzoom$API			<-	NULL
 		brushSUMMzoom$Quality		<-	NULL
 		brushSUMMzoom$Location		<-	NULL
 		brushSUMMzoom$FILTER		<-	TRUE
-		
+
+		# if (exists("GPU",		brushFILT))	brushSUMMzoom$GPU		<-	brushFILT$GPU
+		if (exists("API",		brushFILT))	brushSUMMzoom$API		<-	brushFILT$API
+		if (exists("Quality",	brushFILT))	brushSUMMzoom$Quality	<-	brushFILT$Quality
+		if (exists("Location",	brushFILT))	brushSUMMzoom$Location	<-	brushFILT$Location
+
 		# filtGPU	<-	1:nrow(DATA$results)
+		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
 		filtLOC	<-	1:nrow(DATA$results)
 		if (!is.null(brush)) {
-			# brushSUMMzoom$x			<-	c(brush$xmin, brush$xmax)
-			
 			# if (!is.null(brushSUMMzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushSUMMzoom$GPU)
+			if (!is.null(brushSUMMzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushSUMMzoom$API)
 			if (!is.null(brushSUMMzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushSUMMzoom$Quality)
 			if (!is.null(brushSUMMzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushSUMMzoom$Location)
 
-			brushSUMMzoom$FILTER		<-	intersect(filtQUA, filtLOC)
-			
-			if (!is.null(brushFILT$API))	{
-				brushSUMMzoom$API		<-	brushFILT$API
-				brushSUMMzoom$FILTER	<-	intersect(brushSUMMzoom$FILTER, which(DATA$results$API	==	brushSUMMzoom$API))
-			}	else	{
-				if (exists("APIs", DATA))	brushSUMMzoom$API	<-	DATA$APIs
-			}
+			brushSUMMzoom$FILTER	<-	Reduce(intersect, list(filtAPI, filtQUA, filtLOC))
 		}
-		
+
 		# updateSelectInput(inputId	=	"brushSUMMgpu",	selected	=	brushSUMMzoom$GPU			)
 		updateSelectInput(inputId	=	"brushSUMMapi",	selected	=	brushSUMMzoom$API			)
 		updateSelectInput(inputId	=	"brushSUMMqua",	selected	=	brushSUMMzoom$Quality		)
@@ -95,24 +92,24 @@
 		brushSUMMzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 	observeEvent(input$brushSUMMupdate,	{	req(DATA$results)
-		# brushSUMMzoom$x			=	c(input$brushSUMMstart, input$brushSUMMstart + input$brushSUMMlength)
 		# brushSUMMzoom$GPU			<-	input$brushSUMMgpu
 		brushSUMMzoom$API			<-	input$brushSUMMapi
 		brushSUMMzoom$Quality		<-	input$brushSUMMqua
 		brushSUMMzoom$Location		<-	input$brushSUMMloc
-		
+
 		# filtGPU	<-	1:nrow(DATA$results)
+		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
 		filtLOC	<-	1:nrow(DATA$results)
-	
+
 		# if (!is.null(brushSUMMzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushSUMMzoom$GPU)
+		if (!is.null(brushSUMMzoom$API))		filtGPU		<-	which(DATA$results$API		==	brushSUMMzoom$API)
 		if (!is.null(brushSUMMzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushSUMMzoom$Quality)
 		if (!is.null(brushSUMMzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushSUMMzoom$Location)
 
-		brushSUMMzoom$FILTER		<-	intersect(filtQUA, filtLOC)
-		
-		if (!is.null(brushSUMMzoom$API))	brushSUMMzoom$FILTER	<-	intersect(brushSUMMzoom$FILTER,
-			which(DATA$results$API	==	brushSUMMzoom$API)	)
+		brushSUMMzoom$FILTER	<-	Reduce(intersect, list(filtAPI, filtQUA, filtLOC))
+
+
 		brushSUMMzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
@@ -141,18 +138,18 @@
 		brushCOURSEzoom$Quality		<-	NULL
 		brushCOURSEzoom$Location	<-	NULL
 		brushCOURSEzoom$FILTER		<-	TRUE
-		
+
 		brushCOURSEzoom$x	<-	c(brush$xmin, brush$xmax)
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
 		filtLOC	<-	1:nrow(DATA$results)
-		
+
 		if (exists("GPU",		brushFILT))	brushCOURSEzoom$GPU			<-	brushFILT$GPU
 		if (exists("API",		brushFILT))	brushCOURSEzoom$API			<-	brushFILT$API
 		if (exists("Quality",	brushFILT))	brushCOURSEzoom$Quality		<-	brushFILT$Quality
 		if (exists("Location",	brushFILT))	brushCOURSEzoom$Location	<-	brushFILT$Location
-		
+
 		filtX	<-	which(DATA$results$TimeInSeconds >= brushCOURSEzoom$x[1] & DATA$results$TimeInSeconds < brushCOURSEzoom$x[2])
 		if (!is.null(brushCOURSEzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushCOURSEzoom$GPU)
 		if (!is.null(brushCOURSEzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushCOURSEzoom$API)
@@ -169,17 +166,17 @@
 		updateSelectInput(inputId	=	"brushCOURSEapi",	selected	=	brushCOURSEzoom$API			)
 		updateSelectInput(inputId	=	"brushCOURSEqua",	selected	=	brushCOURSEzoom$Quality		)
 		updateSelectInput(inputId	=	"brushCOURSEloc",	selected	=	brushCOURSEzoom$Location	)
-		
+
 		brushCOURSEzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	
+
 	observeEvent(input$brushCOURSEupdate,	{	req(DATA$results)
 		brushCOURSEzoom$x			=	c(input$brushCOURSEstart, input$brushCOURSEstart + input$brushCOURSElength)
 		brushCOURSEzoom$GPU			<-	input$brushCOURSEgpu
 		brushCOURSEzoom$API			<-	input$brushCOURSEapi
 		brushCOURSEzoom$Quality		<-	input$brushCOURSEqua
 		brushCOURSEzoom$Location	=	input$brushCOURSEloc
-		
+
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
@@ -189,13 +186,13 @@
 		if (!is.null(brushCOURSEzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushCOURSEzoom$API)
 		if (!is.null(brushCOURSEzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushCOURSEzoom$Quality)
 		if (!is.null(brushCOURSEzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushCOURSEzoom$Location)
-		
+
 		# brushCOURSEzoom$FILTER		<-	intersect(intersect(intersect(filtGPU, filtAPI), filtQUA), filtLOC)
 		brushCOURSEzoom$FILTER		<-	Reduce(intersect, list(filtX, filtGPU, filtAPI, filtQUA, filtLOC))
-		
+
 		# if (!is.null(brushCOURSEzoom$API))	brushCOURSEzoom$FILTER	<-	intersect(brushCOURSEzoom$FILTER,
 			# which(DATA$results$API	==	brushCOURSEzoom$API)	)
-			
+
 		brushCOURSEzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
@@ -215,12 +212,12 @@
 		if (!is.null(brushCOURSEzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushCOURSEzoom$API)
 		if (!is.null(brushCOURSEzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushCOURSEzoom$Quality)
 		if (!is.null(brushCOURSEzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushCOURSEzoom$Location)
-		
+
 		# brushCOURSEzoom$FILTER		<-	intersect(intersect(intersect(filtGPU, filtAPI), filtQUA), filtLOC)
 		brushCOURSEzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
 
 		brushCOURSEzoom$x			<-	c(0, max(DATA$results[brushCOURSEzoom$FILTER, "TimeInSeconds"]))
-		
+
 		updateNumericInput(inputId	=	"brushCOURSEstart",
 			value	=	brushCOURSEzoom$x[1])
 		updateNumericInput(inputId	=	"brushCOURSElength",
@@ -229,12 +226,12 @@
 		updateSelectInput(inputId	=	"brushCOURSEapi",	selected	=	brushCOURSEzoom$API			)
 		updateSelectInput(inputId	=	"brushCOURSEqua",	selected	=	brushCOURSEzoom$Quality		)
 		updateSelectInput(inputId	=	"brushCOURSEloc",	selected	=	brushCOURSEzoom$Location	)
-		
+
 		brushCOURSEzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	
+
 	output$brushCOURSEtext	=	renderText({	"Click and Drag to Zoom Below"	})
-	
+
 	BRUSH$courseFILT	=	NULL
 	observeEvent(list(DATA$results, input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$datatypeG),	{
 		hold	=	as.data.frame(DATA$results[brushCOURSEzoom$FILTER, ])
@@ -260,14 +257,14 @@
 
 	observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$manuPERC, input$datatypeG, input$roundTerm),	{
 		req(BRUSH$courseFILT)
-		
+
 		out	=	cbind(Unit = "ms", as.data.frame(t(summMS(BRUSH$courseFILT, to.NUM(c(input$manuPERC))))))
 
 		out$Unit	=	"ms"
 		colDATA	=	sapply(out, is.numeric)
-		
+
 		out	=	rbind(c(Unit = "FPS", 1000/out[, colDATA]), out)
-		
+
 		output$brushCOURSEsumm	=	renderTable({
 			filtCOL	=	names(out) %in% c("Unit", input$tabCOLs)
 			filtROW	=	TRUE
@@ -278,16 +275,16 @@
 			out[filtROW, filtCOL]
 		},	digits	=	input$roundTerm)
 	},	ignoreInit	=	TRUE)
-	
+
 	observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$manuECDF, input$datatypeG, input$roundTerm),	{
 		req(BRUSH$courseFILT)
 		outECDF	=	as.data.frame(t(ecdfFPS(BRUSH$courseFILT, to.NUM(c(input$manuECDF)))))
-		
+
 		outECDF$Unit	=	"%"
 		colDATA	=	sapply(outECDF, is.numeric)
-		
+
 		outECDF	=	outECDF[, c(which(!colDATA), which(colDATA))]
-		
+
 		output$brushCOURSEecdf	=	renderTable({
 			filtCOL	=	names(outECDF) %in% c("Unit", input$tabCOLs)
 
@@ -304,18 +301,18 @@
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
 		# brushFREQzoom$x				<-	NULL
-		
+
 		# brushFREQzoom$x			<-	c(brush$xmin, brush$xmax)
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
 		filtLOC	<-	1:nrow(DATA$results)
-		
+
 		if (exists("GPU",		brushFILT))	brushFREQzoom$GPU		<-	brushFILT$GPU
 		if (exists("API",		brushFILT))	brushFREQzoom$API		<-	brushFILT$API
 		if (exists("Quality",	brushFILT))	brushFREQzoom$Quality	<-	brushFILT$Quality
 		if (exists("Location",	brushFILT))	brushFREQzoom$Location	<-	brushFILT$Location
-		
+
 		if (!is.null(brushFREQzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushFREQzoom$GPU)
 		if (!is.null(brushFREQzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushFREQzoom$API)
 		if (!is.null(brushFREQzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushFREQzoom$Quality)
@@ -323,12 +320,12 @@
 
 		# brushFREQzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 		brushFREQzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
-		
+
 		updateSelectInput(inputId	=	"brushFREQgpu",	selected	=	brushFREQzoom$GPU			)
 		updateSelectInput(inputId	=	"brushFREQapi",	selected	=	brushFREQzoom$API			)
 		updateSelectInput(inputId	=	"brushFREQqua",	selected	=	brushFREQzoom$Quality		)
 		updateSelectInput(inputId	=	"brushFREQloc",	selected	=	brushFREQzoom$Location		)
-		
+
 		brushFREQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 	observeEvent(input$brushFREQupdate,	{	req(DATA$results)
@@ -337,7 +334,7 @@
 		brushFREQzoom$API			<-	input$brushFREQapi
 		brushFREQzoom$Quality		<-	input$brushFREQqua
 		brushFREQzoom$Location		<-	input$brushFREQloc
-		
+
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
@@ -350,10 +347,10 @@
 
 		# brushFREQzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 		brushFREQzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
-		
+
 		# if (!is.null(brushFREQzoom$API))	brushFREQzoom$FILTER	<-	intersect(brushFREQzoom$FILTER,
 			# which(DATA$results$API	==	brushFREQzoom$API)	)
-		
+
 		brushFREQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
@@ -373,17 +370,17 @@
 	observeEvent(input$brushQQ, {	req(DATA$results)
 		brush 		<-	input$brushQQ
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
-		
+
 		brushQQzoom$GPU			<-	NULL
 		brushQQzoom$API			<-	NULL
 		brushQQzoom$Quality		<-	NULL
 		brushQQzoom$Location	<-	NULL
-	
+
 		if (exists("GPU",		brushFILT))	brushQQzoom$GPU			<-	brushFILT$GPU
 		if (exists("API",		brushFILT))	brushQQzoom$API			<-	brushFILT$API
 		if (exists("Quality",	brushFILT))	brushQQzoom$Quality		<-	brushFILT$Quality
 		if (exists("Location",	brushFILT))	brushQQzoom$Location	<-	brushFILT$Location
-		
+
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
@@ -397,15 +394,7 @@
 			if (!is.null(brushQQzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushQQzoom$Quality)
 			if (!is.null(brushQQzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushQQzoom$Location)
 
-			# brushQQzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 			brushQQzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
-			
-			# if (!is.null(brushFILT$API))	{
-				# brushQQzoom$API		<-	brushFILT$API
-				# brushQQzoom$FILTER	<-	intersect(brushQQzoom$FILTER, which(DATA$results$API	==	brushQQzoom$API))
-			# }	else	{
-				# if (exists("APIs", DATA))	brushQQzoom$API	<-	DATA$APIs
-			# }
 		# }
 
 		updateNumericInput(inputId	=	"brushQQlowerX",
@@ -421,13 +410,12 @@
 		updateSelectInput(inputId	=	"brushQQapi",	selected	=	brushQQzoom$API			)
 		updateSelectInput(inputId	=	"brushQQqua",	selected	=	brushQQzoom$Quality		)
 		updateSelectInput(inputId	=	"brushQQloc",	selected	=	brushQQzoom$Location	)
-		
+
 		brushQQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
 	ends	=	0.00001
-	observeEvent(list(input$brushQQupdate),	{
-		req(DATA$results)
+	observeEvent(list(input$brushQQupdate),	{	req(DATA$results)
 		brushQQzoom$x			=	qnorm(c(input$brushQQlowerX, input$brushQQupperX)/100)
 		if	(input$brushQQlowerX == 0)		brushQQzoom$x[1]	=	qnorm(ends)
 		if	(input$brushQQupperX == 100)	brushQQzoom$x[2]	=	qnorm(1 - ends)
@@ -435,8 +423,8 @@
 		brushQQzoom$GPU			<-	input$brushQQgpu
 		brushQQzoom$API			<-	input$brushQQapi
 		brushQQzoom$Quality		<-	input$brushQQqua
-		brushQQzoom$Location	=	input$brushQQloc
-		
+		brushQQzoom$Location	<-	input$brushQQloc
+
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
@@ -446,15 +434,11 @@
 		if (!is.null(brushQQzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushQQzoom$Quality)
 		if (!is.null(brushQQzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushQQzoom$Location)
 
-		# brushQQzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 		brushQQzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
-		
-		# if (!is.null(brushQQzoom$API))	brushQQzoom$FILTER	<-	intersect(brushQQzoom$FILTER,
-			# which(DATA$results$API	==	brushQQzoom$API)	)
-		
+
 		brushQQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	
+
 	observeEvent(input$brushQQdbl,	{	req(DATA$results)
 		brush 		<-	input$brushQQdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
@@ -466,43 +450,44 @@
 		brushQQzoom$API			<-	NULL
 		brushQQzoom$Quality		<-	NULL
 		brushQQzoom$Location	<-	NULL
-	
-		if (exists("GPU",		brushFILT))	brushQQzoom$GPU			<-	brushFILT$GPU
-		if (exists("API",		brushFILT))	brushQQzoom$API			<-	brushFILT$API
-		if (exists("Quality",	brushFILT))	brushQQzoom$Quality		<-	brushFILT$Quality
-		if (exists("Location",	brushFILT))	brushQQzoom$Location	<-	brushFILT$Location
-
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
 		filtLOC	<-	1:nrow(DATA$results)
-		if (!is.null(brushQQzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushQQzoom$GPU)
-		if (!is.null(brushQQzoom$API))		filtGPU		<-	which(DATA$results$API		==	brushQQzoom$API)
-		if (!is.null(brushQQzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushQQzoom$Quality)
-		if (!is.null(brushQQzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushQQzoom$Location)
 
-		# brushQQzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
+		if (exists("GPU",		brushFILT))	{
+			brushQQzoom$GPU			<-	brushFILT$GPU
+			filtGPU					<-	which(DATA$results$GPU		==	brushFILT$GPU)
+		}
+		if (exists("API",		brushFILT))	{
+			brushQQzoom$API			<-	brushFILT$API
+			filtAPI					<-	which(DATA$results$API		==	brushFILT$API)
+		}
+		if (exists("Quality",	brushFILT))	{
+			brushQQzoom$Quality		<-	brushFILT$Quality
+			filtQUA					<-	which(DATA$results$Quality	==	brushFILT$Quality)
+		}
+		if (exists("Location",	brushFILT))	{
+			brushQQzoom$Location	<-	brushFILT$Location
+			filtLOC					<-	which(DATA$results$Location	==	brushFILT$Location)
+		}
+
 		brushQQzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
-		
-		# if (!is.null(brushFILT$API))	{
-			# brushQQzoom$API		<-	brushFILT$API
-			# brushQQzoom$FILTER	<-	intersect(brushQQzoom$FILTER, which(DATA$results$API	==	brushQQzoom$API))
-		# }
-		
+
 		updateNumericInput(inputId	=	"brushQQlowerX",	value	=	0)
 		updateNumericInput(inputId	=	"brushQQupperX",	value	=	100)
 
 		updateNumericInput(inputId	=	"brushQQlowerY",	value	=	0)
 		updateNumericInput(inputId	=	"brushQQupperY",	value	=	input$FtimeLimitMS	)
-		
+
 		updateSelectInput(inputId	=	"brushQQgpu",	selected	=	brushQQzoom$GPU			)
 		updateSelectInput(inputId	=	"brushQQapi",	selected	=	brushQQzoom$API			)
 		updateSelectInput(inputId	=	"brushQQqua",	selected	=	brushQQzoom$Quality		)
 		updateSelectInput(inputId	=	"brushQQloc",	selected	=	brushQQzoom$Location	)
-		
+
 		brushQQzoom$CHANGE	<-	TRUE
-	},	ignoreInit	=	TRUE)
-	
+	},	ignoreInit	=	TRUE,	priority	=	5)
+
 	# BRUSH$qqFILT	=	NULL
 	# observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate, input$datatypeG),	{
 		# req(DATA$results)
@@ -516,12 +501,12 @@
 	# },	ignoreInit	=	TRUE)
 	#	in theory this will create qqFILT containing just the selected data, but nothing uses it
 	#	it also caused a problem being a requirement, so disabling it
-	
+
 	observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate),	{
 		output$brushQQfacet	=	renderPlot({
-			req(DATA$results, brushQQzoom$CHANGE)
+			req(brushQQzoom$FILTER, brushQQzoom$CHANGE)
 
-			graphQQ(brushQQzoom$FILTER, zoom = TRUE) + 
+			graphQQ(brushQQzoom$FILTER, zoom = TRUE) +
 			labs(caption = paste0(
 				"Y: ", paste(round(brushQQzoom$y, 4), collapse = " to "), " (ms) : ",
 				"X: ", paste(round(pnorm(brushQQzoom$x)*100, 4), collapse = " to "), " (%) : ",
@@ -588,7 +573,7 @@
 		if (exists("API",		brushFILT))	brushDIFFzoom$API		<-	brushFILT$API
 		if (exists("Quality",	brushFILT))	brushDIFFzoom$Quality	<-	brushFILT$Quality
 		if (exists("Location",	brushFILT))	brushDIFFzoom$Location	<-	brushFILT$Location
-		
+
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
@@ -603,7 +588,7 @@
 
 			# brushDIFFzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 			brushDIFFzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
-			
+
 			# if (!is.null(brushFILT$API))	{
 				# brushDIFFzoom$API		<-	brushFILT$API
 				# brushDIFFzoom$FILTER	<-	intersect(brushDIFFzoom$FILTER, which(DATA$results$API	==	brushDIFFzoom$API))
@@ -611,12 +596,12 @@
 				# if (exists("APIs", DATA))	brushDIFFzoom$API	<-	DATA$APIs
 			# }
 		# }
-		
+
 		updateSelectInput(inputId	=	"brushDIFFgpu",	selected	=	brushDIFFzoom$GPU			)
 		updateSelectInput(inputId	=	"brushDIFFapi",	selected	=	brushDIFFzoom$API			)
 		updateSelectInput(inputId	=	"brushDIFFqua",	selected	=	brushDIFFzoom$Quality		)
 		updateSelectInput(inputId	=	"brushDIFFloc",	selected	=	brushDIFFzoom$Location		)
-		
+
 		brushDIFFzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 	observeEvent(input$brushDIFFupdate,	{	req(DATA$results)
@@ -625,7 +610,7 @@
 		brushDIFFzoom$API			<-	input$brushDIFFapi
 		brushDIFFzoom$Quality		<-	input$brushDIFFqua
 		brushDIFFzoom$Location		<-	input$brushDIFFloc
-		
+
 		filtGPU	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
 		filtLOC	<-	1:nrow(DATA$results)
@@ -636,10 +621,10 @@
 
 		# brushDIFFzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 		brushDIFFzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtQUA, filtLOC))
-		
+
 		if (!is.null(brushDIFFzoom$API))	brushDIFFzoom$FILTER	<-	intersect(brushDIFFzoom$FILTER,
 			which(DATA$results$API	==	brushDIFFzoom$API)	)
-		
+
 		brushDIFFzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
