@@ -10,7 +10,7 @@ GRAPH$FILT	<-	eventReactive(input$filtSEL,	{
 	filtAPI	<-	1:nrow(DATA$results)
 	filtQUA	<-	1:nrow(DATA$results)
 	filtLOC	<-	1:nrow(DATA$results)
-	
+
 	if (isTruthy(input$filtGPU))	filtGPU		<-	which(DATA$results$GPU		%in%	input$filtGPU)
 	if (isTruthy(input$filtQUA))	filtQUA		<-	which(DATA$results$Quality	%in%	input$filtQUA)
 	if (isTruthy(input$filtAPI))	filtAPI		<-	which(DATA$results$API		%in%	input$filtAPI)
@@ -28,7 +28,7 @@ GRAPH$STATS	<-	reactive({
 		API			=	DATA$results[GRAPH$FILT(), ]$API,
 		Location	=	DATA$results[GRAPH$FILT(), ]$Location
 	)
-	
+
 	sepCOL(aggregate(DATA$results[GRAPH$FILT(), input$datatypeG], GROUPS[input$listFACETS], statGRAPH, quan=c(1, 99)/100))
 })
 
@@ -92,10 +92,10 @@ FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 		API			=	"API" 		%in%	IN,
 		Quality		=	"Quality"	%in%	IN
 		)
-	
+
 	FACETselect	=	function(IN2)	paste0(names(FACS[IN2])[FACS[IN2]], collapse = ", ")
 	#	this will return only the names that are present in FACS and are desired, as set below
-	
+
 	if	(graphtype == "graphMEANS")	{
 		ROWS	=	FACETselect(c("Quality", "API"))
 		COLS	=	FACETselect(c("Location"))
@@ -108,11 +108,11 @@ FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 		ROWS	=	FACETselect(c("Location", "Quality", "API"))
 		COLS	=	FACETselect(c("GPU"))
 	}
-	
+
 	outROW	=	NULL	;	outCOL	=	NULL
 	if (ROWS != "")	outROW	=	paste0("rows = vars(", ROWS, ")")
 	if (COLS != "")	outCOL	=	paste0("cols = vars(", COLS, ")")
-	
+
 	out	=	paste0("facet_grid(", paste(outROW, outCOL, sep = ", "), ", switch = 'y', labeller = facWRAP)")
 	return(eval(parse(text = out)))
 }
@@ -236,10 +236,10 @@ scaleX	=	function(graphtype, datatype){
 	graphCOURSE	=	function(FILT, zoom = FALSE)	{
 		ALPHA	=	0.05
 		if	(length(unique(DATA$results$Location)) == 1)	ALPHA	=	1
-		
+
 		GEOM	=	list(geom_point(alpha = ALPHA), geom_smooth(method="gam", formula= y ~ s(x, bs = "cs")))
 		if (zoom)	GEOM	=	geom_step()
-		
+
 		ggplot(data = DATA$results[FILT, ], aes(x = TimeInSeconds, y = get(input$datatypeG))) +
 		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Course")) +
 		geom_hline(yintercept = 1000/60, color = "red") +
@@ -268,16 +268,16 @@ scaleX	=	function(graphtype, datatype){
 			#	output is numeric, so must convert to data frame, and transpose it to stats in columns instead of rows
 			LINES	=	list(
 				geom_vline(data = hold, aes(xintercept = Mean), color = "darkgreen"),
-				geom_vline(data = hold, aes(xintercept = Median), color = "darkcyan", linetype="dotdash")			
+				geom_vline(data = hold, aes(xintercept = Median), color = "darkcyan", linetype="dotdash")
 			)
 		}
-		
+
 		ggplot(DATA$results[FILT, ], aes(get(x = input$datatypeG))) +
 		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " - Frequency Plot")) +
 		geom_vline(xintercept = 1000/60, color = "red") +
 		geom_freqpoly(binwidth=0.03, size=0.25) +
 		# FACET("graphFREQ") +
-		LINES + 
+		LINES +
 		scaleX("graphFREQ", input$datatypeG) +
 		coord_cartesian(xlim = c(0, GRAPH$FtimeLimitMS())) +
 		scale_y_continuous(name="Count", expand=c(0.02, 0)) +
@@ -292,9 +292,9 @@ scaleX	=	function(graphtype, datatype){
 	graphQQ	=	function(FILT, zoom = FALSE)	{
 		PERCS	=	c(.001, .01, .5, .99, .999)
 		PERCS	=	sort(unique(	c(PERCS, GRAPH$QUAN())	))
-		
+
 		# STATS	=	sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN()))
-		
+
 		RECT	=	list(
 			geom_rect(aes(ymax = get("0.1"),		xmax = qnorm(.001)), alpha=0.1, fill=c("blue"), color = "grey"),
 			geom_rect(aes(ymax = get("1"),			xmax = qnorm(.010)), alpha=0.1, fill=c("blue"), color = "grey"),
@@ -307,7 +307,7 @@ scaleX	=	function(graphtype, datatype){
 		ggplot(data = GRAPH$STATS(), aes(ymin = -Inf, xmin = -Inf)) +
 		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - QQ Distribution")) +
 		geom_hline(yintercept = 1000/60, color	=	"red") +
-			RECT + 
+			RECT +
 		stat_qq_line(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG)), line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +
 		stat_qq(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG))) +
 		stat_qq_line(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG)), line.p = GRAPH$QUAN(), color = "green", alpha = 0.5, size = 1.1, linetype = "dotted") +
@@ -391,7 +391,7 @@ scaleX	=	function(graphtype, datatype){
 		ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
 		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")) +
 		geom_point(alpha = 0.1) +
-		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c() +
+		# stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c() +
 		# stat_density_2d(geom = "polygon", aes(fill = stat(nlevel), alpha = stat(nlevel)), show.legend = FALSE) + 	scale_fill_viridis_c() +
 		# FACET("graphDIFF") +
 		scale_X +
@@ -401,7 +401,8 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphDIFFfacet	=	renderPlot({
 		req(DATA$results)
-		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS)
+		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS) +
+		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
 	})
 
 if (VIEW$BRUSH)	source("app_graphs_zoom.r", local = TRUE)

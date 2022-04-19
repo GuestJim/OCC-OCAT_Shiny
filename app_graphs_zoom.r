@@ -628,11 +628,14 @@
 		brushDIFFzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
-	observeEvent(list(input$brushDIFFdbl, input$brushDIFFupdate),	{
+	observeEvent(list(input$brushDIFFdbl, input$brushDIFFupdate, input$diffLimHeat),	{
+		HEATMAP	=	list(stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE),  scale_fill_viridis_c())
+		if (!input$diffLimHeat)	HEATMAP	=	NULL
+		
 		output$brushDIFFfacet	=	renderPlot({
 			req(DATA$results, brushDIFFzoom$CHANGE)
 			graphDIFF(brushDIFFzoom$FILTER)	+ labs(caption = paste0(
 				paste(c(brushDIFFzoom$GPU, brushDIFFzoom$API, brushDIFFzoom$Quality, brushDIFFzoom$Location), collapse = ", ")
-			)	)
+			)	) + HEATMAP
 		})
 	},	ignoreInit	=	TRUE)

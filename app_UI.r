@@ -1,6 +1,6 @@
 DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 	ns	<-	NS(id)
-	
+
 	if	(!exists("FILE", envir=DATA))	{
 		tagList(
 			fileInput(inputId	=	"dataInput",
@@ -30,10 +30,10 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 		if (DOWN)	downloadButton(outputId	=	"tableECDFdown",	label	=	"Download ECDF Table (CSV)"),
 		if (DOWN)	downloadButton(outputId	=	"tableECDFhtml",	label	=	"Download ECDF Table (HTML)"),
 	)
-	
+
 	if (SEP)	{
 		tagList(
-			tabsetPanel(	
+			tabsetPanel(
 				tabPanel("Summary Table",		tagSUMM	),
 				tabPanel("FPS Targets Table",	tagECDF	),
 				)	)
@@ -47,9 +47,9 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 
 graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")	{
 	ns	<-	NS(id)
-	
+
 	if (!showGRAPHS)	return(NULL)
-	
+
 	tabPanel("Graph Control",
 		tagList(
 			tabsetPanel(
@@ -68,7 +68,7 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 					checkboxGroupInput(inputId	=	"listFACETS",	label	=	"Facets to use:",
 						choices		=	c("GPU", "API", "Quality", "Location"),
 						selected	=	c("GPU", "API", "Quality", "Location")
-					),				
+					),
 					varSelectInput(inputId	=	"datatypeG",	label	=	"Data Type (Graph)",	multiple	=	FALSE,
 						data	=	data.frame(list(MsBetweenPresents = 0))	),	#	the dummy frame is so "datatype" has an initial value
 					# numericInput(inputId	=	"facWID",
@@ -94,18 +94,18 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 
 GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs UI")	{
 	ns	<-	NS(id)
-	
+
 	ifBRUSH	=	function(IN)	{
 		if (BRUSH)	return(IN)
 		return(NULL)
 	}
 	if (!showGRAPHS)	return(NULL)
-	
+
 	tabPanel("Graphs",
 		tagList(
 			tabsetPanel(
 				tabPanel("Summary",
-					plotOutput('graphMEANfacet',	height=720,	
+					plotOutput('graphMEANfacet',	height=720,
 						dblclick	=	ifBRUSH("brushSUMMdbl")),
 					if (BRUSH)	tagList(
 						fixedRow(
@@ -276,6 +276,9 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 							),
 					),
 					actionButton(inputId	=	"brushDIFFupdate", label = "Update Single Plot"),
+					checkboxInput(inputId	=	"diffLimHeat",
+						label	=	"Enable Heat Map",	value	=	TRUE
+					),
 					plotOutput('brushDIFFfacet',	height=720)	)
 				),
 				id	=	"graphsFACET",
