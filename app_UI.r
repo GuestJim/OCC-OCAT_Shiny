@@ -288,6 +288,31 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 	)
 }
 
+
+graphicsHTML	<-	function(id, ..., label = "Data Saving")	{
+	ns	<-	NS(id)
+	if (!VIEW$gTABLES)	return(NULL)
+	if (!any(sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())))	return(NULL)
+	
+	tableFIND	<-	function(NAME)	{
+		hold	<-	grepl(NAME, list.files())
+		if (any(hold))	return(list.files()[which(hold)])
+		return(NULL)
+	}
+	tableNAME	<-	function(NAME)	{
+		if (!is.null(tableFIND(NAME)))	return(tagList(
+			h4(gsub(".html", "", NAME)),
+			includeHTML(tableFIND(NAME))
+		))
+	}
+	tabPanel("Graphics Configuration",
+		tagList(
+			tableNAME("Presets.html"),
+			tableNAME("60 FPS Target.html")
+		)
+	)
+}
+
 ui <- fluidPage(
 	# titlePanel(paste0("OCAT Frametime Performance Statistics and Graphs")),
 	uiOutput('Title'),
@@ -348,6 +373,7 @@ ui <- fluidPage(
 					HTML("<br>"),
 					includeHTML("Specs_Test.html"),
 				),
+				graphicsHTML("graphicsTABLES"),
 				id	=	"outputs",
 				type	=	"pills"
 			),

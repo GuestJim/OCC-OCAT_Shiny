@@ -26,6 +26,8 @@ VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
 						#	usually it would be !exists("FILE", envir=DATA)
 VIEW$GRAPHS	=	TRUE	#	control if Graphs should be included or not
 VIEW$BRUSH	=	TRUE	#	control if Graphs should be included or not
+VIEW$gTABLES	=	TRUE	#	control if HTML tables for Presets and 60 FPS Target configurations are shown
+							#	does check if files exists
 
 mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
 
