@@ -278,9 +278,9 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 					actionButton(inputId	=	"brushDIFFupdate", label = "Update Single Plot"),
 					fixedRow(
 						column(3, checkboxInput(inputId	=	"diffLimHeat",	label	=	"Enable Heat Map",	value	=	TRUE)	),
-						column(5, sliderInput(inputId	=	"brushDIFFalpha", label = "Heatmap Transparency",
+						column(5, sliderInput(inputId	=	"brushDIFFalpha", label = "Heatmap Opacity",
 							min = 0,	max = 1,	value = 1,	step = 0.1)	),
-						column(3, actionButton(inputId	=	"brushDIFFalphup", label = "Apply Transparency")	),
+						column(3, actionButton(inputId	=	"brushDIFFalphup", label = "Apply Opacity")	),
 					),
 					plotOutput('brushDIFFfacet',	height=720)	)
 				),
