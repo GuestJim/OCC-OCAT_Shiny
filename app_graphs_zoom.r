@@ -306,6 +306,10 @@
 		brush 		<- input$brushFREQdbl
 		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
 
+		brushFREQzoom$GPU			<-	NULL
+		brushFREQzoom$API			<-	NULL
+		brushFREQzoom$Quality		<-	NULL
+		brushFREQzoom$Location		<-	NULL
 		filtGPU	<-	1:nrow(DATA$results)
 		filtAPI	<-	1:nrow(DATA$results)
 		filtQUA	<-	1:nrow(DATA$results)
