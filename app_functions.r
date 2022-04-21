@@ -13,6 +13,8 @@ summMS	=	function(IN, listPERC = NULL)	{
 	default	=	c(0.1, 1, 99, 99.9)/100
 	if (!is.null(listPERC))	if	(max(listPERC) > 1)		listPERC	=	listPERC/100
 	listPERC	=	unique(sort(c(default, listPERC), decreasing = FALSE))
+	if (any(listPERC > 1))	listPERC	<-	listPERC[-which(listPERC > 1)]
+	if (any(listPERC < 0))	listPERC	<-	listPERC[-which(listPERC < 0)]
 	
 	setNames(c(mean(IN), median(IN), quantile(IN, listPERC)), c("Mean", "Median", paste0(listPERC * 100, "%")))
 }
