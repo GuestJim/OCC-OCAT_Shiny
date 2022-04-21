@@ -637,8 +637,8 @@
 		brushDIFFzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
 
-	observeEvent(list(input$brushDIFFdbl, input$brushDIFFupdate, input$diffLimHeat),	{
-		HEATMAP	=	list(stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE),  scale_fill_viridis_c())
+	observeEvent(list(input$brushDIFFdbl, input$brushDIFFupdate, input$diffLimHeat, input$brushDIFFalphup),	{
+		HEATMAP	=	list(stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), alpha = input$brushDIFFalpha, show.legend = FALSE),  scale_fill_viridis_c())
 		if (!input$diffLimHeat)	HEATMAP	=	NULL
 		
 		output$brushDIFFfacet	=	renderPlot({
