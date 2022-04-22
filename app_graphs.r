@@ -96,18 +96,18 @@ FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 	FACETselect	=	function(IN2)	paste0(names(FACS[IN2])[FACS[IN2]], collapse = ", ")
 	#	this will return only the names that are present in FACS and are desired, as set below
 
-	if	(graphtype == "graphMEANS")	{
-		ROWS	=	FACETselect(c("Quality", "API"))
-		COLS	=	FACETselect(c("Location"))
-	}
-	if	(graphtype == "graphCOURSE")	{
-		ROWS	=	"Location, Quality, API"
-		COLS	=	"GPU"
-	}
-	if	(graphtype	%in%	c("graphFREQ", "graphQQ", "graphDIFF"))	{
-		ROWS	=	FACETselect(c("Location", "Quality", "API"))
-		COLS	=	FACETselect(c("GPU"))
-	}
+	if	(graphtype == "graphMEANS")		FACSsel	=	c(
+		FACETselect(c("Quality", "API")),
+		FACETselect(c("Location")))
+	if	(graphtype == "graphCOURSE")	FACSsel	=	c(
+		"Location, Quality, API",
+		"GPU")
+	if	(graphtype	%in%	c("graphFREQ", "graphQQ", "graphDIFF"))	FACSsel	=	c(
+		FACETselect(c("Location", "Quality", "API")),
+		FACETselect(c("GPU")))
+
+	if (FALSE)	FACSsel	=	rev(FACSsel)
+	ROWS	=	FACSsel[1]	;	COLS	=	FACSsel[2]
 
 	outROW	=	NULL	;	outCOL	=	NULL
 	if (ROWS != "")	outROW	=	paste0("rows = vars(", ROWS, ")")
