@@ -69,6 +69,11 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 						choices		=	c("GPU", "API", "Quality", "Location"),
 						selected	=	c("GPU", "API", "Quality", "Location")
 					),
+					if (VIEW$FACflip)	checkboxGroupInput(inputId	=	"flipFACETS",	label	=	"Graphs to Flip Facets:",
+						choiceNames		=	c("Summary", "Course", "Frequency", "QQ", "Consecutive Difference"),
+						choiceValues	=	c("SUMM", "COURSE", "FREQ", "QQ", "DIFF"),
+						selected	=	NULL
+					),
 					varSelectInput(inputId	=	"datatypeG",	label	=	"Data Type (Graph)",	multiple	=	FALSE,
 						data	=	data.frame(list(MsBetweenPresents = 0))	),	#	the dummy frame is so "datatype" has an initial value
 					# numericInput(inputId	=	"facWID",

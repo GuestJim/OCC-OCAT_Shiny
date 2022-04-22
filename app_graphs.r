@@ -105,10 +105,16 @@ FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 	if	(graphtype	%in%	c("graphFREQ", "graphQQ", "graphDIFF"))	FACSsel	=	c(
 		FACETselect(c("Location", "Quality", "API")),
 		FACETselect(c("GPU")))
-
-	if (FALSE)	FACSsel	=	rev(FACSsel)
+	
+	if (VIEW$FACflip)	{
+		if (graphtype	==	"graphMEANS"	&	"SUMM"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphCOURSE"	&	"COURSE"	%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphFREQ"		&	"FREQ"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphQQ"		&	"QQ"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphDIFF"		&	"DIFF"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
+	}
 	ROWS	=	FACSsel[1]	;	COLS	=	FACSsel[2]
-
+	
 	outROW	=	NULL	;	outCOL	=	NULL
 	if (ROWS != "")	outROW	=	paste0("rows = vars(", ROWS, ")")
 	if (COLS != "")	outCOL	=	paste0("cols = vars(", COLS, ")")
