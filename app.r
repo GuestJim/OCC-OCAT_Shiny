@@ -107,18 +107,22 @@ server <- function(input, output, session) {
 
 	observeEvent(list(input$dataInput, DATA$LOAD), {
 		#Table Controls
+		cullGPUs	=	intersect(DATA$GPUs,	unique(DATA$results$GPU))
+		cullQUAs	=	intersect(DATA$QUAs,	unique(DATA$results$Quality))
+		cullLOCs	=	intersect(DATA$LOCs,	unique(DATA$results$Location))
+		cullAPIs	=	intersect(DATA$APIs,	unique(DATA$results$API))
 		updateCheckboxGroupInput(	inputId	=	"listGPU",
-			choices		=	DATA$GPUs,	selected	=	DATA$GPUs
+			choices		=	cullGPUs,	selected	=	cullGPUs
 		)
 		updateCheckboxGroupInput(	inputId	=	"listQUA",
-			choices		=	DATA$QUAs,	selected	=	DATA$QUAs
+			choices		=	cullQUAs,	selected	=	cullQUAs
 		)
 		updateCheckboxGroupInput(	inputId	=	"listLOC",
-			choices		=	DATA$LOCs,	selected	=	DATA$LOCs
+			choices		=	cullLOCs,	selected	=	DATA$LOCs
 		)
 		updateCheckboxGroupInput(	inputId	=	"listAPI",
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
-			choices		=	DATA$APIs,	selected	=	DATA$APIs
+			choices		=	cullAPIs,	selected	=	cullAPIs
 		)
 		updateVarSelectInput(		inputId	=	"datatype",
 			data	=	DATA$results[, !(names(DATA$results) %in% nodataCOL)],
@@ -126,17 +130,17 @@ server <- function(input, output, session) {
 		)
 		#Graph Controls
 		updateCheckboxGroupInput(	inputId	=	"filtGPU",
-			choices		=	DATA$GPUs,	selected	=	DATA$GPUs
+			choices		=	cullGPUs,	selected	=	cullGPUs
 		)
 		updateCheckboxGroupInput(	inputId	=	"filtQUA",
-			choices		=	DATA$QUAs,	selected	=	DATA$QUAs
+			choices		=	cullQUAs,	selected	=	cullQUAs
 		)
 		updateCheckboxGroupInput(	inputId	=	"filtLOC",
-			choices		=	DATA$LOCs,	selected	=	DATA$LOCs
+			choices		=	cullLOCs,	selected	=	cullLOCs
 		)
 		updateCheckboxGroupInput(	inputId	=	"filtAPI",
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
-			choices		=	DATA$APIs,	selected	=	DATA$APIs
+			choices		=	cullAPIs,	selected	=	cullAPIs
 		)
 
 		updateVarSelectInput(
