@@ -223,7 +223,7 @@ scaleX	=	function(graphtype, datatype){
 		geom_hline(yintercept = 1000/60, color = "red") +
 		# geom_boxplot(outlier.alpha = 0) +
 		stat_summary(fun.data = BoxPerc, geom = "boxplot", width = 0.6) +
-		geom_bar(aes(fill = GPU), stat = "summary", fun = mean) + scale_fill_hue(drop = FALSE) +
+		geom_bar(aes(fill = GPU), stat = "summary", fun = mean) + scale_fill_hue(breaks = intersect(DATA$GPUs,	unique(DATA$results$GPU)), drop = FALSE) +
 		stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
 		# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
 		# FACET("graphMEANS") +
