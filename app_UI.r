@@ -296,6 +296,16 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 	)
 }
 
+specTabUI	<-	function(id,	showDESK = TRUE,	showTEST = TRUE, ..., label = "System Specs UI")	{
+	if (!(showDESK | showTEST))	return(NULL)
+	tabPanel("System Specs",
+		tagList(
+			includeHTML("CSS.html"),
+			if (showDESK)	includeHTML("Specs_Desktop.html"),HTML("<br>"),
+			if (showTEST)	includeHTML("Specs_Test.html"),
+		)
+	)
+}
 
 graphicsHTML	<-	function(id, ..., label = "Data Saving")	{
 	ns	<-	NS(id)
@@ -375,12 +385,7 @@ ui <- fluidPage(
 					tableExportUI("tableExportUI", VIEW$SEP, VIEW$DOWN)
 				),
 				GraphTabUI("graphTab", VIEW$GRAPHS, VIEW$BRUSH),
-				tabPanel("System Specs",
-					includeHTML("CSS.html"),
-					includeHTML("Specs_Desktop.html"),
-					HTML("<br>"),
-					includeHTML("Specs_Test.html"),
-				),
+				specTabUI("specTAB",	showDESK = VIEW$tabDESK,	showTEST = VIEW$tabTEST),
 				graphicsHTML("graphicsTABLES"),
 				id	=	"outputs",
 				type	=	"pills"

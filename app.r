@@ -29,6 +29,8 @@ VIEW$BRUSH	=	TRUE	#	control if Zoomed/Single Graphs should be included or not
 VIEW$FACflip	=	TRUE	#	control if Facet Flipping should be allowed
 VIEW$gTABLES	=	TRUE	#	control if HTML tables for Presets and 60 FPS Target configurations are shown
 							#	does check if files exists
+VIEW$tabDESK	=	TRUE	#	control if Desktop Specifications are shown	
+VIEW$tabTEST	=	TRUE	#	control if Test System Specifications are shown	
 
 mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
 
