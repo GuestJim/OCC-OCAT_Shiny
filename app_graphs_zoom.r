@@ -249,9 +249,10 @@
 			, as.character(input$datatypeG)]
 	})
 
-	observeEvent(list(input$brushCOURSE, input$brushCOURSEupdate),	{
+	observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate),	{
+		req(DATA$results, brushCOURSEzoom$CHANGE)
+		#	Graph
 		output$brushCOURSEfacet	=	renderPlot({
-			req(DATA$results, brushCOURSEzoom$CHANGE)
 
 			graphCOURSE(brushCOURSEzoom$FILTER, zoom = TRUE) + labs(caption =
 				paste0("X: ", paste(round(brushCOURSEzoom$x, 4), collapse = " to "), " (s) : ",
@@ -259,43 +260,43 @@
 				)	) +
 			coord_cartesian(xlim = brushCOURSEzoom$x,	ylim = c(0, GRAPH$FtimeLimitMS()),	expand = FALSE)
 		})
-	},	ignoreInit	=	TRUE)
+		
+		#	Tables
+		observeEvent(list(input$datatypeG, input$roundTerm),	{
+			req(BRUSH$courseFILT())
+			observeEvent(input$manuPERC,	{
+				out	=	cbind(Unit = "ms", as.data.frame(t(summMS(BRUSH$courseFILT(), to.NUM(c(input$manuPERC))))))
 
-	observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$manuPERC, input$datatypeG, input$roundTerm),	{
-		req(BRUSH$courseFILT())
+				out$Unit	=	"ms"
+				colDATA	=	sapply(out, is.numeric)
 
-		out	=	cbind(Unit = "ms", as.data.frame(t(summMS(BRUSH$courseFILT(), to.NUM(c(input$manuPERC))))))
+				out	=	rbind(c(Unit = "FPS", 1000/out[, colDATA]), out)
 
-		out$Unit	=	"ms"
-		colDATA	=	sapply(out, is.numeric)
+				output$brushCOURSEsumm	=	renderTable({
+					filtCOL	=	names(out) %in% c("Unit", input$tabCOLs)
+					filtROW	=	TRUE
 
-		out	=	rbind(c(Unit = "FPS", 1000/out[, colDATA]), out)
+					if (!("ms" %in% input$tabUNIT))		filtROW	=	out$Unit != "ms"
+					if (!("FPS" %in% input$tabUNIT))	filtROW	=	out$Unit != "FPS"
 
-		output$brushCOURSEsumm	=	renderTable({
-			filtCOL	=	names(out) %in% c("Unit", input$tabCOLs)
-			filtROW	=	TRUE
+					out[filtROW, filtCOL]
+				},	digits	=	input$roundTerm)
+			})
+			observeEvent(input$manuECDF,	{
+				outECDF	=	as.data.frame(t(ecdfFPS(BRUSH$courseFILT(), to.NUM(c(input$manuECDF)))))
 
-			if (!("ms" %in% input$tabUNIT))		filtROW	=	out$Unit != "ms"
-			if (!("FPS" %in% input$tabUNIT))	filtROW	=	out$Unit != "FPS"
+				outECDF$Unit	=	"%"
+				colDATA	=	sapply(outECDF, is.numeric)
 
-			out[filtROW, filtCOL]
-		},	digits	=	input$roundTerm)
-	},	ignoreInit	=	TRUE)
+				outECDF	=	outECDF[, c(which(!colDATA), which(colDATA))]
 
-	observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$manuECDF, input$datatypeG, input$roundTerm),	{
-		req(BRUSH$courseFILT())
-		outECDF	=	as.data.frame(t(ecdfFPS(BRUSH$courseFILT(), to.NUM(c(input$manuECDF)))))
+				output$brushCOURSEecdf	=	renderTable({
+					filtCOL	=	names(outECDF) %in% c("Unit", input$tabCOLs)
 
-		outECDF$Unit	=	"%"
-		colDATA	=	sapply(outECDF, is.numeric)
-
-		outECDF	=	outECDF[, c(which(!colDATA), which(colDATA))]
-
-		output$brushCOURSEecdf	=	renderTable({
-			filtCOL	=	names(outECDF) %in% c("Unit", input$tabCOLs)
-
-			outECDF[, filtCOL]
-		},	digits	=	input$roundTerm)
+					outECDF[, filtCOL]
+				},	digits	=	input$roundTerm)
+			})
+		})
 	},	ignoreInit	=	TRUE)
 
 
