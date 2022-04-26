@@ -85,14 +85,28 @@ facWRAP	=	labeller(	Location	=	label_wrap_gen(GRAPH$facWID),
 						Quality		=	label_wrap_gen(GRAPH$facWID),
 						GPU			=	label_wrap_gen(GRAPH$facWID)	)
 
-FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
+GRAPH$flipFACETS	=	reactiveValues(
+	SUMM	=	FALSE,	COURSE	=	FALSE,	FREQ	=	FALSE,	QQ	=	FALSE,	DIFF	=	FALSE
+)
+
+observeEvent(input$flipFACETS, {
+	req(isTruthy(VIEW$FACflip))
+	if (GRAPH$flipFACETS$SUMM	!=	"SUMM"		%in% input$flipFACETS)	GRAPH$flipFACETS$SUMM	<-	!GRAPH$flipFACETS$SUMM
+	if (GRAPH$flipFACETS$COURSE	!=	"COURSE"	%in% input$flipFACETS)	GRAPH$flipFACETS$COURSE	<-	!GRAPH$flipFACETS$COURSE
+	if (GRAPH$flipFACETS$FREQ	!=	"FREQ"		%in% input$flipFACETS)	GRAPH$flipFACETS$FREQ	<-	!GRAPH$flipFACETS$FREQ
+	if (GRAPH$flipFACETS$QQ		!=	"QQ"		%in% input$flipFACETS)	GRAPH$flipFACETS$QQ		<-	!GRAPH$flipFACETS$QQ
+	if (GRAPH$flipFACETS$DIFF	!=	"DIFF"		%in% input$flipFACETS)	GRAPH$flipFACETS$DIFF	<-	!GRAPH$flipFACETS$DIFF
+	#	this way the specific element is only changed if the UI for it changed
+	#	does take advantage of the fact it can only have one of two values, so it blindly flips the value when the UI flips
+})
+
+FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"), Fflip = FALSE)	{
 	FACS	=	c(
 		GPU			=	"GPU"		%in%	IN,
 		Location	=	"Location"	%in%	IN,
 		API			=	"API" 		%in%	IN,
 		Quality		=	"Quality"	%in%	IN
 		)
-
 	FACETselect	=	function(IN2)	paste0(names(FACS[IN2])[FACS[IN2]], collapse = ", ")
 	#	this will return only the names that are present in FACS and are desired, as set below
 
@@ -105,16 +119,16 @@ FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"))	{
 	if	(graphtype	%in%	c("graphFREQ", "graphQQ", "graphDIFF"))	FACSsel	=	c(
 		FACETselect(c("Location", "Quality", "API")),
 		FACETselect(c("GPU")))
-	
-	if (VIEW$FACflip)	{
-		if (graphtype	==	"graphMEANS"	&	"SUMM"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
-		if (graphtype	==	"graphCOURSE"	&	"COURSE"	%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
-		if (graphtype	==	"graphFREQ"		&	"FREQ"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
-		if (graphtype	==	"graphQQ"		&	"QQ"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
-		if (graphtype	==	"graphDIFF"		&	"DIFF"		%in% input$flipFACETS)	FACSsel	=	rev(FACSsel)
+
+	if (VIEW$FACflip & Fflip)	{
+		if (graphtype	==	"graphMEANS")	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphCOURSE")	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphFREQ")	FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphQQ")		FACSsel	=	rev(FACSsel)
+		if (graphtype	==	"graphDIFF")	FACSsel	=	rev(FACSsel)
 	}
 	ROWS	=	FACSsel[1]	;	COLS	=	FACSsel[2]
-	
+
 	outROW	=	NULL	;	outCOL	=	NULL
 	if (ROWS != "")	outROW	=	paste0("rows = vars(", ROWS, ")")
 	if (COLS != "")	outCOL	=	paste0("cols = vars(", COLS, ")")
@@ -223,7 +237,7 @@ scaleX	=	function(graphtype, datatype){
 		geom_hline(yintercept = 1000/60, color = "red") +
 		# geom_boxplot(outlier.alpha = 0) +
 		stat_summary(fun.data = BoxPerc, geom = "boxplot", width = 0.6) +
-		geom_bar(aes(fill = GPU), stat = "summary", fun = mean) + scale_fill_hue(breaks = intersect(DATA$GPUs,	unique(DATA$results$GPU)), drop = FALSE) +
+		geom_bar(aes(fill = GPU), stat = "summary", fun = mean) + scale_fill_hue(drop = FALSE) +
 		stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
 		# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
 		# FACET("graphMEANS") +
@@ -236,7 +250,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphMEANfacet	=	renderPlot({
 		req(DATA$results)
-		graphSUMM(GRAPH$FILT()) + FACET("graphMEANS", input$listFACETS)
+		graphSUMM(GRAPH$FILT()) + FACET("graphMEANS", input$listFACETS, Fflip = GRAPH$flipFACETS$SUMM)
 	})
 
 	graphCOURSE	=	function(FILT, zoom = FALSE)	{
@@ -258,7 +272,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphCOURSEfacet	=	renderPlot({
 		req(DATA$results)
-		graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE")
+		graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE", Fflip = GRAPH$flipFACETS$COURSE)
 	})
 
 	graphFREQ	=	function(FILT, zoom = FALSE)	{
@@ -292,7 +306,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphFREQfacet	=	renderPlot({
 		req(DATA$results)
-		graphFREQ(GRAPH$FILT()) + FACET("graphFREQ", input$listFACETS)
+		graphFREQ(GRAPH$FILT()) + FACET("graphFREQ", input$listFACETS, Fflip = GRAPH$flipFACETS$FREQ)
 	})
 
 	graphQQ	=	function(FILT, zoom = FALSE)	{
@@ -325,7 +339,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphQQfacet	=	renderPlot({
 		req(DATA$results)
-		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS) +
+		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ) +
 		geom_label(data = GRAPH$STATS(), aes(x = Inf, y = -Inf, label = paste0("Slope: ", Slope)), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green")
 	})
 
@@ -407,7 +421,7 @@ scaleX	=	function(graphtype, datatype){
 
 	output$graphDIFFfacet	=	renderPlot({
 		req(DATA$results)
-		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS) +
+		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
 		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
 	})
 
