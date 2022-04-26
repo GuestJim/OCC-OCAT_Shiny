@@ -501,34 +501,6 @@
 		brushQQzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE,	priority	=	5)
 
-	# BRUSH$qqFILT	=	NULL
-	# observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate, input$datatypeG),	{
-		# req(DATA$results)
-		# hold	=	as.data.frame(DATA$results[brushQQzoom$FILTER, ])
-		# hold	<-	hold[
-			# hold$TimeInSeconds	>=	brushQQzoom$x[1] &
-			# hold$TimeInSeconds	<=	brushQQzoom$x[2]
-			# , as.character(input$datatypeG)]
-		# BRUSH$qqFILT	<- hold
-		# rm(hold)
-	# },	ignoreInit	=	TRUE)
-	#	in theory this will create qqFILT containing just the selected data, but nothing uses it
-	#	it also caused a problem being a requirement, so disabling it
-
-	observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate),	{
-		output$brushQQfacet	=	renderPlot({
-			req(brushQQzoom$FILTER, brushQQzoom$CHANGE)
-
-			graphQQ(brushQQzoom$FILTER, zoom = TRUE) +
-			labs(caption = paste0(
-				"Y: ", paste(round(brushQQzoom$y, 4), collapse = " to "), " (ms) : ",
-				"X: ", paste(round(pnorm(brushQQzoom$x)*100, 4), collapse = " to "), " (%) : ",
-				paste(c(brushQQzoom$GPU, brushQQzoom$API, brushQQzoom$Quality, brushQQzoom$Location), collapse = ", ")
-			)	) +
-			coord_cartesian(xlim = brushQQzoom$x,	ylim = brushQQzoom$y,	expand = FALSE)
-		})
-	},	ignoreInit	=	TRUE)
-
 	qqTABLE	=	function(IN)	{
 		dataCOL	=	!(names(IN) %in% nodataCOL)
 		hold	=	as.data.frame(lapply(IN[, dataCOL], qqnorm, plot.it = FALSE))
@@ -561,11 +533,23 @@
 		return(out)
 	}
 
-	observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate, input$roundTerm),	{
-		req(brushQQzoom$FILTER)
-		output$brushQQtable	=	renderTable({
-			qqMINMAX(DATA$results[brushQQzoom$FILTER, ], brushQQzoom, input$datatypeG, input$roundTerm)
-		},	digits	=	input$roundTerm,	rownames	=	TRUE,	align	=	"r")
+	observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate),	{
+		req(brushQQzoom$FILTER, brushQQzoom$CHANGE)
+		output$brushQQfacet	=	renderPlot({
+			graphQQ(brushQQzoom$FILTER, zoom = TRUE) +
+			labs(caption = paste0(
+				"Y: ", paste(round(brushQQzoom$y, 4), collapse = " to "), " (ms) : ",
+				"X: ", paste(round(pnorm(brushQQzoom$x)*100, 4), collapse = " to "), " (%) : ",
+				paste(c(brushQQzoom$GPU, brushQQzoom$API, brushQQzoom$Quality, brushQQzoom$Location), collapse = ", ")
+			)	) +
+			coord_cartesian(xlim = brushQQzoom$x,	ylim = brushQQzoom$y,	expand = FALSE)
+		})
+		
+		observeEvent(input$roundTerm,	{
+			output$brushQQtable	=	renderTable({
+				qqMINMAX(DATA$results[brushQQzoom$FILTER, ], brushQQzoom, input$datatypeG, input$roundTerm)
+			},	digits	=	input$roundTerm,	rownames	=	TRUE,	align	=	"r")
+		})
 	},	ignoreInit	=	TRUE)
 
 
