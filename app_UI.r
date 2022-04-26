@@ -184,7 +184,9 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 								),
 						),
 						actionButton(inputId	=	"brushFREQupdate", label = "Update Single Plot"),
-						plotOutput('brushFREQfacet',	height=720)
+						plotOutput('brushFREQfacet',	height=720,
+							brush	=	ifBRUSH(brushOpts(id	=	"brushFREQfac", resetOnNew	=	TRUE, direction	=	"x"))),
+						if (BRUSH)	tableOutput('brushFREQfacetTAB')
 					)
 				),
 				tabPanel("QQ",

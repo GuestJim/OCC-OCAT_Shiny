@@ -373,6 +373,22 @@
 		})
 	},	ignoreInit	=	TRUE)
 
+	dataFILTfreq	<-	reactive(DATA$results[brushFREQzoom$FILTER, ][[input$datatypeG]])
+	observeEvent(list(input$brushFREQfac, input$roundTerm),	{
+		brush 		<- input$brushFREQfac
+				
+		FREQecdf	<-	(1 - ecdf(dataFILTfreq())(c(brush$xmax, brush$xmin))) * 100
+		FREQecdfTAB	<-	cbind(
+				ms			=	c(brush$xmax,		brush$xmin,			brush$xmax - brush$xmin),
+				FPS			=	c(1000/brush$xmax,	1000/brush$xmin,	1000/brush$xmin - 1000/brush$xmax),
+				"% Above"	=	c(FREQecdf[1],		FREQecdf[2],		FREQecdf[2] - FREQecdf[1])
+			) %>% as.data.frame()
+
+		rownames(FREQecdfTAB)	<-	c("Upper Limit", "Lower Limit", "Difference")
+		
+		output$brushFREQfacetTAB	<-	NULL
+		if (!is.null(brush))	output$brushFREQfacetTAB	<-	renderTable(FREQecdfTAB, digits = input$roundTerm, rownames = TRUE)
+	})
 
 #	QQ
 	brushQQzoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
