@@ -288,9 +288,14 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 						column(3, actionButton(inputId	=	"brushDIFFalphup", label = "Apply Opacity")	),
 					),
 					plotOutput('brushDIFFfacet',	height=720,
-						# dblclick	=	ifBRUSH("brushDIFFfacdbl"),
 						brush	=	ifBRUSH(brushOpts(id	=	"brushDIFFfac", resetOnNew	=	TRUE, direction	=	"xy")))	),
-					tableOutput('brushDIFFfacetSEL')
+					if (BRUSH)	tagList(
+						fillRow(
+							textOutput('brushDIFFfacetSEL'),
+							tableOutput('brushDIFFfacetRAN'),
+							flex = c(2, 3)
+						)
+					)
 				),
 				id	=	"graphsFACET",
 				type	=	"tabs"
@@ -304,7 +309,7 @@ graphicsHTML	<-	function(id, ..., label = "Data Saving")	{
 	ns	<-	NS(id)
 	if (!VIEW$gTABLES)	return(NULL)
 	if (!any(sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())))	return(NULL)
-	
+
 	tableFIND	<-	function(NAME)	{
 		hold	<-	grepl(NAME, list.files())
 		if (any(hold))	return(list.files()[which(hold)])

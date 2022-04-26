@@ -96,7 +96,7 @@
 		updateSelectInput(inputId	=	"brushSUMMloc",	selected	=	brushSUMMzoom$Location	)
 		brushSUMMzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	
+
 	observeEvent(input$brushSUMMupdate,	{	req(DATA$results)
 		# brushSUMMzoom$GPU			<-	input$brushSUMMgpu
 		brushSUMMzoom$API			<-	input$brushSUMMapi
@@ -331,7 +331,7 @@
 			brushFREQzoom$Location	<-	brushFILT$Location
 			filtLOC					<-	which(DATA$results$Location	==	brushFREQzoom$Location)
 		}
-		
+
 		brushFREQzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
 
 		updateSelectInput(inputId	=	"brushFREQgpu",	selected	=	brushFREQzoom$GPU			)
@@ -544,7 +544,7 @@
 			)	) +
 			coord_cartesian(xlim = brushQQzoom$x,	ylim = brushQQzoom$y,	expand = FALSE)
 		})
-		
+
 		observeEvent(input$roundTerm,	{
 			output$brushQQtable	=	renderTable({
 				qqMINMAX(DATA$results[brushQQzoom$FILTER, ], brushQQzoom, input$datatypeG, input$roundTerm)
@@ -597,7 +597,7 @@
 
 		brushDIFFzoom$CHANGE	<-	TRUE
 	},	ignoreInit	=	TRUE)
-	
+
 	observeEvent(input$brushDIFFupdate,	{	req(DATA$results)
 		# brushDIFFzoom$x			=	c(input$brushDIFFstart, input$brushDIFFstart + input$brushDIFFlength)
 		brushDIFFzoom$GPU			<-	input$brushDIFFgpu
@@ -623,7 +623,7 @@
 	observeEvent(list(input$brushDIFFdbl, input$brushDIFFupdate, input$diffLimHeat, input$brushDIFFalphup),	{
 		HEATMAP	=	list(stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), alpha = input$brushDIFFalpha, show.legend = FALSE),  scale_fill_viridis_c())
 		if (!input$diffLimHeat)	HEATMAP	=	NULL
-		
+
 		output$brushDIFFfacet	=	renderPlot({
 			req(DATA$results, brushDIFFzoom$CHANGE)
 			graphDIFF(brushDIFFzoom$FILTER)	+ labs(caption = paste0(
@@ -631,20 +631,26 @@
 			)	) + HEATMAP
 		})
 	},	ignoreInit	=	TRUE)
-	
+
 	dataFILTdiff	<-	reactive(DATA$results[brushDIFFzoom$FILTER, ][[input$datatypeG]])
-	observeEvent(input$brushDIFFfac,	{
+	observeEvent(list(input$brushDIFFfac, input$roundTerm),	{
 		brush	<-	input$brushDIFFfac
-		
+
 		DIFF	<-	diff.CONS(unlist(dataFILTdiff()))
 		rangeX	<-	which(dataFILTdiff()	>= brush$xmin	&	dataFILTdiff()	<= brush$xmax)
 		rangeY	<-	which(DIFF 				>= brush$ymin	&	DIFF			<= brush$ymax)
-		
-		observeEvent(input$roundTerm,	{
-			output$brushDIFFfacetSEL	=	renderTable(rbind(
-				c("Range Time (ms)",			paste0(round(c(brush$xmin, brush$xmax), input$roundTerm), collapse = " to ")),
-				c("Range Difference (ms)",		paste0(round(c(brush$ymin, brush$ymax), input$roundTerm), collapse = " to ")),
-				c("Amount of data selected: ",	paste0(round(length(intersect(rangeX, rangeY))/length(dataFILTdiff()) * 100, input$roundTerm), "%")	)	),
-			colnames = FALSE, align = 'rl')
-		})
-	})
+
+		DIFFperc	<-	length(intersect(rangeX, rangeY))/length(dataFILTdiff())
+		DIFFtabl	<-	as.data.frame(rbind(
+			list("Range Time (ms)",			brush$xmin, "to", brush$xmax),
+			list("Range Difference (ms)",	brush$ymin, "to", brush$ymax)
+		)	)
+
+		output$brushDIFFfacetSEL	=	renderText(
+			paste0("Amount of data selected: ",	round(DIFFperc * 100, input$roundTerm), "%")
+		)
+
+		output$brushDIFFfacetRAN	<-	NULL
+		if (!is.null(brush))	output$brushDIFFfacetRAN	=	renderTable(	DIFFtabl,
+									colnames = FALSE, digits = input$roundTerm,	align = 'lrcr')
+	},	ignoreInit = TRUE)
