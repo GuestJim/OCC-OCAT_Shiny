@@ -615,7 +615,6 @@
 		if (!is.null(brushDIFFzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushDIFFzoom$Quality)
 		if (!is.null(brushDIFFzoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushDIFFzoom$Location)
 
-		# brushDIFFzoom$FILTER		<-	intersect(intersect(filtGPU, filtQUA), filtLOC)
 		brushDIFFzoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
 
 		brushDIFFzoom$CHANGE	<-	TRUE
@@ -632,3 +631,20 @@
 			)	) + HEATMAP
 		})
 	},	ignoreInit	=	TRUE)
+	
+	dataFILTdiff	<-	reactive(DATA$results[brushDIFFzoom$FILTER, ][[input$datatypeG]])
+	observeEvent(input$brushDIFFfac,	{
+		brush	<-	input$brushDIFFfac
+		
+		DIFF	<-	diff.CONS(unlist(dataFILTdiff()))
+		rangeX	<-	which(dataFILTdiff()	>= brush$xmin	&	dataFILTdiff()	<= brush$xmax)
+		rangeY	<-	which(DIFF 				>= brush$ymin	&	DIFF			<= brush$ymax)
+		
+		observeEvent(input$roundTerm,	{
+			output$brushDIFFfacetSEL	=	renderTable(rbind(
+				c("Range Time (ms)",			paste0(round(c(brush$xmin, brush$xmax), input$roundTerm), collapse = " to ")),
+				c("Range Difference (ms)",		paste0(round(c(brush$ymin, brush$ymax), input$roundTerm), collapse = " to ")),
+				c("Amount of data selected: ",	paste0(round(length(intersect(rangeX, rangeY))/length(dataFILTdiff()) * 100, input$roundTerm), "%")	)	),
+			colnames = FALSE, align = 'rl')
+		})
+	})

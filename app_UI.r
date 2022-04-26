@@ -287,7 +287,10 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 							min = 0,	max = 1,	value = 1,	step = 0.1)	),
 						column(3, actionButton(inputId	=	"brushDIFFalphup", label = "Apply Opacity")	),
 					),
-					plotOutput('brushDIFFfacet',	height=720)	)
+					plotOutput('brushDIFFfacet',	height=720,
+						# dblclick	=	ifBRUSH("brushDIFFfacdbl"),
+						brush	=	ifBRUSH(brushOpts(id	=	"brushDIFFfac", resetOnNew	=	TRUE, direction	=	"xy")))	),
+					tableOutput('brushDIFFfacetSEL')
 				),
 				id	=	"graphsFACET",
 				type	=	"tabs"
@@ -296,16 +299,6 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 	)
 }
 
-specTabUI	<-	function(id,	showDESK = TRUE,	showTEST = TRUE, ..., label = "System Specs UI")	{
-	if (!(showDESK | showTEST))	return(NULL)
-	tabPanel("System Specs",
-		tagList(
-			includeHTML("CSS.html"),
-			if (showDESK)	includeHTML("Specs_Desktop.html"),HTML("<br>"),
-			if (showTEST)	includeHTML("Specs_Test.html"),
-		)
-	)
-}
 
 graphicsHTML	<-	function(id, ..., label = "Data Saving")	{
 	ns	<-	NS(id)
@@ -385,7 +378,12 @@ ui <- fluidPage(
 					tableExportUI("tableExportUI", VIEW$SEP, VIEW$DOWN)
 				),
 				GraphTabUI("graphTab", VIEW$GRAPHS, VIEW$BRUSH),
-				specTabUI("specTAB",	showDESK = VIEW$tabDESK,	showTEST = VIEW$tabTEST),
+				tabPanel("System Specs",
+					includeHTML("CSS.html"),
+					includeHTML("Specs_Desktop.html"),
+					HTML("<br>"),
+					includeHTML("Specs_Test.html"),
+				),
 				graphicsHTML("graphicsTABLES"),
 				id	=	"outputs",
 				type	=	"pills"
