@@ -375,6 +375,7 @@
 
 	dataFILTfreq	<-	reactive(DATA$results[brushFREQzoom$FILTER, ][[input$datatypeG]])
 	observeEvent(list(input$brushFREQfac, input$roundTerm),	{
+		req(DATA$results)
 		brush 		<- input$brushFREQfac
 				
 		FREQecdf	<-	(1 - ecdf(dataFILTfreq())(c(brush$xmax, brush$xmin))) * 100
