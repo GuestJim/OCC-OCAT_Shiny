@@ -299,6 +299,53 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 						)
 					)
 				),
+				tabPanel("Consecutive Difference (Percentage)",
+					fixedRow(
+						column(6,
+							textInput(inputId	=	"diffPERCLim",
+								label	=	"Consecutive Difference Limits (%)",
+								value	=	paste0(110)
+							),
+						),
+						column(2,
+							actionButton(inputId	=	"diffPERCLimRefresh",
+								label	=	"Refresh Difference Scale"
+							),
+						),
+					),
+					plotOutput('graphDIFFpercfacet',	height=720,
+						dblclick	=	ifBRUSH("brushDIFFpercdbl")),
+					if (BRUSH)	tagList(	fixedRow(
+						column(3,	selectInput(inputId	=	"brushDIFFpercloc",
+							label	=	"Location",	choices	=	NULL,	selectize	=	FALSE)
+							),
+						column(3,	selectInput(inputId	=	"brushDIFFpercgpu",
+							label	=	"GPU",		choices	=	NULL,	selectize	=	FALSE)
+							),
+						column(3,	selectInput(inputId	=	"brushDIFFpercapi",
+							label	=	"API",		choices	=	NULL,	selectize	=	FALSE)
+							),
+						column(3,	selectInput(inputId	=	"brushDIFFpercqua",
+							label	=	"Quality",	choices	=	NULL,	selectize	=	FALSE)
+							),
+					),
+					actionButton(inputId	=	"brushDIFFpercupdate", label = "Update Single Plot"),
+					fixedRow(
+						column(3, checkboxInput(inputId	=	"diffPERCLimHeat",	label	=	"Enable Heat Map",	value	=	TRUE)	),
+						column(5, sliderInput(inputId	=	"brushDIFFpercalpha", label = "Heatmap Opacity",
+							min = 0,	max = 1,	value = 1,	step = 0.1)	),
+						column(3, actionButton(inputId	=	"brushDIFFpercalphup", label = "Apply Opacity")	),
+					),
+					plotOutput('brushDIFFpercfacet',	height=720,
+						brush	=	ifBRUSH(brushOpts(id	=	"brushDIFFpercfac", resetOnNew	=	TRUE, direction	=	"xy")))	),
+					if (BRUSH)	tagList(
+						fillRow(
+							textOutput('brushDIFFpercfacetSEL'),
+							tableOutput('brushDIFFpercfacetRAN'),
+							flex = c(2, 3)
+						)
+					)
+				),
 				id	=	"graphsFACET",
 				type	=	"tabs"
 			)

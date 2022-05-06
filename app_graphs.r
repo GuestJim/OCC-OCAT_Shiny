@@ -1,4 +1,5 @@
-require(ggplot2)
+if (!require(ggplot2))	install.packages("ggplot2")
+library(ggplot2)
 
 # GRAPH$STATS	=	reactiveVal()
 # GRAPH$STATS	=	reactiveVal(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
@@ -64,6 +65,11 @@ observeEvent(input$FtimeLimitRefresh,	{
 GRAPH$diffLim	=	reactiveVal(20)
 GRAPH$diffLim	=	eventReactive(input$diffLimRefresh,	{
 	as.numeric(input$diffLim)
+},	ignoreNULL	=	FALSE,	label	=	"diffLimRefresh")
+
+GRAPH$diffPERCLim	=	reactiveVal(1.1)
+GRAPH$diffPERCLim	=	eventReactive(input$diffPERCLimRefresh,	{
+	as.numeric(input$diffPERCLim)/100
 },	ignoreNULL	=	FALSE,	label	=	"diffLimRefresh")
 
 
@@ -343,7 +349,7 @@ scaleX	=	function(graphtype, datatype){
 		geom_label(data = GRAPH$STATS(), aes(x = Inf, y = -Inf, label = paste0("Slope: ", Slope)), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green")
 	})
 
-	graphDIFF	=	function(FILT)	{
+	graphDIFF	=	function(FILT, PERC	=	FALSE)	{
 		limX	=	c(0, GRAPH$FtimeLimitMS())
 		limY	=	c(-GRAPH$diffLim(), GRAPH$diffLim())
 
@@ -407,21 +413,46 @@ scaleX	=	function(graphtype, datatype){
 				expand	=	c(0.02, 0)
 			)
 		}
-
-		ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
-		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")) +
-		geom_point(alpha = 0.1) +
-		# stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c() +
-		# stat_density_2d(geom = "polygon", aes(fill = stat(nlevel), alpha = stat(nlevel)), show.legend = FALSE) + 	scale_fill_viridis_c() +
-		# FACET("graphDIFF") +
-		scale_X +
-		scale_Y +
-		theme(plot.title.position = "plot")
+		
+		if (PERC)	{
+			limY	=	c(-GRAPH$diffPERCLim(), GRAPH$diffPERCLim())
+			scale_Y	=	scale_y_continuous(
+				name	=	"Consecutive Difference as Percentage",
+				breaks	=	seq(-2, 2, by = 0.25),	labels	=	function(IN)	paste0(IN*100, "%"),	limits	=	limY,
+				expand	=	c(0.02, 0)
+			)
+		}
+		
+		graphPARTS	=	list(
+			ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")),
+			geom_point(alpha = 0.1),
+			# stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c(),
+			# stat_density_2d(geom = "polygon", aes(fill = stat(nlevel), alpha = stat(nlevel)), show.legend = FALSE),	scale_fill_viridis_c(),
+			# FACET("graphDIFF"),
+			scale_X,
+			scale_Y,
+			theme(plot.title.position = "plot")
+		)
+		
+		if (!PERC)	{
+			ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
+			graphPARTS
+		}	else	{
+			ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))/get(input$datatypeG)) ) +
+			graphPARTS
+		}
+		
 	}
 
 	output$graphDIFFfacet	=	renderPlot({
 		req(DATA$results)
 		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
+		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
+	})
+	
+	output$graphDIFFpercfacet	=	renderPlot({
+		req(DATA$results)
+		graphDIFF(GRAPH$FILT(), TRUE) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
 		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
 	})
 

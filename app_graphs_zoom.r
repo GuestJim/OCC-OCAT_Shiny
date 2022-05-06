@@ -24,6 +24,11 @@
 		updateSelectInput(inputId	=	"brushDIFFapi",		choices	=	DATA$APIs)
 		updateSelectInput(inputId	=	"brushDIFFqua",		choices	=	DATA$QUAs)
 		updateSelectInput(inputId	=	"brushDIFFloc",		choices	=	DATA$LOCs)
+
+		updateSelectInput(inputId	=	"brushDIFFpercgpu",		choices	=	DATA$GPUs)
+		updateSelectInput(inputId	=	"brushDIFFpercapi",		choices	=	DATA$APIs)
+		updateSelectInput(inputId	=	"brushDIFFpercqua",		choices	=	DATA$QUAs)
+		updateSelectInput(inputId	=	"brushDIFFpercloc",		choices	=	DATA$LOCs)
 	})
 	observeEvent(input$listFACETS,	{
 		# if (!("GPU"			%in%	input$listFACETS))	updateSelectInput(inputId	=	"brushSUMMgpu",	selected	=	""	)
@@ -670,5 +675,108 @@
 
 		output$brushDIFFfacetRAN	<-	NULL
 		if (!is.null(brush))	output$brushDIFFfacetRAN	=	renderTable(	DIFFtabl,
+									colnames = FALSE, digits = input$roundTerm,	align = 'lrcr')
+	},	ignoreInit = TRUE)
+
+
+#	Consecutive Difference (Percentage)
+	brushDIFFperczoom	=	reactiveValues(x = c(-Inf, Inf),	y = c(-Inf, Inf),	FILTER	=	TRUE,
+		GPU	=	NULL,	API	=	NULL,	Quality	=	NULL,	Location = NULL,	CHANGE	=	FALSE)
+	observeEvent(input$brushDIFFpercdbl,	{	req(DATA$results)
+		brush 		<- input$brushDIFFpercdbl
+		brushFILT	<-	setNames(brush[grep("panelvar", names(brush))], brush$mapping[grep("panelvar", names(brush$mapping))]	)
+
+		# brushDIFFperczoom$x				<-	NULL
+		brushDIFFperczoom$GPU			<-	NULL
+		brushDIFFperczoom$API			<-	NULL
+		brushDIFFperczoom$Quality		<-	NULL
+		brushDIFFperczoom$Location		<-	NULL
+		# brushDIFFperczoom$FILTER		<-	TRUE
+		filtGPU	<-	1:nrow(DATA$results)
+		filtAPI	<-	1:nrow(DATA$results)
+		filtQUA	<-	1:nrow(DATA$results)
+		filtLOC	<-	1:nrow(DATA$results)
+
+		if (exists("GPU",		brushFILT))	{
+			brushDIFFperczoom$GPU		<-	brushFILT$GPU
+			filtGPU					<-	which(DATA$results$GPU		==	brushDIFFperczoom$GPU)
+		}
+		if (exists("API",		brushFILT))	{
+			brushDIFFperczoom$API		<-	brushFILT$API
+			filtAPI					<-	which(DATA$results$API		==	brushDIFFperczoom$API)
+		}
+		if (exists("Quality",	brushFILT))	{
+			brushDIFFperczoom$Quality	<-	brushFILT$Quality
+			filtQUA					<-	which(DATA$results$Quality	==	brushDIFFperczoom$Quality)
+		}
+		if (exists("Location",	brushFILT))	{
+			brushDIFFperczoom$Location	<-	brushFILT$Location
+			filtLOC					<-	which(DATA$results$Location	==	brushDIFFperczoom$Location)
+		}
+
+		brushDIFFperczoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
+
+		updateSelectInput(inputId	=	"brushDIFFpercgpu",	selected	=	brushDIFFperczoom$GPU			)
+		updateSelectInput(inputId	=	"brushDIFFpercapi",	selected	=	brushDIFFperczoom$API			)
+		updateSelectInput(inputId	=	"brushDIFFpercqua",	selected	=	brushDIFFperczoom$Quality		)
+		updateSelectInput(inputId	=	"brushDIFFpercloc",	selected	=	brushDIFFperczoom$Location		)
+
+		brushDIFFperczoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
+
+	observeEvent(input$brushDIFFpercupdate,	{	req(DATA$results)
+		# brushDIFFperczoom$x			=	c(input$brushDIFFpercstart, input$brushDIFFpercstart + input$brushDIFFperclength)
+		brushDIFFperczoom$GPU			<-	input$brushDIFFpercgpu
+		brushDIFFperczoom$API			<-	input$brushDIFFpercapi
+		brushDIFFperczoom$Quality		<-	input$brushDIFFpercqua
+		brushDIFFperczoom$Location		<-	input$brushDIFFpercloc
+
+		filtGPU	<-	1:nrow(DATA$results)
+		filtAPI	<-	1:nrow(DATA$results)
+		filtQUA	<-	1:nrow(DATA$results)
+		filtLOC	<-	1:nrow(DATA$results)
+
+		if (!is.null(brushDIFFperczoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushDIFFperczoom$GPU)
+		if (!is.null(brushDIFFperczoom$API))		filtAPI		<-	which(DATA$results$API		==	brushDIFFperczoom$API)
+		if (!is.null(brushDIFFperczoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushDIFFperczoom$Quality)
+		if (!is.null(brushDIFFperczoom$Location))	filtLOC		<-	which(DATA$results$Location	==	brushDIFFperczoom$Location)
+
+		brushDIFFperczoom$FILTER		<-	Reduce(intersect, list(filtGPU, filtAPI, filtQUA, filtLOC))
+
+		brushDIFFperczoom$CHANGE	<-	TRUE
+	},	ignoreInit	=	TRUE)
+
+	observeEvent(list(input$brushDIFFpercdbl, input$brushDIFFpercupdate, input$diffPERCLimHeat, input$brushDIFFpercalphup),	{
+		HEATMAP	=	list(stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), alpha = input$brushDIFFpercalpha, show.legend = FALSE),  scale_fill_viridis_c())
+		if (!input$diffPERCLimHeat)	HEATMAP	=	NULL
+
+		output$brushDIFFpercfacet	=	renderPlot({
+			req(DATA$results, brushDIFFperczoom$CHANGE)
+			graphDIFF(brushDIFFperczoom$FILTER, TRUE)	+ labs(caption = paste0(
+				paste(c(brushDIFFperczoom$GPU, brushDIFFperczoom$API, brushDIFFperczoom$Quality, brushDIFFperczoom$Location), collapse = ", ")
+			)	) + HEATMAP
+		})
+	},	ignoreInit	=	TRUE)
+
+	dataFILTdiffPERC	<-	reactive(DATA$results[brushDIFFperczoom$FILTER, ][[input$datatypeG]])
+	observeEvent(list(input$brushDIFFpercfac, input$roundTerm),	{
+		brush	<-	input$brushDIFFpercfac
+
+		DIFFperc	<-	diff.CONS(unlist(dataFILTdiffPERC()))/dataFILTdiffPERC()
+		rangeX	<-	which(dataFILTdiffPERC()	>= brush$xmin	&	dataFILTdiffPERC()	<= brush$xmax)
+		rangeY	<-	which(DIFFperc 				>= brush$ymin	&	DIFFperc			<= brush$ymax)
+
+		DIFFpercperc	<-	length(intersect(rangeX, rangeY))/length(dataFILTdiffPERC())
+		DIFFperctabl	<-	as.data.frame(rbind(
+			list("Range Time (ms)",			brush$xmin, "to", brush$xmax),
+			list("Range Difference (%)",	brush$ymin*100, "to", brush$ymax*100)
+		)	)
+
+		output$brushDIFFpercfacetSEL	=	renderText(
+			paste0("Amount of data selected: ",	round(DIFFpercperc * 100, input$roundTerm), "%")
+		)
+
+		output$brushDIFFpercfacetRAN	<-	NULL
+		if (!is.null(brush))	output$brushDIFFpercfacetRAN	=	renderTable(	DIFFperctabl,
 									colnames = FALSE, digits = input$roundTerm,	align = 'lrcr')
 	},	ignoreInit = TRUE)
