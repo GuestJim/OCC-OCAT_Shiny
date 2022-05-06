@@ -118,9 +118,9 @@ funcSUMM	=	function()	{
 DATA$tableSUMM	=	funcSUMM()
 
 # saveRDS(DATA, paste0(FILEname, ".RData"), compress = FALSE)
-saveRDS(DATA, paste0(FILEname, ".RData"), compress = "gzip")	#	by default compresses using this method
+# saveRDS(DATA, paste0(FILEname, ".RData"), compress = "gzip")	#	by default compresses using this method
 # saveRDS(DATA, paste0(FILEname, ".RData"), compress = "bzip2")
-# saveRDS(DATA, paste0(FILEname, ".RData"), compress = "xz")		#	faster and better than bzip2, in one test, but gzip fastest
+saveRDS(DATA, paste0(FILEname, ".RData"), compress = "xz")		#	faster and better than bzip2, in one test, but gzip fastest
 # library(fst)
 # write_fst(DATA$results, paste0(FILEname, ".Rfst"))
 #	fst has "faster" saving and loading, but the file size is larger and it is only for data frames
