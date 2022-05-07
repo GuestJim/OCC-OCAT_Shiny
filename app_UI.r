@@ -3,6 +3,11 @@ DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 
 	if	(!exists("FILE", envir=DATA))	{
 		tagList(
+			selectInput('dataSel',	label	=	"Data to Load",	selectize	=	FALSE,
+				# choices	=	setNames(FILES, gsub(".env|.RData", "", names(FILES))), selected	=	FILES[1]
+				choices	=	FILES, selected	=	FILES[1]
+			),
+			actionButton(inputId	=	"dataSelLOAD",	label	=	"Load Selected Data"),
 			fileInput(inputId	=	"dataInput",
 				label	=	"CSV Data to Import",
 				accept	=	c(".csv", ".csv.bz2", ".csv.gz", ".csv.xz", ".RData"),

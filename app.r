@@ -18,8 +18,8 @@ BRUSH	=	new.env()
 
 # DATA$FILE	=	"Chorus - Epic.csv.bz2"
 # DATA$FILE	=	"Crysis Remastered - Small.csv.bz2"
-# DATA$FILE	=	"Dying Light 2 - All.csv.bz2"
-# DATA$FILE	=	"Dying Light 2 - All.RData"
+# DATA$FILE	=	"Dying Light 2 - PA.RData"
+# DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
@@ -34,14 +34,19 @@ VIEW$tabTEST	=	TRUE	#	control if Test System Specifications are shown
 
 mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
 
+FILES		=	list.files(pattern = "*.csv$|*.csv.bz2$|*.csv.gzip$|*.csv.xz$|*.RData$",	recursive = TRUE)
+FILES.names	=	unlist(lapply(sapply(gsub("Data/", "", gsub(".RData", "", FILES)), strsplit, ".csv"), "[", 1), use.names = FALSE)
+FILES		=	setNames(FILES, gsub(".RData", "", FILES.names))
+
 dataLOAD	=	function(name, datapath	=	NULL)	{
 	if (is.null(datapath))	datapath	=	name
 
-	DATA$game	=	unlist(strsplit(name, " - "))[1]
+	DATA$game	=	gsub("Data/", "", unlist(strsplit(name, " - "))[1])
 	if (endsWith(datapath, ".RData"))	{
 		mergeENV(DATA, readRDS(datapath))
 	}	else	{
-		require(readr)
+		if (!require(readr))	install.packages("readr")
+		library(readr)
 		DATA$results	=	read_csv(datapath, guess_max = 10, lazy = TRUE, col_select=!all_of(noCOL),	show_col_types = FALSE)
 		DATA$results$GPU			=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
 		DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
@@ -58,6 +63,7 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
 		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 	}
+	DATA$LOAD	<-	TRUE
 }
 
 noCOL	=	c("ProcessID", "SwapChainAddress", "SyncInterval", "PresentFlags", "AllowsTearing", "PresentMode", "DwmNotified")
@@ -72,11 +78,16 @@ source("app_UI.r", local	=	TRUE)
 server <- function(input, output, session) {
 	if (exists("FILE", envir	=	DATA))	{
 		dataLOAD(DATA$FILE)
-		DATA$LOAD	=	TRUE
+		DATA$LOAD	<-	TRUE
 	}
 	observeEvent(input$dataInput,	{
 		FILE	=	input$dataInput
 		dataLOAD(FILE$name, FILE$datapath)
+	},	priority	=	10)
+
+	observeEvent(input$dataSelLOAD,	{
+		FILE	=	input$dataSel
+		dataLOAD(FILE)
 	},	priority	=	10)
 
 	refreshMan	=	eventReactive(input$manuRefresh, {
@@ -86,14 +97,14 @@ server <- function(input, output, session) {
 
 	output$Title	=	renderUI({	titlePanel("Frame Time Statistics and Graphs")	})
 
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$manuRefresh, input$dataSelLOAD),	{
 		req(DATA$game)
 		TITLE	=	paste0(DATA$game, " - Frame Time Statistics")
 		if (VIEW$GRAPHS)	TITLE	=	paste0(TITLE, " and Graphs")
 		output$Title	=	renderUI({	titlePanel(TITLE)	})
 	},	label	=	"updateTitle")
 
-	observeEvent(list(input$dataInput, DATA$LOAD), {
+	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD), {
 		updateTextInput(session,
 			inputId	=	"gameName",
 			value	=	DATA$game
@@ -107,7 +118,7 @@ server <- function(input, output, session) {
 	hideTab(inputId	=	"graphsFACET",	target	=	"QQ")
 	hideTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
 
-	observeEvent(list(input$dataInput, DATA$LOAD), {
+	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD), {
 		#Table Controls
 		cullGPUs	=	intersect(DATA$GPUs,	unique(DATA$results$GPU))
 		cullQUAs	=	intersect(DATA$QUAs,	unique(DATA$results$Quality))

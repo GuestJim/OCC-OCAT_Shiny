@@ -26,7 +26,7 @@
 		return(out[which(filtROW), which(filtCOL)])
 	}
 
-	observeEvent(list(input$fileInput, input$manuPERC, input$manuECDF), {
+	observeEvent(list(input$fileInput, input$manuPERC, input$manuECDF, input$dataSelLOAD), {
 		PERC	=	namePERC(c(to.NUM(DATA$namePERC), to.NUM(input$manuPERC)))
 		ECDF	=	nameECDF(c(to.NUM(DATA$nameECDF), to.NUM(input$manuECDF)))
 
@@ -39,7 +39,7 @@
 	})
 
 	DATA$tableSUMM	=	reactiveVal(NULL)	;	DATA$tableECDF	=	reactiveVal(NULL)
-	observeEvent(list(input$dataInput, DATA$LOAD),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD),	{
 		if (exists("tableSUMM", envir = DATA))	DATA$tableSUMM	=	reactiveVal(DATA$tableSUMM)
 		if (exists("tableECDF", envir = DATA))	DATA$tableECDF	=	reactiveVal(DATA$tableECDF)
 	})
@@ -49,7 +49,7 @@
 	#	these will load a pre-computed version of the table into the applet, rather than needing to wait for the work to be done
 	#	only relevant with the Static version, rather than Upload
 
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuPERC, input$datatype, input$listGROUPS),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD, input$manuPERC, input$datatype, input$listGROUPS),	{
 		req(DATA$results)
 
 		# outMEAN	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, meanMS))
@@ -73,7 +73,7 @@
 		DATA$tableSUMM(out[, c(which(!colDATA), which(colDATA))])
 	})
 
-	observeEvent(list(input$dataInput, DATA$LOAD, input$manuECDF, input$datatype, input$listGROUPS),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD, input$manuECDF, input$datatype, input$listGROUPS),	{
 		req(DATA$results)
 
 		# outECDF	=	sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS, ecdfFPS, to.NUM(c(input$manuECDF))))

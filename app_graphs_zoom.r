@@ -1,4 +1,4 @@
-	observeEvent(list(input$dataInput, DATA$LOAD),	{
+	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD),	{
 		req(DATA$results)
 		updateSelectInput(inputId	=	"brushSUMMgpu",		choices	=	DATA$GPUs)
 		updateSelectInput(inputId	=	"brushSUMMapi",		choices	=	DATA$APIs)
