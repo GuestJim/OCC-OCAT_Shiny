@@ -372,7 +372,7 @@
 	observeEvent(list(input$brushFREQdbl, input$brushFREQupdate),	{
 		output$brushFREQfacet	=	renderPlot({
 			req(DATA$results, brushFREQzoom$CHANGE)
-			graphFREQ(brushFREQzoom$FILTER, zoom = TRUE)	+ labs(caption = paste0(
+			graphFREQ(brushFREQzoom$FILTER)	+ labs(caption = paste0(
 				paste(c(brushFREQzoom$GPU, brushFREQzoom$API, brushFREQzoom$Quality, brushFREQzoom$Location), collapse = ", ")
 			)	)
 		})
@@ -559,7 +559,7 @@
 	observeEvent(list(input$brushQQ, input$brushQQdbl, input$brushQQupdate),	{
 		req(brushQQzoom$FILTER, brushQQzoom$CHANGE)
 		output$brushQQfacet	=	renderPlot({
-			graphQQ(brushQQzoom$FILTER, zoom = TRUE) +
+			graphQQ(brushQQzoom$FILTER) +
 			labs(caption = paste0(
 				"Y: ", paste(round(brushQQzoom$y, 4), collapse = " to "), " (ms) : ",
 				"X: ", paste(round(pnorm(brushQQzoom$x)*100, 4), collapse = " to "), " (%) : ",

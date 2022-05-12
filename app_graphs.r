@@ -1,6 +1,40 @@
 if (!require(ggplot2))	install.packages("ggplot2")
 library(ggplot2)
 
+
+StatQuan	<-	ggproto("StatQuan", Stat,
+	required_aes	=	c("sample"),
+	compute_group	=	function(data, scales, Q)	{
+		Q	<-	sort(unique(Q))
+		data.frame(
+			xmin = -Inf,		ymin = -Inf,
+			xmax = qnorm(Q),	ymax = quantile(data$sample, Q)
+			)
+	}
+)
+
+geom_qq_rect	<-	function(mapping = NULL, data = NULL, geom = "rect", position = "identity", na.rm = FALSE, show.legend = NA,  inherit.aes = TRUE, ...)	{
+	layer(stat = StatQuan, data = data, mapping = mapping, geom = geom,
+    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...))
+}
+
+StatQuanSlope	<-	ggproto("StatQuanSlope", Stat,
+	required_aes	=	c("sample"),
+	compute_group	=	function(data, scales, Q = c(0.01, 0.99), r = 2)	{
+		data.frame(
+			x	=	Inf,	y	=	-Inf,
+			label	=	paste0("Slope: ", round(diff(quantile(data$sample, Q))/diff(100 * Q), r))
+		)
+	}
+)
+
+geom_qq_label	<-	function(mapping = NULL, data = NULL, geom = "label", position = "identity", na.rm = FALSE, show.legend = NA,  inherit.aes = TRUE, ...)	{
+	layer(stat = StatQuanSlope, data = data, mapping = mapping, geom = geom,
+    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...))
+}
+
 # GRAPH$STATS	=	reactiveVal()
 # GRAPH$STATS	=	reactiveVal(sepCOL(aggregate(DATA$results[, "MsBetweenPresents"], DATA$GROUPS, statGRAPH, quan=c(1, 99)/100)))
 
@@ -21,17 +55,17 @@ GRAPH$FILT	<-	eventReactive(input$filtSEL,	{
 },	ignoreNULL	=	FALSE)
 #	ignoreNULL is necessary here for GRAPH$FILT to have a value without hitting the button
 
-GRAPH$STATS	<-	reactive({
-	req(DATA$results)
-	GROUPS	<-	list(
-		GPU			=	DATA$results[GRAPH$FILT(), ]$GPU,
-		Quality		=	DATA$results[GRAPH$FILT(), ]$Quality,
-		API			=	DATA$results[GRAPH$FILT(), ]$API,
-		Location	=	DATA$results[GRAPH$FILT(), ]$Location
-	)
+# GRAPH$STATS	<-	reactive({
+	# req(DATA$results)
+	# GROUPS	<-	list(
+		# GPU			=	DATA$results[GRAPH$FILT(), ]$GPU,
+		# Quality		=	DATA$results[GRAPH$FILT(), ]$Quality,
+		# API			=	DATA$results[GRAPH$FILT(), ]$API,
+		# Location	=	DATA$results[GRAPH$FILT(), ]$Location
+	# )
 
-	sepCOL(aggregate(DATA$results[GRAPH$FILT(), input$datatypeG], GROUPS[input$listFACETS], statGRAPH, quan=c(1, 99)/100))
-})
+	# sepCOL(aggregate(DATA$results[GRAPH$FILT(), input$datatypeG], GROUPS[input$listFACETS], statGRAPH, quan=c(1, 99)/100))
+# })
 
 GRAPH$QUAN	=	reactiveVal(c(1, 99)/100)
 observeEvent(input$QUANrefresh, {
@@ -281,29 +315,21 @@ scaleX	=	function(graphtype, datatype){
 		graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE", Fflip = GRAPH$flipFACETS$COURSE)
 	})
 
-	graphFREQ	=	function(FILT, zoom = FALSE)	{
-		LINES	=	list(
-			geom_vline(data = GRAPH$STATS(), aes(xintercept = Mean), color = "darkgreen"),
-			geom_vline(data = GRAPH$STATS(), aes(xintercept = Median), color = "darkcyan", linetype="dotdash")
+	graphFREQ	=	function(FILT)	{
+		GROUPS	<-	list(
+			GPU			=	DATA$results[FILT, ]$GPU,
+			Quality		=	DATA$results[FILT, ]$Quality,
+			API			=	DATA$results[FILT, ]$API,
+			Location	=	DATA$results[FILT, ]$Location
 		)
-		if (zoom)	{
-			hold	<-	as.data.frame(t(
-				statGRAPH(as.data.frame(DATA$results)[FILT, as.character(input$datatypeG)])
-				))
-			#	tibbles complicating things
-			#	output is numeric, so must convert to data frame, and transpose it to stats in columns instead of rows
-			LINES	=	list(
-				geom_vline(data = hold, aes(xintercept = Mean), color = "darkgreen"),
-				geom_vline(data = hold, aes(xintercept = Median), color = "darkcyan", linetype="dotdash")
-			)
-		}
 
 		ggplot(DATA$results[FILT, ], aes(get(x = input$datatypeG))) +
 		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " - Frequency Plot")) +
 		geom_vline(xintercept = 1000/60, color = "red") +
 		geom_freqpoly(binwidth=0.03, size=0.25) +
 		# FACET("graphFREQ") +
-		LINES +
+			geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, mean), aes(xintercept = get(input$datatypeG)), color = "darkgreen") +
+			geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, median), aes(xintercept = get(input$datatypeG)), color = "darkcyan", linetype="dotdash") +
 		scaleX("graphFREQ", input$datatypeG) +
 		coord_cartesian(xlim = c(0, GRAPH$FtimeLimitMS())) +
 		scale_y_continuous(name="Count", expand=c(0.02, 0)) +
@@ -315,38 +341,27 @@ scaleX	=	function(graphtype, datatype){
 		graphFREQ(GRAPH$FILT()) + FACET("graphFREQ", input$listFACETS, Fflip = GRAPH$flipFACETS$FREQ)
 	})
 
-	graphQQ	=	function(FILT, zoom = FALSE)	{
-		PERCS	=	c(.001, .01, .5, .99, .999)
-		PERCS	=	sort(unique(	c(PERCS, GRAPH$QUAN())	))
+	graphQQ	=	function(FILT)	{
+		PERCSdef	=	c(.001, .01, .5, .99, .999)
+		PERCS		=	sort(unique(	signif(c(PERCSdef, GRAPH$QUAN()))	))
 
-		# STATS	=	sepCOL(aggregate(DATA$results[, as.character(input$datatypeG)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listFACETS], statGRAPH, quan=GRAPH$QUAN()))
-
-		RECT	=	list(
-			geom_rect(aes(ymax = get("0.1"),		xmax = qnorm(.001)), alpha=0.1, fill=c("blue"), color = "grey"),
-			geom_rect(aes(ymax = get("1"),			xmax = qnorm(.010)), alpha=0.1, fill=c("blue"), color = "grey"),
-			geom_rect(aes(ymax = get("Median"),		xmax = qnorm(.500)), alpha=0.1, fill=c("blue"), color = "grey"),
-			geom_rect(aes(ymax = get("99"),			xmax = qnorm(.990)), alpha=0.1, fill=c("red"), color = "grey"),
-			geom_rect(aes(ymax = get("99.9"),		xmax = qnorm(.999)), alpha=0.1, fill=c("red"), color = "grey")
-		)
-		if (zoom)	RECT	=	NULL
-
-		ggplot(data = GRAPH$STATS(), aes(ymin = -Inf, xmin = -Inf)) +
+		ggplot(data = DATA$results[FILT, ], aes(sample = get(input$datatypeG))) +
 		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - QQ Distribution")) +
 		geom_hline(yintercept = 1000/60, color	=	"red") +
-			RECT +
-		stat_qq_line(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG)), line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +
-		stat_qq(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG))) +
-		stat_qq_line(data = DATA$results[FILT, ], aes(sample=get(input$datatypeG)), line.p = GRAPH$QUAN(), color = "green", alpha = 0.5, size = 1.1, linetype = "dotted") +
+			lapply(PERCS, function(IN) geom_qq_rect(Q = IN,	alpha = 0.1, fill = ifelse(IN <=0.5, "blue", "red"), color = "grey")) +
+		stat_qq_line(line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +
+		stat_qq() +
+		stat_qq_line(line.p = GRAPH$QUAN(), color = "green", alpha = 0.5, size = 1.1, linetype = "dotted") +
+		geom_qq_label(Q = GRAPH$QUAN(), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green") +
 		scaleY("graphQQ", input$datatypeG) +
 		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
-		scale_x_continuous(name = "Percentile", breaks = qnorm(unique(PERCS)), labels = labelBreakQQ, minor_breaks = NULL, expand = c(0.02, 0)) +
+		scale_x_continuous(name = "Percentile", breaks = qnorm(PERCS), labels = labelBreakQQ, minor_breaks = NULL, expand = c(0.02, 0)) +
 		theme(plot.title.position = "plot")
 	}
 
 	output$graphQQfacet	=	renderPlot({
 		req(DATA$results)
-		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ) +
-		geom_label(data = GRAPH$STATS(), aes(x = Inf, y = -Inf, label = paste0("Slope: ", Slope)), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green")
+		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ)
 	})
 
 	graphDIFF	=	function(FILT, PERC	=	FALSE)	{
@@ -413,7 +428,7 @@ scaleX	=	function(graphtype, datatype){
 				expand	=	c(0.02, 0)
 			)
 		}
-		
+
 		if (PERC)	{
 			limY	=	c(-GRAPH$diffPERCLim(), GRAPH$diffPERCLim())
 			scale_Y	=	scale_y_continuous(
@@ -422,7 +437,7 @@ scaleX	=	function(graphtype, datatype){
 				expand	=	c(0.02, 0)
 			)
 		}
-		
+
 		graphPARTS	=	list(
 			ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")),
 			geom_point(alpha = 0.1),
@@ -433,7 +448,7 @@ scaleX	=	function(graphtype, datatype){
 			scale_Y,
 			theme(plot.title.position = "plot")
 		)
-		
+
 		if (!PERC)	{
 			ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
 			graphPARTS
@@ -441,7 +456,7 @@ scaleX	=	function(graphtype, datatype){
 			ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))/get(input$datatypeG)) ) +
 			graphPARTS
 		}
-		
+
 	}
 
 	output$graphDIFFfacet	=	renderPlot({
@@ -449,7 +464,7 @@ scaleX	=	function(graphtype, datatype){
 		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
 		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
 	})
-	
+
 	output$graphDIFFpercfacet	=	renderPlot({
 		req(DATA$results)
 		graphDIFF(GRAPH$FILT(), TRUE) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
