@@ -91,7 +91,7 @@ labelBreak	=	function(breaks, SEC = FALSE)	{
 labelRound	=	function(breaks)	round(breaks, 1)
 labelRoundB	=	function(breaks)	labelBreak(labelRound(breaks))
 ms2FPS.lab	=	function(breaks)	labelBreak(ms2FPS(breaks), SEC = TRUE)
-labelBreakQQ=	function(breaks)	labelBreak(paste0(pnorm(breaks) * 100, "%"))
+labelBreakQQ=	function(breaks)	labelBreak(paste0(signif(pnorm(breaks) * 100), "%"))
 labelDisp	=	function(breaks)	round(breaks * 60/1000, 1)
 labelDispB	=	function(breaks)	labelBreak(labelDisp(breaks))
 

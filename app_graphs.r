@@ -355,7 +355,7 @@ scaleX	=	function(graphtype, datatype){
 		geom_qq_label(Q = GRAPH$QUAN(), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green") +
 		scaleY("graphQQ", input$datatypeG) +
 		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
-		scale_x_continuous(name = "Percentile", breaks = qnorm(PERCS), labels = labelBreakQQ, minor_breaks = NULL, expand = c(0.02, 0)) +
+		scale_x_continuous(name = "Percentile", breaks = qnorm(PERCS), labels = labelBreak(paste0(PERCS * 100, "%")), minor_breaks = NULL, expand = c(0.02, 0)) +
 		theme(plot.title.position = "plot")
 	}
 
