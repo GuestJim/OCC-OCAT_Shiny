@@ -155,6 +155,12 @@ server <- function(input, output, session) {
 			label	=	ifelse(is.null(DATA$APIs), "No API Information", "APIs to show:"),
 			choices		=	cullAPIs,	selected	=	cullAPIs
 		)
+		if (is.null(DATA$APIs))	{
+			updateCheckboxGroupInput(	inputId	=	"listFACETS",
+				choices		=	c("GPU", "Quality", "Location"),
+				selected	=	c("GPU", "Quality", "Location")
+			)
+		}
 
 		updateVarSelectInput(
 			inputId	=	"datatypeG",
