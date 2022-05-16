@@ -358,27 +358,42 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 	)
 }
 
+tableFIND	<-	function(NAME)	{
+	hold	<-	grepl(NAME, list.files())
+	if (any(hold))	return(list.files()[which(hold)])
+	return(NULL)
+}
+tableNAME	<-	function(NAME, TITLE = TRUE)	{
+	if (!is.null(tableFIND(NAME)))	return(tagList(
+		if (TITLE)	h4(gsub(".html", "", NAME)),
+		includeHTML(tableFIND(NAME))
+	))
+}
 
-graphicsHTML	<-	function(id, ..., label = "Data Saving")	{
+graphicsHTML	<-	function(id, ..., label = "Configuration Tables")	{
 	ns	<-	NS(id)
 	if (!VIEW$gTABLES)	return(NULL)
 	if (!any(sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())))	return(NULL)
 
-	tableFIND	<-	function(NAME)	{
-		hold	<-	grepl(NAME, list.files())
-		if (any(hold))	return(list.files()[which(hold)])
-		return(NULL)
-	}
-	tableNAME	<-	function(NAME)	{
-		if (!is.null(tableFIND(NAME)))	return(tagList(
-			h4(gsub(".html", "", NAME)),
-			includeHTML(tableFIND(NAME))
-		))
-	}
 	tabPanel("Graphics Configuration",
 		tagList(
 			tableNAME("Presets.html"),
 			tableNAME("60 FPS Target.html")
+		)
+	)
+}
+
+specsHTML	<-	function(id, ..., label = "Specification Tables")	{
+	ns	<-	NS(id)
+	if (!VIEW$gTABLES)	return(NULL)
+	if (!any(sapply(c("Specs_Desktop.html", "Specs_Test.html"), grepl, list.files())))	return(NULL)
+
+	tabPanel("System Specs",
+		tagList(
+			tableNAME("CSS.html", FALSE),
+			tableNAME("Specs_Desktop.html", FALSE),
+			HTML("<br>"),
+			tableNAME("Specs_Test.html", FALSE)
 		)
 	)
 }
@@ -437,12 +452,7 @@ ui <- fluidPage(
 					tableExportUI("tableExportUI", VIEW$SEP, VIEW$DOWN)
 				),
 				GraphTabUI("graphTab", VIEW$GRAPHS, VIEW$BRUSH),
-				tabPanel("System Specs",
-					includeHTML("CSS.html"),
-					includeHTML("Specs_Desktop.html"),
-					HTML("<br>"),
-					includeHTML("Specs_Test.html"),
-				),
+				specsHTML("specsTABLES"),
 				graphicsHTML("graphicsTABLES"),
 				id	=	"outputs",
 				type	=	"pills"
