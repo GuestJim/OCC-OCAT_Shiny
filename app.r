@@ -117,6 +117,17 @@ server <- function(input, output, session) {
 	hideTab(inputId	=	"graphsFACET",	target	=	"Frequency")
 	hideTab(inputId	=	"graphsFACET",	target	=	"QQ")
 	hideTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
+	hideTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
+	
+	# observeEvent(input$dataSelLOAD,	{	req(DATA$results)
+		# showTab(inputId	=	"outputs",	target	=	"Graphs")
+		# showTab(inputId	=	"graphsFACET",	target	=	"Summary",	select	=	TRUE)
+		# showTab(inputId	=	"graphsFACET",	target	=	"Course")
+		# showTab(inputId	=	"graphsFACET",	target	=	"Frequency")
+		# showTab(inputId	=	"graphsFACET",	target	=	"QQ")
+		# showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
+		# showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
+	# })
 
 	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD), {
 		#Table Controls
@@ -167,12 +178,16 @@ server <- function(input, output, session) {
 			data	=	DATA$results[, !(names(DATA$results) %in% nodataCOL)],
 			selected	=	"MsBetweenPresents"
 		)
+		
+		{	req(DATA$results)
 		showTab(inputId	=	"outputs",	target	=	"Graphs")
 		showTab(inputId	=	"graphsFACET",	target	=	"Summary",	select	=	TRUE)
 		showTab(inputId	=	"graphsFACET",	target	=	"Course")
 		showTab(inputId	=	"graphsFACET",	target	=	"Frequency")
 		showTab(inputId	=	"graphsFACET",	target	=	"QQ")
 		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
+		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
+		}
 	})
 
 	output$textTest	<-	renderText("Test")
