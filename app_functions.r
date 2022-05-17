@@ -46,7 +46,7 @@ DATA$nameECDF	=	nameECDF()
 nameDEFs	=	c("Mean", "1%", "99%", "60 FPS")
 
 to.NUM	=	function(IN)	{
-	if (IN == "")	return(NULL)
+	if (length(IN) == 1) if (IN == "")	return(NULL)
 	IN	=	gsub("[%]|[FPS]|[fps]", "", IN)
 	IN	=	unlist(strsplit(IN, "[, ]"))
 	out	=	as.numeric(IN)
