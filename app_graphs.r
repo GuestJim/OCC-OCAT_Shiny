@@ -153,9 +153,13 @@ FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"), Fflip =
 	if	(graphtype == "graphMEANS")		FACSsel	=	c(
 		FACETselect(c("Quality", "API")),
 		FACETselect(c("Location")))
-	if	(graphtype == "graphCOURSE")	FACSsel	=	c(
-		"Location, Quality, API",
-		"GPU")
+	if	(graphtype == "graphCOURSE")	if (!is.null(DATA$APIs))	{
+		FACSsel	=	c("Location, Quality, API",
+					"GPU")
+		}	else	{
+		FACSsel	=	c("Location, Quality",
+					"GPU")
+		}
 	if	(graphtype	%in%	c("graphFREQ", "graphQQ", "graphDIFF"))	FACSsel	=	c(
 		FACETselect(c("Location", "Quality", "API")),
 		FACETselect(c("GPU")))
