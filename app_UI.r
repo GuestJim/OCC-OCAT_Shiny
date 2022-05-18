@@ -220,7 +220,7 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 					if (BRUSH)	tagList(
 						fixedRow(
 							column(3,	numericInput(inputId	=	"brushQQlowerX",
-								label	=	"Zoom Start (%)",	value	=	0,	step	=	1,
+								label	=	"Zoom Start (%)",	value	=	0,	step	=	0.1,
 								min	=	0,	max	=	100)
 								),
 							column(3,	numericInput(inputId	=	"brushQQupperX",
@@ -238,7 +238,7 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 								min	=	0,	max	=	Inf)
 								),
 							column(3,	numericInput(inputId	=	"brushQQupperY",
-								label	=	"Zoom Upper ms",	value	=	round(1000/15, 1),	step	=	0.1,
+								label	=	"Zoom Upper ms",	value	=	round(1000/15, 1),	step	=	1,
 								min	=	0,	max	=	1000)
 								),
 							),
