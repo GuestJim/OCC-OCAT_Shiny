@@ -197,7 +197,7 @@ scaleY	=	function(graphtype, datatype){
 		nameYP	=	"Refresh Cycles Later (1/60 s)"
 		nameYS	=	"Display Time (ms)"
 		labelYP	=	labelDisp
-		labelYS	=	ybreaks
+		labelYS	=	labelRound
 	}
 	if	(datatype == "MsUntilRenderComplete")	{
 		nameYP	=	"Render Time (ms)"
@@ -247,7 +247,7 @@ scaleX	=	function(graphtype, datatype){
 		nameXP	=	"Refresh Cycles Later (1/60 s)"
 		nameXS	=	"Display Time (ms)"
 		labelXP	=	labelDispB
-		labelXS	=	ybreaks
+		labelXS	=	labelBreak
 	}
 	if	(datatype == "MsUntilRenderComplete")	{
 		nameXP	=	"Render Time (ms)"
@@ -403,8 +403,7 @@ scaleX	=	function(graphtype, datatype){
 			)
 			scale_Y	=	scale_y_continuous(
 				name	=	"Consecutive Display Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),
-				limits	=	limY,
+				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
 				expand	=	c(0.02, 0)
 			)
 		}
