@@ -7,3 +7,4 @@ ShinyApps Upload.r
 @Old
 rsconnect
 *.dcf
+*.lnk
