@@ -322,10 +322,14 @@ scaleX	=	function(graphtype, datatype){
 	graphFREQ	=	function(FILT)	{
 		GROUPS	<-	list(
 			GPU			=	DATA$results[FILT, ]$GPU,
-			Quality		=	DATA$results[FILT, ]$Quality,
 			API			=	DATA$results[FILT, ]$API,
+			Quality		=	DATA$results[FILT, ]$Quality,
 			Location	=	DATA$results[FILT, ]$Location
 		)
+		if (!("GPU"			%in% input$listFACETS))	GROUPS$GPU		<-	NULL
+		if (!("API"			%in% input$listFACETS))	GROUPS$API		<-	NULL
+		if (!("Quality"		%in% input$listFACETS))	GROUPS$Quality	<-	NULL
+		if (!("Location"	%in% input$listFACETS))	GROUPS$Location	<-	NULL
 
 		ggplot(DATA$results[FILT, ], aes(get(x = input$datatypeG))) +
 		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " - Frequency Plot")) +
