@@ -188,6 +188,9 @@ server <- function(input, output, session) {
 		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
 		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
 		}
+		
+		appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
+		appendTab("outputs",	graphicsHTML("graphicsTABLES", DATA)	)
 	})
 
 	output$textTest	<-	renderText("Test")
