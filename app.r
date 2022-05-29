@@ -63,7 +63,8 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		DATA$APIs	=	LEVs(DATA$results$API)
 
 		DATA$checkAPI	=	TRUE
-		if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
+		# if (is.na(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
+		if (anyNA(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
 		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 	}
 	DATA$LOAD	<-	TRUE
