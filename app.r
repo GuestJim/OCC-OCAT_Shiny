@@ -41,6 +41,9 @@ FILES		=	setNames(FILES, gsub(".RData", "", FILES.names))
 dataLOAD	=	function(name, datapath	=	NULL)	{
 	if (is.null(datapath))	datapath	=	name
 
+	rm("specsDESK", "specsTEST", "configPRES", "config60FP",
+		envir = DATA)
+	
 	DATA$game	=	gsub("Data/", "", unlist(strsplit(name, " - "))[1])
 	if (endsWith(datapath, ".RData"))	{
 		mergeENV(DATA, readRDS(datapath))
@@ -86,7 +89,10 @@ server <- function(input, output, session) {
 	},	priority	=	10)
 
 	observeEvent(input$dataSelLOAD,	{
+		removeTab("outputs",	"System Specs"	)
+		removeTab("outputs",	"Graphics Configuration"	)
 		FILE	=	input$dataSel
+		
 		dataLOAD(FILE)
 	},	priority	=	10)
 
@@ -189,8 +195,14 @@ server <- function(input, output, session) {
 		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
 		}
 		
-		appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
-		appendTab("outputs",	graphicsHTML("graphicsTABLES", DATA)	)
+		if (any(
+			c("specsDESK", "specsTEST") %in% ls(DATA) | 
+			sapply(c("Specs_Desktop.html", "Specs_Test.html"), grepl, list.files())
+			)	)	appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
+		if (any(
+			c("configPRES", "config60FP") %in% ls(DATA) | 
+			sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())
+			)	)	appendTab("outputs",	graphicsHTML("graphicsTABLES", DATA)	)
 	})
 
 	output$textTest	<-	renderText("Test")
