@@ -197,11 +197,13 @@ server <- function(input, output, session) {
 		}
 		
 		if (any(
-			c("specsDESK", "specsTEST") %in% ls(DATA) | 
+			!is.null(DATA$specsDESK), !is.null(DATA$specsTEST) |
+			# c("specsDESK", "specsTEST") %in% ls(DATA) | 
 			sapply(c("Specs_Desktop.html", "Specs_Test.html"), grepl, list.files())
 			)	)	appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
 		if (any(
-			c("configPRES", "config60FP") %in% ls(DATA) | 
+			!is.null(DATA$configPRES), !is.null(DATA$config60FP) |
+			# c("configPRES", "config60FP") %in% ls(DATA) | 
 			sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())
 			)	)	appendTab("outputs",	graphicsHTML("graphicsTABLES", DATA)	)
 	})
