@@ -8,6 +8,7 @@ DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 				choices	=	FILES, selected	=	FILES[1]
 			),
 			actionButton(inputId	=	"dataSelLOAD",	label	=	"Load Selected Data"),
+			bookmarkButton(label = "Bookmark Data"),
 			fileInput(inputId	=	"dataInput",
 				label	=	"CSV Data to Import",
 				accept	=	c(".csv", ".csv.bz2", ".csv.gz", ".csv.xz", ".RData"),
@@ -422,11 +423,12 @@ specsHTML	<-	function(id, ..., label = "Specification Tables")	{
 	return(NULL)
 }
 
-ui <- fluidPage(
+ui <- function(request)	{fluidPage(
 	# titlePanel(paste0("OCAT Frametime Performance Statistics and Graphs")),
 	uiOutput('Title'),
 	sidebarLayout(
 		sidebarPanel(
+			# bookmarkButton(label = "Bookmark Data"),
 			DataInputUI("dataFile",
 				reactive(input$dataInput), reactive(input$gameName), reactive(input$manuRefresh)	),
 			#	combined with the ... to the module, this will have it work with these inputs, rather than its own versions
@@ -484,4 +486,4 @@ ui <- fluidPage(
 			width	=	9
 		)
 	)
-)
+)	}

@@ -94,6 +94,8 @@ source("app_UI.r", local	=	TRUE)
 
 # Define server logic to summarize and view selected dataset ----
 server <- function(input, output, session) {
+	setBookmarkExclude(c("QUANlow", "QUANhigh", "datatype", "datatypeG", "filtAPI", "filtGPU", "filtLOC", "filtQUA", "filtSEL", "manuECDF", "manuPERC", "flipFACETS", "roundTerm", "FtimeLimitMS", "graphsFACET", "listAPI", "listFACETS", "listGPU", "listGROUPS", "listLOC", "listQUA", "manuRefresh", "FtimeLimitFPS", "FtimeLimitRefresh", "gameName", "outputs", "QUANrefresh", "dataInput", "dataSelLOAD", "diffLim", "diffLimHeat", "diffLimRefresh", "diffPERCLim", "diffPERCLimHeat", "diffPERCLimRefresh", "tabCOLs", "tables", "tabUNIT", "brushCOURSEapi", "brushCOURSEgpu", "brushCOURSElength", "brushCOURSEloc", "brushCOURSEqua", "brushCOURSEstart", "brushCOURSEupdate", "brushDIFFalpha", "brushDIFFalphup", "brushDIFFapi", "brushDIFFgpu", "brushDIFFloc", "brushDIFFpercalpha", "brushDIFFpercalphup", "brushDIFFpercapi", "brushDIFFpercgpu", "brushDIFFpercloc", "brushDIFFpercqua", "brushDIFFpercupdate", "brushDIFFqua", "brushDIFFupdate", "brushFREQapi", "brushFREQgpu", "brushFREQloc", "brushFREQqua", "brushFREQupdate", "brushQQapi", "brushQQgpu", "brushQQloc", "brushQQlowerX", "brushQQlowerY", "brushQQqua", "brushQQupdate", "brushQQupperX", "brushQQupperY", "brushSUMMapi", "brushSUMMloc", "brushSUMMqua", "brushSUMMupdate"))
+
 	if (exists("FILE", envir	=	DATA))	{
 		dataLOAD(DATA$FILE)
 		DATA$LOAD	<-	TRUE
@@ -230,4 +232,4 @@ if (VIEW$GRAPHS)	source("app_graphs.r", local	=	TRUE)
 }
 
 # Create Shiny app ----
-shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server, enableBookmarking = "url")
