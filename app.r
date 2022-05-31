@@ -24,6 +24,7 @@ BRUSH	=	new.env()
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
 						#	usually it would be !exists("FILE", envir=DATA)
+VIEW$UPLOAD	=	TRUE	#	override for if DataInputUI should be shown
 VIEW$GRAPHS	=	TRUE	#	control if Graphs should be included or not
 VIEW$BRUSH	=	TRUE	#	control if Zoomed/Single Graphs should be included or not
 VIEW$FACflip	=	TRUE	#	control if Facet Flipping should be allowed

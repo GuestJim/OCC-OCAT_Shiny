@@ -1,7 +1,7 @@
 DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 	ns	<-	NS(id)
 
-	if	(!exists("FILE", envir=DATA))	{
+	if	(!exists("FILE", envir=DATA) & VIEW$UPLOAD)	{
 		tagList(
 			selectInput('dataSel',	label	=	"Data to Load",	selectize	=	FALSE,
 				# choices	=	setNames(FILES, gsub(".env|.RData", "", names(FILES))), selected	=	FILES[1]
