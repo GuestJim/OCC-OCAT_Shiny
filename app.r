@@ -34,12 +34,26 @@ VIEW$tabTEST	=	TRUE	#	control if Test System Specifications are shown
 
 mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
 
-FILES		=	list.files(pattern = "*.csv$|*.csv.bz2$|*.csv.gzip$|*.csv.xz$|*.RData$",	recursive = TRUE)
-FILES.names	=	unlist(lapply(sapply(gsub("Data/", "", gsub(".RData", "", FILES)), strsplit, ".csv"), "[", 1), use.names = FALSE)
-FILES		=	setNames(FILES, gsub(".RData", "", FILES.names))
+# FILES		=	list.files(pattern = "*.csv$|*.csv.bz2$|*.csv.gzip$|*.csv.xz$|*.RData$",	recursive = TRUE)
+# FILES.names	=	unlist(lapply(sapply(gsub("Data/", "", gsub(".RData", "", FILES)), strsplit, ".csv"), "[", 1), use.names = FALSE)
+# FILES		=	setNames(FILES, gsub(".RData", "", FILES.names))
+
+FILES		=	list.files(pattern = "*.env$|*.RData$",	recursive = TRUE)
+FILES.names	=	unlist(sapply(FILES, strsplit, "/"), use.names = FALSE)
+
+FILES	=	as.data.frame(cbind(
+	TITLE	=	sapply(FILES.names, function(IN) strsplit(IN, " - ")[[1]][1]),
+	TYPE	=	gsub(".RData", "", sapply(FILES.names, function(IN) strsplit(IN, " - ")[[1]][2])),
+	File	=	FILES.names
+))
+FILES	=	FILES[order(FILES$TITLE), ]
+rownames(FILES) <- NULL
+FILES	=	as.list(by(FILES[, c("File")], FILES$TYPE, identity))
+FILES	=	list("Review" = FILES$Review, "Performance Analysis" = FILES$PA, "Article" = FILES$Article)
 
 dataLOAD	=	function(name, datapath	=	NULL)	{
 	if (is.null(datapath))	datapath	=	name
+	if (!file.exists(name))	datapath	=	paste0("Data/", name)
 
 	rm("specsDESK", "specsTEST", "configPRES", "config60FP",
 		envir = DATA)
