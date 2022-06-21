@@ -6,9 +6,64 @@ README.md
 Shiny Apps Signup.r
 ShinyApps Upload.r
 OCAT to RData.r
-Chorus - Epic.csv.bz2
-Dolmen - All.RData
-Crysis Remastered - Small.csv.bz2
-Dying Light 2 - Review.RData
-Dying Light 2 - PA.RData
-.RData
+Table Repair.r
+Data
+Spec References
+
+Data/Absolver - Review.RData
+Data/Agents of Mayhem - Review.RData
+Data/Agony - Review.RData
+Data/Assassin's Creed Odyssey - Review.RData
+Data/Assassin's Creed Origins - Review.RData
+Data/Assassin's Creed Valhalla - Review.RData
+Data/Chorus - Review.RData
+Data/Crysis Remastered - PA.RData
+Data/Darksiders III - PA.RData
+Data/DiRT 4 - Review.RData
+Data/DiRT Rally 2.0 - Review.RData
+Data/Dolmen - Review.RData
+Data/DOOM Eternal - PA.RData
+Data/DOOM Eternal - Review.RData
+Data/Dying Light - Review.RData
+Data/Dying Light 2 - PA.RData
+Data/Dying Light 2 - Review.RData
+Data/Edge of Eternity - PA.RData
+Data/F1 2018 - Review.RData
+Data/F1 2019 - Review.RData
+Data/F1 2020 - Review.RData
+Data/Ghost Recon Breakpoint - PA.RData
+Data/Ghost Recon Breakpoint - Review.RData
+Data/GRID 2019 - Review.RData
+Data/Immortals Fenyx Rising - Review.RData
+Data/Just Cause 4 - PA.RData
+Data/Just Cause 4 - Review.RData
+Data/Kingdom Come- Deliverance - Review.RData
+Data/MechWarrior 5- Mercenaries - PA.RData
+Data/MechWarrior 5- Mercenaries - Review.RData
+Data/Metro Exodus - PA.RData
+Data/Middle-earth- Shadow of War - Review.RData
+Data/Saints Row The Third Remastered - PA.RData
+Data/Serious Sam- Siberian Mayhem - PA.RData
+Data/Serious Sam 4 - PA.RData
+Data/Serious Sam 4 - Review.RData
+Data/Serious Statistics- The Aliasing Adventure - Article.RData
+Data/Serious Statistics - Article.RData
+Data/Serious Statistics 2- The Sync Encounter - Article.RData
+Data/Serious Statistics Reprocessed - Article.RData
+Data/Shadow of the Tomb Raider - PA.RData
+Data/Shadow of the Tomb Raider - Review.RData
+Data/Siege of Centauri - Review.RData
+Data/Sunset Overdrive - Review.RData
+Data/The Division 2 - Review.RData
+Data/Wolfenstein II- The New Colossus - PA.RData
+Data/Wolfenstein II- The New Colossus - Review.RData
+Spec References/580, H110/Specs_Desktop.html
+Spec References/580, H110/Specs_Test.html
+Spec References/580, NH-U12S/Specs_Desktop.html
+Spec References/580, NH-U12S/Specs_Test.html
+Spec References/Desktop Only/Specs_Desktop.html
+Spec References/Old Desktop/Specs_Desktop.html
+Spec References/Vega 64, Enermax/Specs_Desktop.html
+Spec References/Vega 64, Enermax/Specs_Test.html
+Spec References/Vega 64, H110/Specs_Desktop.html
+Spec References/Vega 64, H110/Specs_Test.html
