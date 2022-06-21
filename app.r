@@ -220,7 +220,7 @@ server <- function(input, output, session) {
 			sapply(c("Specs_Desktop.html", "Specs_Test.html"), grepl, list.files())
 			)	)	appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
 		if (any(
-			!is.null(DATA$configPRES), !is.null(DATA$config60FP) |
+			!is.null(DATA$configPRES), !is.null(DATA$config60FPS) |
 			# c("configPRES", "config60FP") %in% ls(DATA) | 
 			sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())
 			)	)	appendTab("outputs",	graphicsHTML("graphicsTABLES", DATA)	)
