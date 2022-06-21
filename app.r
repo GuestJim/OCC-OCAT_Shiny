@@ -22,6 +22,7 @@ BRUSH	=	new.env()
 # DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
+VIEW$DEVI	=	FALSE	#	control if deviation based statistics are shown
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
 						#	usually it would be !exists("FILE", envir=DATA)
 VIEW$UPLOAD	=	TRUE	#	override for if DataInputUI should be shown

@@ -449,7 +449,7 @@ ui <- function(request)	{fluidPage(
 								label	=	"Additional FPS Targets"
 							),
 							checkboxGroupInput(inputId	=	"tabCOLs",	label	=	"Table Columns",
-								choices	=	c(DATA$nameMEAN, DATA$namePERC, DATA$nameECDF),	selected	=	nameDEFs),
+								choices	=	c(DATA$nameMEAN, DATA$namePERC, if(VIEW$DEVI){DATA$nameDEVI}, DATA$nameECDF),	selected	=	nameDEFs),
 							varSelectInput(inputId	=	"datatype",	label	=	"Data Type",	multiple	=	FALSE,
 								data	=	data.frame(list(MsBetweenPresents = 0))	)	#	the dummy frame is so "datatype" has an initial value
 						),

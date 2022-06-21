@@ -15,8 +15,15 @@ summMS	=	function(IN, listPERC = NULL)	{
 	listPERC	=	unique(sort(c(default, listPERC), decreasing = FALSE))
 	if (any(listPERC > 1))	listPERC	<-	listPERC[-which(listPERC > 1)]
 	if (any(listPERC < 0))	listPERC	<-	listPERC[-which(listPERC < 0)]
-	
-	setNames(c(mean(IN), median(IN), quantile(IN, listPERC)), c("Mean", "Median", paste0(listPERC * 100, "%")))
+
+	setNames(c(mean(IN, na.rm = TRUE), median(IN, na.rm = TRUE), quantile(IN, listPERC, na.rm = TRUE)), c("Mean", "Median", paste0(listPERC * 100, "%")))
+}
+
+deviMS	=	function(IN)	{
+	c(
+		"SD"	=	sd(IN,	na.rm = TRUE),
+		"MAD"	=	mad(IN,	na.rm = TRUE),
+		"SE"	=	sd(IN,	na.rm = TRUE)/sqrt(length(IN))	)
 }
 
 ecdfFPS	=	function(IN, listFPS = NULL)	{
@@ -41,6 +48,7 @@ nameECDF	=	function(listFPS = NULL)	{
 	DATA$nameECDF	=	paste0(listFPS, " FPS")
 }
 DATA$nameMEAN	=	c("Mean", "Median")
+DATA$nameDEVI	=	names(deviMS(NULL))
 DATA$namePERC	=	namePERC()
 DATA$nameECDF	=	nameECDF()
 nameDEFs	=	c("Mean", "1%", "99%", "60 FPS")

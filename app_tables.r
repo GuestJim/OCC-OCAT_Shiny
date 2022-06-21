@@ -30,7 +30,7 @@
 		PERC	=	namePERC(c(to.NUM(DATA$namePERC), to.NUM(input$manuPERC)))
 		ECDF	=	nameECDF(c(to.NUM(DATA$nameECDF), to.NUM(input$manuECDF)))
 
-		tableCOLs(c(DATA$nameMEAN, PERC, ECDF))
+		tableCOLs(c(DATA$nameMEAN, PERC, if(VIEW$DEVI){DATA$nameDEVI}, ECDF))
 
 		updateCheckboxGroupInput(
 			inputId	=	"tabCOLs",
@@ -69,7 +69,9 @@
 
 		# out	=	rbind(out, outFPS)
 		out	=	rbind(outFPS, out)
-
+		out	=	merge(out, sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listGROUPS], deviMS)))
+		colDATA	=	sapply(out, is.numeric)
+		
 		DATA$tableSUMM(out[, c(which(!colDATA), which(colDATA))])
 	})
 
