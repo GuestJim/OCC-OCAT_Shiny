@@ -22,8 +22,9 @@ summMS	=	function(IN, listPERC = NULL)	{
 deviMS	=	function(IN)	{
 	c(
 		"SD"	=	sd(IN,	na.rm = TRUE),
-		"MAD"	=	mad(IN,	na.rm = TRUE),
-		"SE"	=	sd(IN,	na.rm = TRUE)/sqrt(length(IN))	)
+		"SE"	=	sd(IN,	na.rm = TRUE)/sqrt(length(IN)),
+		"MAD"	=	mad(IN,	na.rm = TRUE)
+	)
 }
 
 ecdfFPS	=	function(IN, listFPS = NULL)	{

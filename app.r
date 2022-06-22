@@ -22,7 +22,7 @@ BRUSH	=	new.env()
 # DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
-VIEW$DEVI	=	FALSE	#	control if deviation based statistics are shown
+VIEW$DEVI	=	TRUE	#	control if deviation based statistics are shown
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
 						#	usually it would be !exists("FILE", envir=DATA)
 VIEW$UPLOAD	=	TRUE	#	override for if DataInputUI should be shown
@@ -221,7 +221,7 @@ server <- function(input, output, session) {
 			sapply(c("Specs_Desktop.html", "Specs_Test.html"), grepl, list.files())
 			)	)	appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
 		if (any(
-			!is.null(DATA$configPRES), !is.null(DATA$config60FPS) |
+			!is.null(DATA$configPRES), !is.null(DATA$config60FP) |
 			# c("configPRES", "config60FP") %in% ls(DATA) | 
 			sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())
 			)	)	appendTab("outputs",	graphicsHTML("graphicsTABLES", DATA)	)

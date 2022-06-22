@@ -36,17 +36,36 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 		if (DOWN)	downloadButton(outputId	=	"tableECDFdown",	label	=	"Download ECDF Table (CSV)"),
 		if (DOWN)	downloadButton(outputId	=	"tableECDFhtml",	label	=	"Download ECDF Table (HTML)"),
 	)
+	tagDEVI	=	tagList(
+		div(HTML("
+			<style>
+				th, td {
+				  padding-right: 16px;
+				}
+			</style>
+			<table>
+				<tr><th>SD </th><td>Standard Deviation</td></tr>
+				<tr><th>SE </th><td>Standard Error</td></tr>
+				<tr><th>MAD </th><td>Median Absolute Error</td></tr>
+			</table>
+		")),
+		tableOutput("tableDEVI"),
+		if (DOWN)	downloadButton(outputId	=	"tableDEVIdown",	label	=	"Download Deviation Table (CSV)"),
+		if (DOWN)	downloadButton(outputId	=	"tableDEVIhtml",	label	=	"Download Deviation Table (HTML)"),
+	)
 
 	if (SEP)	{
 		tagList(
 			tabsetPanel(
 				tabPanel("Summary Table",		tagSUMM	),
 				tabPanel("FPS Targets Table",	tagECDF	),
+				if (VIEW$DEVI)	tabPanel("Deviations Table",	tagDEVI	),
 				)	)
 		}	else	{
 			tagList(
 				tagSUMM,
-				tagECDF
+				tagECDF,
+				if (VIEW$DEVI) tagDEVI
 			)
 		}
 }
@@ -449,7 +468,7 @@ ui <- function(request)	{fluidPage(
 								label	=	"Additional FPS Targets"
 							),
 							checkboxGroupInput(inputId	=	"tabCOLs",	label	=	"Table Columns",
-								choices	=	c(DATA$nameMEAN, DATA$namePERC, if(VIEW$DEVI){DATA$nameDEVI}, DATA$nameECDF),	selected	=	nameDEFs),
+								choices	=	c(DATA$nameMEAN, DATA$namePERC, DATA$nameECDF),	selected	=	nameDEFs),
 							varSelectInput(inputId	=	"datatype",	label	=	"Data Type",	multiple	=	FALSE,
 								data	=	data.frame(list(MsBetweenPresents = 0))	)	#	the dummy frame is so "datatype" has an initial value
 						),
