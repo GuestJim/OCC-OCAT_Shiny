@@ -36,6 +36,9 @@
 		if ("API"		%in% colnames(TAB))	rowAPI	=	TAB$API			%in% input$listAPI
 
 		out	=	TAB[rowGPU & rowQUA & rowLOC & rowAPI, ]
+		out$Unit	=	"ms"
+		numCOL		=	sapply(out, is.numeric)
+		out[, c(which(!numCOL), which(numCOL))]
 	}
 
 	observeEvent(list(input$fileInput, input$manuPERC, input$manuECDF, input$dataSelLOAD), {
@@ -82,8 +85,6 @@
 
 		# out	=	rbind(out, outFPS)
 		out	=	rbind(outFPS, out)
-		out	=	merge(out, sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listGROUPS], deviMS)))
-		colDATA	=	sapply(out, is.numeric)
 		
 		DATA$tableSUMM(out[, c(which(!colDATA), which(colDATA))])
 	})
@@ -94,7 +95,7 @@
 		DATA$tableDEVI(merge(
 			sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listGROUPS], function(IN) c("Mean" = mean(IN, na.rm = TRUE), "Median" = median(IN, na.rm = TRUE))	)),
 			sepCOL(aggregate(DATA$results[, as.character(input$datatype)], DATA$GROUPS[names(DATA$GROUPS) %in% input$listGROUPS], deviMS))
-			)	)
+			,	sort = FALSE)	)
 	}	)
 
 	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD, input$manuECDF, input$datatype, input$listGROUPS),	{

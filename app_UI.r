@@ -37,6 +37,7 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 		if (DOWN)	downloadButton(outputId	=	"tableECDFhtml",	label	=	"Download ECDF Table (HTML)"),
 	)
 	tagDEVI	=	tagList(
+		tableOutput("tableDEVI"),
 		div(HTML("
 			<style>
 				th, td {
@@ -46,10 +47,9 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 			<table>
 				<tr><th>SD </th><td>Standard Deviation</td></tr>
 				<tr><th>SE </th><td>Standard Error</td></tr>
-				<tr><th>MAD </th><td>Median Absolute Error</td></tr>
+				<tr><th>MAD </th><td>Median Absolute Deviation</td></tr>
 			</table>
 		")),
-		tableOutput("tableDEVI"),
 		if (DOWN)	downloadButton(outputId	=	"tableDEVIdown",	label	=	"Download Deviation Table (CSV)"),
 		if (DOWN)	downloadButton(outputId	=	"tableDEVIhtml",	label	=	"Download Deviation Table (HTML)"),
 	)
