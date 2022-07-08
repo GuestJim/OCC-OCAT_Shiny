@@ -64,8 +64,9 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 		}	else	{
 			tagList(
 				tagSUMM,
+				hr(),
 				tagECDF,
-				if (VIEW$DEVI) tagDEVI
+				if (VIEW$DEVI) tagList(hr(), tagDEVI)
 			)
 		}
 }
