@@ -21,6 +21,8 @@ BRUSH	=	new.env()
 # DATA$FILE	=	"Dying Light 2 - PA.RData"
 # DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
+VIEW$YTlink	=	"aXd1ll_lNag"	#	ID string for YouTube tutorial video
+								#	if not a string, it will be disabled
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
 VIEW$DEVI	=	FALSE	#	control if deviation based statistics are shown
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
@@ -115,7 +117,14 @@ server <- function(input, output, session) {
 		
 		dataLOAD(FILE)
 	},	priority	=	10)
-
+		
+	observeEvent(input$tutorial,	{
+		showModal(	modalDialog(
+			HTML(paste0('<iframe width="560" height="315" src="https://www.youtube.com/embed/', VIEW$YTlink,'" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br><a href="https://www.youtube.com/watch?v=', VIEW$YTlink, '" target="_blank">YouTube Link</a> (Some features may appear different)')),
+			title = "YouTube Tutorial Video",
+			easyClose = TRUE,	footer = modalButton("Close")	)	)
+	})
+	
 	refreshMan	=	eventReactive(input$manuRefresh, {
 		if (input$gameName	!=	"")	DATA$game	=	input$gameName
 	},	ignoreNULL	=	FALSE,	label	=	"refreshMan")

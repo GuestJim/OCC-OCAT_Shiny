@@ -452,6 +452,7 @@ ui <- function(request)	{fluidPage(
 			DataInputUI("dataFile",
 				reactive(input$dataInput), reactive(input$gameName), reactive(input$manuRefresh)	),
 			#	combined with the ... to the module, this will have it work with these inputs, rather than its own versions
+			if (is.character(VIEW$YTlink))	actionButton('tutorial', "Show YouTube Tutorial"),
 			tabsetPanel(
 				tabPanel("Table Control",
 					tabsetPanel(
