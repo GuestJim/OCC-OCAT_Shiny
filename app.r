@@ -224,12 +224,13 @@ server <- function(input, output, session) {
 		showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
 		}
 		
-		if (any(
+		if (any(VIEW$tabDESK, VIEW$tabTEST)	&	any(
 			!is.null(DATA$specsDESK), !is.null(DATA$specsTEST) |
 			# c("specsDESK", "specsTEST") %in% ls(DATA) | 
 			sapply(c("Specs_Desktop.html", "Specs_Test.html"), grepl, list.files())
 			)	)	appendTab("outputs",	specsHTML("specsTABLES", DATA)	)
-		if (any(
+			
+		if (VIEW$gTABLES					&	any(
 			!is.null(DATA$configPRES), !is.null(DATA$config60FP) |
 			# c("configPRES", "config60FP") %in% ls(DATA) | 
 			sapply(c("Presets.html", "60 FPS Target.html"), grepl, list.files())

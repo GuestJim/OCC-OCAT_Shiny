@@ -393,7 +393,6 @@ tableNAME	<-	function(NAME, TITLE = TRUE)	{
 
 graphicsHTML	<-	function(id, ..., label = "Configuration Tables")	{
 	ns	<-	NS(id)
-	if (!VIEW$gTABLES)	return(NULL)
 	
 	if (any(c("configPRES", "config60FP") %in% ls(DATA)))	return(
 		tabPanel("Graphics Configuration",
@@ -417,15 +416,15 @@ graphicsHTML	<-	function(id, ..., label = "Configuration Tables")	{
 
 specsHTML	<-	function(id, ..., label = "Specification Tables")	{
 	ns	<-	NS(id)
-	if (!VIEW$gTABLES)	return(NULL)
-
 	if (any(c("specsDESK", "specsTEST") %in% ls(DATA)))	return(
 		tabPanel("System Specs",
 			tagList(
 				tableNAME("CSS.html", FALSE),
-				HTML(DATA$specsDESK),
-				HTML("<br>"),
-				HTML(DATA$specsTEST)
+				if (VIEW$tabDESK)	tagList(
+					HTML(DATA$specsDESK),
+					HTML("<br>"),
+				),
+				if (VIEW$tabTEST)	HTML(DATA$specsTEST)
 			)
 		)
 	)
@@ -499,8 +498,8 @@ ui <- function(request)	{fluidPage(
 					tableExportUI("tableExportUI", VIEW$SEP, VIEW$DOWN)
 				),
 				GraphTabUI("graphTab", VIEW$GRAPHS, VIEW$BRUSH),
-				# specsHTML("specsTABLES", DATA),
-				# graphicsHTML("graphicsTABLES", DATA),
+				# if (any(c(VIEW$tabDESK, VIEW$tabTEST)))	specsHTML("specsTABLES", DATA),
+				# if (VIEW$gTABLES)						graphicsHTML("graphicsTABLES", DATA),
 				id	=	"outputs",
 				type	=	"pills"
 			),
