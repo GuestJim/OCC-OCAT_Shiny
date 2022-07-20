@@ -25,6 +25,7 @@ VIEW$YTlink	=	"aXd1ll_lNag"	#	ID string for YouTube tutorial video
 								#	if not a string, it will be disabled
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
 VIEW$DEVI	=	FALSE	#	control if deviation based statistics are shown
+VIEW$GEO	=	FALSE	#	control if geometric mean is shown
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
 						#	usually it would be !exists("FILE", envir=DATA)
 VIEW$UPLOAD	=	TRUE	#	override for if DataInputUI should be shown

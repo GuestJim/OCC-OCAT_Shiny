@@ -9,6 +9,13 @@ sepCOL	=	function(aggOUT)	{
 	return(out)
 }
 
+meanGEO	=	function(IN, na.rm = TRUE)	{
+	if (na.rm)	IN	=	na.omit(IN)
+	out			=	exp(mean(log(IN)))
+	# names(out)	=	"ms"
+	return(out)
+}
+
 summMS	=	function(IN, listPERC = NULL)	{
 	default	=	c(0.1, 1, 99, 99.9)/100
 	if (!is.null(listPERC))	if	(max(listPERC) > 1)		listPERC	=	listPERC/100
@@ -16,7 +23,7 @@ summMS	=	function(IN, listPERC = NULL)	{
 	if (any(listPERC > 1))	listPERC	<-	listPERC[-which(listPERC > 1)]
 	if (any(listPERC < 0))	listPERC	<-	listPERC[-which(listPERC < 0)]
 
-	setNames(c(mean(IN, na.rm = TRUE), median(IN, na.rm = TRUE), quantile(IN, listPERC, na.rm = TRUE)), c("Mean", "Median", paste0(listPERC * 100, "%")))
+	setNames(c(mean(IN, na.rm = TRUE), median(IN, na.rm = TRUE), meanGEO(IN, na.rm = TRUE), quantile(IN, listPERC, na.rm = TRUE)), c("Mean", "Median", "Geo. Mean", paste0(listPERC * 100, "%")))
 }
 
 deviMS	=	function(IN)	{
@@ -49,6 +56,7 @@ nameECDF	=	function(listFPS = NULL)	{
 	DATA$nameECDF	=	paste0(listFPS, " FPS")
 }
 DATA$nameMEAN	=	c("Mean", "Median")
+if (VIEW$GEO)	DATA$nameMEAN	=	c(DATA$nameMEAN, "Geo. Mean")
 DATA$nameDEVI	=	names(deviMS(NULL))
 DATA$namePERC	=	namePERC()
 DATA$nameECDF	=	nameECDF()

@@ -275,207 +275,213 @@ scaleX	=	function(graphtype, datatype){
 	return(NULL)	#	fallback to returning nothing
 }
 
-	graphSUMM	=	function(FILT = TRUE)	{
-		ggplot(data = DATA$results[FILT, ], aes(x = GPU, y = get(input$datatypeG))) +
-		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Means, Medians, and Percentiles")) + #input$listGPU +
-		geom_hline(yintercept = 1000/60, color = "red") +
-		# geom_boxplot(outlier.alpha = 0) +
-		stat_summary(fun.data = BoxPerc, geom = "boxplot", width = 0.6) +
-		geom_bar(aes(fill = GPU), stat = "summary", fun = mean) + scale_fill_hue(drop = FALSE) +
-		stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
-		# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
-		# FACET("graphMEANS") +
-		# scale_x_discrete(labels = labelBreak, drop = !(length(unique(DATA$results$GPU))>1)) +
-		scale_x_discrete(labels = labelBreak, drop = TRUE) +
-		scaleY("graphMEANS", input$datatypeG) +
-		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
-		guides(fill = guide_legend(nrow = 1)) + theme(legend.position = "bottom", plot.title.position = "plot")
-	}
+graphSUMM	=	function(FILT = TRUE, GEO = FALSE)	{
+	MEAN	=	list(geom_bar(aes(fill = GPU), stat = "summary", fun = mean))
+	if (GEO)	MEAN	=	list(geom_bar(aes(fill = GPU), stat = "summary", fun = meanGEO))
 
-	output$graphMEANfacet	=	renderPlot({
-		req(DATA$results)
-		graphSUMM(GRAPH$FILT()) + FACET("graphMEANS", input$listFACETS, Fflip = GRAPH$flipFACETS$SUMM)
-	})
+	ggplot(data = DATA$results[FILT, ], aes(x = GPU, y = get(input$datatypeG))) +
+	ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Means, Medians, and Percentiles")) + #input$listGPU +
+	geom_hline(yintercept = 1000/60, color = "red") +
+	# geom_boxplot(outlier.alpha = 0) +
+	stat_summary(fun.data = BoxPerc, geom = "boxplot", width = 0.6) +
+	MEAN + scale_fill_hue(drop = FALSE) +
+	stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
+	# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
+	# FACET("graphMEANS") +
+	# scale_x_discrete(labels = labelBreak, drop = !(length(unique(DATA$results$GPU))>1)) +
+	scale_x_discrete(labels = labelBreak, drop = TRUE) +
+	scaleY("graphMEANS", input$datatypeG) +
+	coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
+	guides(fill = guide_legend(nrow = 1)) + theme(legend.position = "bottom", plot.title.position = "plot")
+}
 
-	graphCOURSE	=	function(FILT, zoom = FALSE)	{
-		ALPHA	=	0.05
-		if	(length(unique(DATA$results$Location)) == 1)	ALPHA	=	1
+output$graphMEANfacet	=	renderPlot({
+	req(DATA$results)
+	graphSUMM(GRAPH$FILT(), isTruthy(input$graphGEO)) + FACET("graphMEANS", input$listFACETS, Fflip = GRAPH$flipFACETS$SUMM)
+})
 
-		GEOM	=	list(geom_point(alpha = ALPHA), geom_smooth(method="gam", formula= y ~ s(x, bs = "cs")))
-		if (zoom)	GEOM	=	geom_step()
+graphCOURSE	=	function(FILT, zoom = FALSE)	{
+	ALPHA	=	0.05
+	if	(length(unique(DATA$results$Location)) == 1)	ALPHA	=	1
 
-		ggplot(data = DATA$results[FILT, ], aes(x = TimeInSeconds, y = get(input$datatypeG))) +
-		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Course")) +
-		geom_hline(yintercept = 1000/60, color = "red") +
-		GEOM +
-		scale_x_continuous(name="Time (s)", breaks=seq(from=0, to=max(DATA$results$TimeInSeconds), by=60), labels = labelBreak, expand=c(0.02, 0)) +
-		scaleY("graphCOURSE", input$datatypeG) +
-		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
-		theme(plot.title.position = "plot")
-	}
+	GEOM	=	list(geom_point(alpha = ALPHA), geom_smooth(method="gam", formula= y ~ s(x, bs = "cs")))
+	if (zoom)	GEOM	=	geom_step()
 
-	output$graphCOURSEfacet	=	renderPlot({
-		req(DATA$results)
-		graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE", Fflip = GRAPH$flipFACETS$COURSE)
-	})
+	ggplot(data = DATA$results[FILT, ], aes(x = TimeInSeconds, y = get(input$datatypeG))) +
+	ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Course")) +
+	geom_hline(yintercept = 1000/60, color = "red") +
+	GEOM +
+	scale_x_continuous(name="Time (s)", breaks=seq(from=0, to=max(DATA$results$TimeInSeconds), by=60), labels = labelBreak, expand=c(0.02, 0)) +
+	scaleY("graphCOURSE", input$datatypeG) +
+	coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
+	theme(plot.title.position = "plot")
+}
 
-	graphFREQ	=	function(FILT)	{
-		GROUPS	<-	list(
-			GPU			=	DATA$results[FILT, ]$GPU,
-			API			=	DATA$results[FILT, ]$API,
-			Quality		=	DATA$results[FILT, ]$Quality,
-			Location	=	DATA$results[FILT, ]$Location
-		)
-		if (!("GPU"			%in% input$listFACETS))	GROUPS$GPU		<-	NULL
-		if (!("API"			%in% input$listFACETS))	GROUPS$API		<-	NULL
-		if (!("Quality"		%in% input$listFACETS))	GROUPS$Quality	<-	NULL
-		if (!("Location"	%in% input$listFACETS))	GROUPS$Location	<-	NULL
+output$graphCOURSEfacet	=	renderPlot({
+	req(DATA$results)
+	graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE", Fflip = GRAPH$flipFACETS$COURSE)
+})
 
-		ggplot(DATA$results[FILT, ], aes(get(x = input$datatypeG))) +
-		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " - Frequency Plot")) +
-		geom_vline(xintercept = 1000/60, color = "red") +
-		geom_freqpoly(binwidth=0.03, size=0.25) +
-		# FACET("graphFREQ") +
-			geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, mean), aes(xintercept = get(input$datatypeG)), color = "darkgreen") +
-			geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, median), aes(xintercept = get(input$datatypeG)), color = "darkcyan", linetype="dotdash") +
-		scaleX("graphFREQ", input$datatypeG) +
-		coord_cartesian(xlim = c(0, GRAPH$FtimeLimitMS())) +
-		scale_y_continuous(name="Count", expand=c(0.02, 0)) +
-		theme(plot.title.position = "plot")
-	}
+graphFREQ	=	function(FILT, GEO = FALSE)	{
+	GROUPS	<-	list(
+		GPU			=	DATA$results[FILT, ]$GPU,
+		API			=	DATA$results[FILT, ]$API,
+		Quality		=	DATA$results[FILT, ]$Quality,
+		Location	=	DATA$results[FILT, ]$Location
+	)
+	if (!("GPU"			%in% input$listFACETS))	GROUPS$GPU		<-	NULL
+	if (!("API"			%in% input$listFACETS))	GROUPS$API		<-	NULL
+	if (!("Quality"		%in% input$listFACETS))	GROUPS$Quality	<-	NULL
+	if (!("Location"	%in% input$listFACETS))	GROUPS$Location	<-	NULL
 
-	output$graphFREQfacet	=	renderPlot({
-		req(DATA$results)
-		graphFREQ(GRAPH$FILT()) + FACET("graphFREQ", input$listFACETS, Fflip = GRAPH$flipFACETS$FREQ)
-	})
+	MEAN	=	list(geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, mean), aes(xintercept = get(input$datatypeG)), color = "darkgreen"))
+	if (GEO)	MEAN	=	list(geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, meanGEO), aes(xintercept = get(input$datatypeG)), color = "darkgreen"))
 
-	graphQQ	=	function(FILT)	{
-		PERCSdef	=	c(.001, .01, .5, .99, .999)
-		PERCS		=	sort(unique(	signif(c(PERCSdef, GRAPH$QUAN()))	))
+	ggplot(DATA$results[FILT, ], aes(get(x = input$datatypeG))) +
+	ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " - Frequency Plot")) +
+	geom_vline(xintercept = 1000/60, color = "red") +
+	geom_freqpoly(binwidth=0.03, size=0.25) +
+	# FACET("graphFREQ") +
+		MEAN +
+		geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, median), aes(xintercept = get(input$datatypeG)), color = "darkcyan", linetype="dotdash") +
+	scaleX("graphFREQ", input$datatypeG) +
+	coord_cartesian(xlim = c(0, GRAPH$FtimeLimitMS())) +
+	scale_y_continuous(name="Count", expand=c(0.02, 0)) +
+	theme(plot.title.position = "plot")
+}
 
-		ggplot(data = DATA$results[FILT, ], aes(sample = get(input$datatypeG))) +
-		ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - QQ Distribution")) +
-		geom_hline(yintercept = 1000/60, color	=	"red") +
-			lapply(PERCS, function(IN) geom_qq_rect(Q = IN,	alpha = 0.1, fill = ifelse(IN <=0.5, "blue", "red"), color = "grey")) +
-		stat_qq_line(line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +
-		stat_qq() +
-		stat_qq_line(line.p = GRAPH$QUAN(), color = "green", alpha = 0.5, size = 1.1, linetype = "dotted") +
-		geom_qq_label(Q = GRAPH$QUAN(), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green") +
-		scaleY("graphQQ", input$datatypeG) +
-		coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
-		scale_x_continuous(name = "Percentile", breaks = qnorm(PERCS), labels = labelBreak(paste0(PERCS * 100, "%")), minor_breaks = NULL, expand = c(0.02, 0)) +
-		theme(plot.title.position = "plot")
-	}
+output$graphFREQfacet	=	renderPlot({
+	req(DATA$results)
+	graphFREQ(GRAPH$FILT(), isTruthy(input$graphGEO)) + FACET("graphFREQ", input$listFACETS, Fflip = GRAPH$flipFACETS$FREQ)
+})
 
-	output$graphQQfacet	=	renderPlot({
-		req(DATA$results)
-		graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ)
-	})
+graphQQ	=	function(FILT)	{
+	PERCSdef	=	c(.001, .01, .5, .99, .999)
+	PERCS		=	sort(unique(	signif(c(PERCSdef, GRAPH$QUAN()))	))
 
-	graphDIFF	=	function(FILT, PERC	=	FALSE)	{
-		limX	=	c(0, GRAPH$FtimeLimitMS())
-		limY	=	c(-GRAPH$diffLim(), GRAPH$diffLim())
+	ggplot(data = DATA$results[FILT, ], aes(sample = get(input$datatypeG))) +
+	ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - QQ Distribution")) +
+	geom_hline(yintercept = 1000/60, color	=	"red") +
+		lapply(PERCS, function(IN) geom_qq_rect(Q = IN,	alpha = 0.1, fill = ifelse(IN <=0.5, "blue", "red"), color = "grey")) +
+	stat_qq_line(line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +
+	stat_qq() +
+	stat_qq_line(line.p = GRAPH$QUAN(), color = "green", alpha = 0.5, size = 1.1, linetype = "dotted") +
+	geom_qq_label(Q = GRAPH$QUAN(), parse = TRUE, hjust="right", vjust="bottom", fill = "darkgrey", color = "green") +
+	scaleY("graphQQ", input$datatypeG) +
+	coord_cartesian(ylim = c(0, GRAPH$FtimeLimitMS())) +
+	scale_x_continuous(name = "Percentile", breaks = qnorm(PERCS), labels = labelBreak(paste0(PERCS * 100, "%")), minor_breaks = NULL, expand = c(0.02, 0)) +
+	theme(plot.title.position = "plot")
+}
 
+output$graphQQfacet	=	renderPlot({
+	req(DATA$results)
+	graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ)
+})
+
+graphDIFF	=	function(FILT, PERC	=	FALSE)	{
+	limX	=	c(0, GRAPH$FtimeLimitMS())
+	limY	=	c(-GRAPH$diffLim(), GRAPH$diffLim())
+
+	scale_X	=	scale_x_continuous(
+		name	=	"ms",
+		breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
+		expand	=	c(0.02, 0)
+	)
+	scale_Y	=	scale_y_continuous(
+		name	=	"Consecutive Time Difference (ms)",
+		breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
+		expand	=	c(0.02, 0)
+	)
+
+	if	(input$datatypeG == "MsBetweenPresents")	{
 		scale_X	=	scale_x_continuous(
-			name	=	"ms",
+			name	=	"Frame Time (ms)",
 			breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
 			expand	=	c(0.02, 0)
 		)
 		scale_Y	=	scale_y_continuous(
-			name	=	"Consecutive Time Difference (ms)",
+			name	=	"Consecutive Frame Time Difference (ms)",
 			breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
 			expand	=	c(0.02, 0)
 		)
-
-		if	(input$datatypeG == "MsBetweenPresents")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Frame Time (ms)",
-				breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Frame Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-		if	(input$datatypeG == "MsBetweenDisplayChange")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Refresh Cycles Later (1/60 s)",
-				breaks	=	ybreaks,	labels	=	labelDisp,		limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Display Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-		if	(input$datatypeG == "MsUntilRenderComplete")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Render Time (ms)",
-				breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Render Time Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-		if	(input$datatypeG == "MsEstimatedDriverLag")	{
-			scale_X	=	scale_x_continuous(
-				name	=	"Estimated Driver Lag (ms)",
-				breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
-				expand	=	c(0.02, 0)
-			)
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Lag Difference (ms)",
-				breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-
-		if (PERC)	{
-			limY	=	c(-GRAPH$diffPERCLim(), GRAPH$diffPERCLim())
-			scale_Y	=	scale_y_continuous(
-				name	=	"Consecutive Difference as Percentage",
-				breaks	=	seq(-2, 2, by = 0.25),	labels	=	function(IN)	paste0(IN*100, "%"),	limits	=	limY,
-				expand	=	c(0.02, 0)
-			)
-		}
-
-		graphPARTS	=	list(
-			ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")),
-			geom_point(alpha = 0.1),
-			# stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c(),
-			# stat_density_2d(geom = "polygon", aes(fill = stat(nlevel), alpha = stat(nlevel)), show.legend = FALSE),	scale_fill_viridis_c(),
-			# FACET("graphDIFF"),
-			scale_X,
-			scale_Y,
-			theme(plot.title.position = "plot")
+	}
+	if	(input$datatypeG == "MsBetweenDisplayChange")	{
+		scale_X	=	scale_x_continuous(
+			name	=	"Refresh Cycles Later (1/60 s)",
+			breaks	=	ybreaks,	labels	=	labelDisp,		limits	=	limX,
+			expand	=	c(0.02, 0)
 		)
-
-		if (!PERC)	{
-			ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
-			graphPARTS
-		}	else	{
-			ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))/get(input$datatypeG)) ) +
-			graphPARTS
-		}
-
+		scale_Y	=	scale_y_continuous(
+			name	=	"Consecutive Display Time Difference (ms)",
+			breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
+			expand	=	c(0.02, 0)
+		)
+	}
+	if	(input$datatypeG == "MsUntilRenderComplete")	{
+		scale_X	=	scale_x_continuous(
+			name	=	"Render Time (ms)",
+			breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
+			expand	=	c(0.02, 0)
+		)
+		scale_Y	=	scale_y_continuous(
+			name	=	"Consecutive Render Time Difference (ms)",
+			breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
+			expand	=	c(0.02, 0)
+		)
+	}
+	if	(input$datatypeG == "MsEstimatedDriverLag")	{
+		scale_X	=	scale_x_continuous(
+			name	=	"Estimated Driver Lag (ms)",
+			breaks	=	ybreaks,	labels	=	labelRoundB,	limits	=	limX,
+			expand	=	c(0.02, 0)
+		)
+		scale_Y	=	scale_y_continuous(
+			name	=	"Consecutive Lag Difference (ms)",
+			breaks	=	c(ybreaks, limY),	labels	=	labelRound,		limits	=	limY,
+			expand	=	c(0.02, 0)
+		)
 	}
 
-	output$graphDIFFfacet	=	renderPlot({
-		req(DATA$results)
-		graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
-		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
-	})
+	if (PERC)	{
+		limY	=	c(-GRAPH$diffPERCLim(), GRAPH$diffPERCLim())
+		scale_Y	=	scale_y_continuous(
+			name	=	"Consecutive Difference as Percentage",
+			breaks	=	seq(-2, 2, by = 0.25),	labels	=	function(IN)	paste0(IN*100, "%"),	limits	=	limY,
+			expand	=	c(0.02, 0)
+		)
+	}
 
-	output$graphDIFFpercfacet	=	renderPlot({
-		req(DATA$results)
-		graphDIFF(GRAPH$FILT(), TRUE) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
-		stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
-	})
+	graphPARTS	=	list(
+		ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " Consecutive Differences")),
+		geom_point(alpha = 0.1),
+		# stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c(),
+		# stat_density_2d(geom = "polygon", aes(fill = stat(nlevel), alpha = stat(nlevel)), show.legend = FALSE),	scale_fill_viridis_c(),
+		# FACET("graphDIFF"),
+		scale_X,
+		scale_Y,
+		theme(plot.title.position = "plot")
+	)
+
+	if (!PERC)	{
+		ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))) ) +
+		graphPARTS
+	}	else	{
+		ggplot(data = DATA$results[FILT, ], aes(x = get(input$datatypeG), y = diff.CONS(get(input$datatypeG))/get(input$datatypeG)) ) +
+		graphPARTS
+	}
+
+}
+
+output$graphDIFFfacet	=	renderPlot({
+	req(DATA$results)
+	graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
+	stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
+})
+
+output$graphDIFFpercfacet	=	renderPlot({
+	req(DATA$results)
+	graphDIFF(GRAPH$FILT(), TRUE) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
+	stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
+})
 
 if (VIEW$BRUSH)	source("app_graphs_zoom.r", local = TRUE)

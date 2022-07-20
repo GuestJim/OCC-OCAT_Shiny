@@ -80,6 +80,10 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 		tagList(
 			tabsetPanel(
 				tabPanel("Control",
+					if (VIEW$GEO)	tagList(
+						checkboxInput(inputId = "graphGEO",	label = "Use Geometric Mean"),
+						helpText("(Relevant for Summary and Frequency graphs)")
+						),
 					numericInput(inputId	=	"FtimeLimitFPS",
 						label	=	"Frame Time Scale Upper Limit (FPS)",
 						value	=	15,	min	=	0,	max	=	1000,	step	=	1
@@ -136,6 +140,7 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 		tagList(
 			tabsetPanel(
 				tabPanel("Summary",
+					
 					plotOutput('graphMEANfacet',	height=720,
 						dblclick	=	ifBRUSH("brushSUMMdbl")),
 					if (BRUSH)	tagList(
