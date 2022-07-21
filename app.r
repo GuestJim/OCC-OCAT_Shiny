@@ -16,8 +16,6 @@ BRUSH	=	new.env()
 #	rather than using super-assignment and pushing variables to Global, I'm putting them into this environment
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
 
-# DATA$FILE	=	"Chorus - Epic.csv.bz2"
-# DATA$FILE	=	"Crysis Remastered - Small.csv.bz2"
 # DATA$FILE	=	"Dying Light 2 - PA.RData"
 # DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
@@ -95,7 +93,6 @@ nodataCOL	=	c("Application", "Runtime", "WasBatched", "Dropped", "TimeInSeconds"
 source("app_functions.r", local	=	TRUE)
 
 source("app_UI.r", local	=	TRUE)
-# source("app_UI_static.r", local	=	TRUE)
 
 # Define server logic to summarize and view selected dataset ----
 server <- function(input, output, session) {
