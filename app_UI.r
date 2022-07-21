@@ -165,7 +165,7 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 						dblclick	=	ifBRUSH("brushCOURSEdbl"),
 						brush	=	ifBRUSH(brushOpts(id	=	"brushCOURSE", resetOnNew	=	TRUE, direction	=	"x"))),
 					if (BRUSH)	tagList(
-						# textOutput('brushCOURSEtext'),
+						# p("Click and Drag to Zoom Below"),
 						fixedRow(
 							column(3,	numericInput(inputId	=	"brushCOURSEstart",
 								label	=	"Zoom Start (s)",	value	=	0,	step	=	1,

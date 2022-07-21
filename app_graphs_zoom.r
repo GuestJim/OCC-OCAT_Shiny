@@ -120,7 +120,6 @@ observeEvent(input$brushSUMMupdate,	{	req(DATA$results)
 
 	brushSUMMzoom$FILTER	<-	Reduce(intersect, list(filtAPI, filtQUA, filtLOC))
 
-
 	brushSUMMzoom$CHANGE	<-	TRUE
 },	ignoreInit	=	TRUE)
 
@@ -198,7 +197,8 @@ observeEvent(input$brushCOURSEupdate,	{	req(DATA$results)
 	filtAPI	<-	1:nrow(DATA$results)
 	filtQUA	<-	1:nrow(DATA$results)
 	filtLOC	<-	1:nrow(DATA$results)
-	filtX	<-	which(DATA$results$TimeInSeconds >= brushCOURSEzoom$x[1] & DATA$results$TimeInSeconds < brushCOURSEzoom$x[2])
+	# filtX	<-	which(DATA$results$TimeInSeconds >= brushCOURSEzoom$x[1] & DATA$results$TimeInSeconds < brushCOURSEzoom$x[2])
+	filtX	<-	which(!is.na(cut(DATA$results$TimeInSeconds, brushCOURSEzoom$x,	include.lowest = TRUE,	labels = FALSE)))
 	if (!is.null(brushCOURSEzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushCOURSEzoom$GPU)
 	if (!is.null(brushCOURSEzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushCOURSEzoom$API)
 	if (!is.null(brushCOURSEzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushCOURSEzoom$Quality)
@@ -244,14 +244,10 @@ observeEvent(input$brushCOURSEdbl,	{	req(DATA$results)
 	brushCOURSEzoom$CHANGE	<-	TRUE
 },	ignoreInit	=	TRUE)
 
-output$brushCOURSEtext	=	renderText({	"Click and Drag to Zoom Below"	})
-
 BRUSH$courseFILT	<-	eventReactive(list(DATA$results, input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$datatypeG),	{
 	hold	=	as.data.frame(DATA$results[brushCOURSEzoom$FILTER, ])
-	hold[
-		hold$TimeInSeconds	>=	brushCOURSEzoom$x[1] &
-		hold$TimeInSeconds	<=	brushCOURSEzoom$x[2]
-		, as.character(input$datatypeG)]
+	hold[	!is.na(cut(hold$TimeInSeconds, brushCOURSEzoom$x, include.loweset = TRUE, labels = FALSE)),
+			as.character(input$datatypeG)]
 })
 
 observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate),	{
@@ -265,7 +261,7 @@ observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupda
 			)	) +
 		coord_cartesian(xlim = brushCOURSEzoom$x,	ylim = c(0, GRAPH$FtimeLimitMS()),	expand = FALSE)
 	})
-	
+
 	#	Tables
 	observeEvent(list(input$datatypeG, input$roundTerm),	{
 		req(BRUSH$courseFILT())
@@ -276,6 +272,8 @@ observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupda
 			colDATA	=	sapply(out, is.numeric)
 
 			out	=	rbind(c(Unit = "FPS", 1000/out[, colDATA]), out)
+
+			# PERC	=	namePERC(c(to.NUM(DATA$namePERC), to.NUM(input$manuPERC)))
 
 			output$brushCOURSEsumm	=	renderTable({
 				filtCOL	=	names(out) %in% c("Unit", input$tabCOLs)
@@ -382,7 +380,7 @@ dataFILTfreq	<-	reactive(DATA$results[brushFREQzoom$FILTER, ][[input$datatypeG]]
 observeEvent(list(input$brushFREQfac, input$roundTerm),	{
 	req(DATA$results)
 	brush 		<- input$brushFREQfac
-			
+
 	FREQecdf	<-	(1 - ecdf(dataFILTfreq())(c(brush$xmax, brush$xmin))) * 100
 	FREQecdfTAB	<-	cbind(
 			ms			=	c(brush$xmax,		brush$xmin,			brush$xmax - brush$xmin),
@@ -391,7 +389,7 @@ observeEvent(list(input$brushFREQfac, input$roundTerm),	{
 		) %>% as.data.frame()
 
 	rownames(FREQecdfTAB)	<-	c("Upper Limit", "Lower Limit", "Difference")
-	
+
 	output$brushFREQfacetTAB	<-	NULL
 	if (!is.null(brush))	output$brushFREQfacetTAB	<-	renderTable(FREQecdfTAB, digits = input$roundTerm, rownames = TRUE)
 })
@@ -540,11 +538,9 @@ qqMINMAX	=	function(IN, BRUSH = brushQQzoom, datatype = input$datatypeG, r	=	inp
 	if (is.na(BRUSH$x[2]))	BRUSH$x[2]	=	Inf
 
 	holdLIM	=	hold[
-		hold[, dataCOL[2]] >= BRUSH$x[1]	&
-		hold[, dataCOL[2]] <= BRUSH$x[2]	&
-		hold[, dataCOL[1]] >= BRUSH$y[1]	&
-		hold[, dataCOL[1]] <= BRUSH$y[2],
-	dataCOL]
+		!is.na(cut(hold[, dataCOL[2]],	BRUSH$x,	include.lowest = TRUE,	labels = FALSE))	&
+		!is.na(cut(hold[, dataCOL[1]],	BRUSH$y,	include.lowest = TRUE,	labels = FALSE)),
+		dataCOL]
 
 	out	=	rbind(
 		"Min"	=	holdLIM[which.min(holdLIM[, 2]), ],
@@ -673,9 +669,10 @@ observeEvent(list(input$brushDIFFfac, input$roundTerm),	{
 		paste0("Amount of data selected: ",	round(DIFFperc * 100, input$roundTerm), "%")
 	)
 
-	output$brushDIFFfacetRAN	<-	NULL
+	output$brushDIFFfacetRAN	<-	renderTable(	data.frame(c("Range Time (ms)", "Range Difference (ms)")),
+								colnames = FALSE,	align = 'l'	)
 	if (!is.null(brush))	output$brushDIFFfacetRAN	=	renderTable(	DIFFtabl,
-								colnames = FALSE, digits = input$roundTerm,	align = 'lrcr')
+								colnames = FALSE,	align = 'lrcr',	digits = input$roundTerm)
 },	ignoreInit = TRUE)
 
 
@@ -776,7 +773,8 @@ observeEvent(list(input$brushDIFFpercfac, input$roundTerm),	{
 		paste0("Amount of data selected: ",	round(DIFFpercperc * 100, input$roundTerm), "%")
 	)
 
-	output$brushDIFFpercfacetRAN	<-	NULL
+	output$brushDIFFpercfacetRAN	<-	renderTable(	data.frame(c("Range Time (ms)", "Range Difference (%)")),
+								colnames = FALSE,	align = 'l'	)
 	if (!is.null(brush))	output$brushDIFFpercfacetRAN	=	renderTable(	DIFFperctabl,
-								colnames = FALSE, digits = input$roundTerm,	align = 'lrcr')
+								colnames = FALSE,	align = 'lrcr',	digits = input$roundTerm)
 },	ignoreInit = TRUE)
