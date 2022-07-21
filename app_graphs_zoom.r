@@ -197,8 +197,7 @@ observeEvent(input$brushCOURSEupdate,	{	req(DATA$results)
 	filtAPI	<-	1:nrow(DATA$results)
 	filtQUA	<-	1:nrow(DATA$results)
 	filtLOC	<-	1:nrow(DATA$results)
-	# filtX	<-	which(DATA$results$TimeInSeconds >= brushCOURSEzoom$x[1] & DATA$results$TimeInSeconds < brushCOURSEzoom$x[2])
-	filtX	<-	which(!is.na(cut(DATA$results$TimeInSeconds, brushCOURSEzoom$x,	include.lowest = TRUE,	labels = FALSE)))
+	filtX	<-	which(cutWithin(DATA$results$TimeInSeconds, brushCOURSEzoom$x))
 	if (!is.null(brushCOURSEzoom$GPU))		filtGPU		<-	which(DATA$results$GPU		==	brushCOURSEzoom$GPU)
 	if (!is.null(brushCOURSEzoom$API))		filtAPI		<-	which(DATA$results$API		==	brushCOURSEzoom$API)
 	if (!is.null(brushCOURSEzoom$Quality))	filtQUA		<-	which(DATA$results$Quality	==	brushCOURSEzoom$Quality)
@@ -246,7 +245,7 @@ observeEvent(input$brushCOURSEdbl,	{	req(DATA$results)
 
 BRUSH$courseFILT	<-	eventReactive(list(DATA$results, input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupdate, input$datatypeG),	{
 	hold	=	as.data.frame(DATA$results[brushCOURSEzoom$FILTER, ])
-	hold[	!is.na(cut(hold$TimeInSeconds, brushCOURSEzoom$x, include.loweset = TRUE, labels = FALSE)),
+	hold[	cutWithin(hold$TimeInSeconds, brushCOURSEzoom$x),
 			as.character(input$datatypeG)]
 })
 
@@ -272,8 +271,6 @@ observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupda
 			colDATA	=	sapply(out, is.numeric)
 
 			out	=	rbind(c(Unit = "FPS", 1000/out[, colDATA]), out)
-
-			# PERC	=	namePERC(c(to.NUM(DATA$namePERC), to.NUM(input$manuPERC)))
 
 			output$brushCOURSEsumm	=	renderTable({
 				filtCOL	=	names(out) %in% c("Unit", input$tabCOLs)
@@ -538,8 +535,8 @@ qqMINMAX	=	function(IN, BRUSH = brushQQzoom, datatype = input$datatypeG, r	=	inp
 	if (is.na(BRUSH$x[2]))	BRUSH$x[2]	=	Inf
 
 	holdLIM	=	hold[
-		!is.na(cut(hold[, dataCOL[2]],	BRUSH$x,	include.lowest = TRUE,	labels = FALSE))	&
-		!is.na(cut(hold[, dataCOL[1]],	BRUSH$y,	include.lowest = TRUE,	labels = FALSE)),
+		cutWithin(hold[, dataCOL[2]],	BRUSH$x)	&
+		cutWithin(hold[, dataCOL[1]],	BRUSH$y),
 		dataCOL]
 
 	out	=	rbind(

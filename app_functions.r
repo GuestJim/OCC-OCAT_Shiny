@@ -3,6 +3,8 @@ LEVs	=	function(IN)	{
 	return(levels(IN))
 }
 
+cutWithin	=	function(IN, LIMS, ..., INCLUDE = TRUE)	!is.na(cut(IN,	LIMS,	labels = FALSE,	include.lowest = INCLUDE, ...))
+
 sepCOL	=	function(aggOUT)	{
 	matCOL	=	sapply(aggOUT, is.matrix)
 	out	=	cbind(aggOUT[, !matCOL], as.data.frame(aggOUT[, matCOL]))
