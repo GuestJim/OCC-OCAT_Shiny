@@ -49,7 +49,7 @@ observeEvent(list(input$fileInput, input$manuPERC, input$manuECDF, input$dataSel
 
 	updateCheckboxGroupInput(
 		inputId	=	"tabCOLs",
-		choices		=	tableCOLs(),	selected	=	c(nameDEFs, paste0(to.NUM(input$manuPERC), "%"), paste0(to.NUM(input$manuECDF), " FPS"), input$tabCOLs)
+		choices		=	tableCOLs(),	selected	=	c(paste0(to.NUM(input$manuPERC), "%"), paste0(to.NUM(input$manuECDF), " FPS"), input$tabCOLs)
 	)
 })
 
