@@ -8,7 +8,7 @@ DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 				choices	=	FILES, selected	=	FILES[1]
 			),
 			actionButton(inputId	=	"dataSelLOAD",	label	=	"Load Selected Data"),
-			bookmarkButton(label = "Bookmark Data"),
+			# bookmarkButton(label = "Bookmark Data"),
 			fileInput(inputId	=	"dataInput",
 				label	=	"CSV Data to Import",
 				accept	=	c(".csv", ".csv.bz2", ".csv.gz", ".csv.xz", ".RData"),
@@ -99,6 +99,7 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 						choices		=	c("GPU", "API", "Quality", "Location"),
 						selected	=	c("GPU", "API", "Quality", "Location")
 					),
+					helpText("Course graph immune to dropping facets"),
 					if (VIEW$FACflip)	checkboxGroupInput(inputId	=	"flipFACETS",	label	=	"Graphs to Flip Facets:",
 						choiceNames		=	c("Summary", "Course", "Frequency", "QQ", "Consecutive Difference"),
 						choiceValues	=	c("SUMM", "COURSE", "FREQ", "QQ", "DIFF"),
