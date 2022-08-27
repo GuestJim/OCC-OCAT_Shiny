@@ -278,13 +278,15 @@ scaleX	=	function(graphtype, datatype){
 graphSUMM	=	function(FILT = TRUE, GEO = FALSE)	{
 	MEAN	=	list(geom_bar(aes(fill = GPU), stat = "summary", fun = mean))
 	if (GEO)	MEAN	=	list(geom_bar(aes(fill = GPU), stat = "summary", fun = meanGEO))
+	GPU_fill	=	scale_fill_manual(values = scales::hue_pal()(length(levels(DATA$results$GPU))),	breaks = levels(DATA$results$GPU))
 
 	ggplot(data = DATA$results[FILT, ], aes(x = GPU, y = get(input$datatypeG))) +
 	ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Means, Medians, and Percentiles")) + #input$listGPU +
 	geom_hline(yintercept = 1000/60, color = "red") +
 	# geom_boxplot(outlier.alpha = 0) +
 	stat_summary(fun.data = BoxPerc, geom = "boxplot", width = 0.6) +
-	MEAN + scale_fill_hue(drop = FALSE) +
+	# MEAN + scale_fill_hue(drop = FALSE) +
+	MEAN + GPU_fill +
 	stat_summary(fun.data = BoxPerc, geom = "boxplot", alpha = 0.25, width = 0.6) +
 	# geom_boxplot(alpha = 0.50, outlier.alpha = 0) +
 	# FACET("graphMEANS") +
