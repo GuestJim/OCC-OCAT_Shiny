@@ -44,3 +44,8 @@ The purpose is presently not to enable the downloading of data, statistics, or g
 At present the scripts can be set to work with a provided CSV, compressed CSV, or RData file, as created with ***OCAT to RData.r***, or to allow a file to be uploaded and processed.
 For clarity and simplicity, I believe the static-data version is best for sharing.
 However, the ***app.r*** script is configured for upload presently, as I am not including data in this repository (at the moment, at least).
+
+Since originally making them, I have learned about Lag graphs, which plot the data against the data but shifted by some amount, nromally 1.
+(The X axis is n + 1 and Y is n, for example.)
+My Consecutive Difference graphs then are possibly a variant of lag graphs, as they are the data on one axis and the difference between n and n + 1 on the other.
+Additional information: [NIST Lag Plot in Handbook](https://www.itl.nist.gov/div898/handbook/eda/section3/lagplot.htm)
