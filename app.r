@@ -1,9 +1,4 @@
 library(shiny)
-# setwd("C:/Users/Jim/Documents/OCC/@Reviews/@OCAT R Scripts/OCC-OCAT_Shiny")
-# setwd("E:/Users/Jim/My Documents/OCC/@Reviews/@OCAT R Scripts/OCC-OCAT_Shiny")
-# runApp()
-# options(shiny.error = browser)
-# options(shiny.reactlog=TRUE)
 options(shiny.maxRequestSize = 100*1024^2)
 #	Shiny has a normal limit of 5 MB, so this raises it to 100 MB
 
