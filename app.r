@@ -1,7 +1,3 @@
-library(shiny)
-options(shiny.maxRequestSize = 100*1024^2)
-#	Shiny has a normal limit of 5 MB, so this raises it to 100 MB
-
 DATA	=	new.env()
 DATA$LOAD	=	FALSE	#used for tracking if data has been loaded automatically
 VIEW	=	new.env()	#	for tracking what UI elements should be used
@@ -10,14 +6,20 @@ TABLES	=	new.env()
 BRUSH	=	new.env()
 #	rather than using super-assignment and pushing variables to Global, I'm putting them into this environment
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
+defs	<-	list(
+	GROUPS	=	c("GPU", "API", "Quality", "Location"),
+	PERCs	=	c(0.1, 1, 99, 99.9) / 100,
+	ECDFs	=	c(30, 60)
+	)
+#	default values used in several places, now in one location
 
-# DATA$FILE	=	"Dying Light 2 - PA.RData"
+DATA$FILE	=	"The Witcher 3 Next-gen - PA.RData"
 # DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
 VIEW$YTlink	=	"aXd1ll_lNag"	#	ID string for YouTube tutorial video
 								#	if not a string, it will be disabled
 VIEW$SEP	=	TRUE	#	control if the tables should be separated or not
-VIEW$DEVI	=	FALSE	#	control if deviation based statistics are shown
+VIEW$DEVI	=	TRUE	#	control if deviation based statistics are shown
 VIEW$GEO	=	FALSE	#	control if geometric mean is shown
 VIEW$DOWN	=	FALSE	#	control if it should be possible to download tables
 						#	usually it would be !exists("FILE", envir=DATA)
@@ -31,10 +33,6 @@ VIEW$tabDESK	=	TRUE	#	control if Desktop Specifications are shown
 VIEW$tabTEST	=	TRUE	#	control if Test System Specifications are shown	
 
 mergeENV	=	function(env1, env2)	for (obj in ls(env2, all.names = TRUE))	assign(obj, get(obj, env2), envir = env1)
-
-# FILES		=	list.files(pattern = "*.csv$|*.csv.bz2$|*.csv.gzip$|*.csv.xz$|*.RData$",	recursive = TRUE)
-# FILES.names	=	unlist(lapply(sapply(gsub("Data/", "", gsub(".RData", "", FILES)), strsplit, ".csv"), "[", 1), use.names = FALSE)
-# FILES		=	setNames(FILES, gsub(".RData", "", FILES.names))
 
 FILES		=	list.files(pattern = "*.env$|*.RData$",	recursive = TRUE)
 FILES.names	=	unlist(sapply(FILES, strsplit, "/"), use.names = FALSE)
@@ -79,6 +77,11 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		if (anyNA(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
 		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 	}
+	if (!require(data.table))	install.packages("data.table")
+	library(data.table)
+	
+	DATA$results	<-	setDT(DATA$results)	|>	group_by(GPU, Quality, Location)
+	if (exists("API", DATA$results))	DATA$results	<-	DATA$results |> group_by(API, .add = TRUE)
 	DATA$LOAD	<-	TRUE
 }
 
@@ -86,6 +89,7 @@ noCOL	=	c("ProcessID", "SwapChainAddress", "SyncInterval", "PresentFlags", "Allo
 nodataCOL	=	c("Application", "Runtime", "WasBatched", "Dropped", "TimeInSeconds", "Width", "Height", "GPU", "Quality", "Location", "API")
 
 source("app_functions.r", local	=	TRUE)
+# source("app_functions_DT.r", local	=	TRUE)
 
 source("app_UI.r", local	=	TRUE)
 
@@ -146,16 +150,6 @@ server <- function(input, output, session) {
 	hideTab(inputId	=	"graphsFACET",	target	=	"QQ")
 	hideTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
 	hideTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
-	
-	# observeEvent(input$dataSelLOAD,	{	req(DATA$results)
-		# showTab(inputId	=	"outputs",	target	=	"Graphs")
-		# showTab(inputId	=	"graphsFACET",	target	=	"Summary",	select	=	TRUE)
-		# showTab(inputId	=	"graphsFACET",	target	=	"Course")
-		# showTab(inputId	=	"graphsFACET",	target	=	"Frequency")
-		# showTab(inputId	=	"graphsFACET",	target	=	"QQ")
-		# showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference")
-		# showTab(inputId	=	"graphsFACET",	target	=	"Consecutive Difference (Percentage)")
-	# })
 
 	observeEvent(list(input$dataInput, DATA$LOAD, input$dataSelLOAD), {
 		#Table Controls
@@ -233,6 +227,7 @@ server <- function(input, output, session) {
 	output$textTest	<-	renderText("Test")
 
 source("app_tables.r", local	=	TRUE)
+# source("app_tables_DT.r", local	=	TRUE)
 if (VIEW$GRAPHS)	source("app_graphs.r", local	=	TRUE)
 
 }

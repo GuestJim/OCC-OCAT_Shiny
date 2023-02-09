@@ -1,3 +1,5 @@
+if (!require(sortable))	install.packages("sortable")	;	library(sortable)
+
 DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 	ns	<-	NS(id)
 
@@ -481,9 +483,9 @@ ui <- function(request)	{fluidPage(
 						),
 						tabPanel("Groups",
 							checkboxGroupInput(inputId	=	"listGROUPS",	label	=	"Groups to use:",
-								choices		=	c("GPU", "API", "Quality", "Location"),
-								selected	=	c("GPU", "API", "Quality", "Location")
+								choices		=	defs$GROUPS,	selected	=	defs$GROUPS
 							),
+							rank_list("Order of Groups:", defs$GROUPS, "orderGROUPS"),
 							checkboxGroupInput(inputId	=	"listGPU",	label	=	"GPUs to show:"),
 							checkboxGroupInput(inputId	=	"listAPI",	label	=	"APIs to show:"),
 							checkboxGroupInput(inputId	=	"listQUA",	label	=	"Qualities to show:"),
