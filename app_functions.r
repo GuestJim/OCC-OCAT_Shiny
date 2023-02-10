@@ -47,7 +47,7 @@ PERCfunc	<-	function(IN, PERC = defs$PERCs, COL = "MsBetweenPresents")	{
 
 ECDFfunc	<-	function(IN, ECDF = defs$ECDFs, COL = "MsBetweenPresents")	{
 	ECDF	<-	ECDF |> unique() |> sort(decreasing = TRUE)
-	IN	|>	reframe("x" = 100 * (1 - ecdf(.data[[COL]])(ECDF)), "val" = ECDF) |>
+	IN	|>	reframe("x" = 100 * (1 - ecdf(.data[[COL]])(1000 / ECDF)), "val" = ECDF) |>
 	pivot_wider(names_from = "val",	names_glue = "{val} FPS", values_from="x")
 }
 
