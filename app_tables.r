@@ -16,25 +16,21 @@ TABLES$GRPrem	<-	reactive({	defs$GROUPS[!defs$GROUPS	%in%	input$listGROUPS]	})
 TABLES$GRPord	<-	reactive({	input$orderGROUPS[input$orderGROUPS	%in%	input$listGROUPS]	})
 
 TABLES$summ	<-	reactive({
-	hold	<-	SUMMfunc(DATA$results	|>
-		ungroup(all_of(TABLES$GRPrem()))	)	|>
+	hold	<-	SUMMfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$perc	<-	reactive({
-	hold	<-	PERCfunc(DATA$results	|>
-		ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC)))	|>
+	hold	<-	PERCfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$ecdf	<-	reactive({
-	ECDFfunc(DATA$results	|>
-		ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF)))	|>
+	ECDFfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 	})
 TABLES$devi	<-	reactive({
-	DEVIfunc(DATA$results	|>
-		ungroup(all_of(TABLES$GRPrem())))	|>
+	DEVIfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 })
 
