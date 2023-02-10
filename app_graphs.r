@@ -342,7 +342,7 @@ graphFREQ	=	function(FILT, GEO = FALSE)	{
 	ggplot(DATA$results[FILT, ], aes(get(x = input$datatypeG))) +
 	ggtitle(DATA$game, subtitle=paste0(input$datatypeG, " - Frequency Plot")) +
 	geom_vline(xintercept = 1000/60, color = "red") +
-	geom_freqpoly(binwidth=0.03, size=0.25) +
+	geom_freqpoly(binwidth=0.03, linewidth=0.25) +
 	# FACET("graphFREQ") +
 		MEAN +
 		geom_vline(data = aggregate(DATA$results[FILT, as.character(input$datatypeG)], GROUPS, median), aes(xintercept = get(input$datatypeG)), color = "darkcyan", linetype="dotdash") +
