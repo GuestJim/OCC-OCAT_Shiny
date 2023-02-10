@@ -1,11 +1,9 @@
-DATA	=	new.env()
-DATA$LOAD	=	FALSE	#used for tracking if data has been loaded automatically
+DATA	=	new.env()	;	TABLES	=	new.env()
+GRAPH	=	new.env()	;	BRUSH	=	new.env()
 VIEW	=	new.env()	#	for tracking what UI elements should be used
-GRAPH	=	new.env()
-TABLES	=	new.env()
-BRUSH	=	new.env()
 #	rather than using super-assignment and pushing variables to Global, I'm putting them into this environment
 #	this keeps DATA within the Shiny environment too, so when Shiny ends, the data is apparently removed, which I'm good with
+DATA$LOAD	=	FALSE	#	used for tracking if data has been loaded automatically
 defs	<-	list(
 	GROUPS	=	c("GPU", "API", "Quality", "Location"),
 	PERCs	=	c(0.1, 1, 99, 99.9) / 100,
@@ -13,7 +11,7 @@ defs	<-	list(
 	)
 #	default values used in several places, now in one location
 
-DATA$FILE	=	"The Witcher 3 Next-gen - PA.RData"
+# DATA$FILE	=	"The Witcher 3 Next-gen - PA.RData"
 # DATA$FILE	=	"Dying Light 2 - Review.RData"
 #	by giving this a file, we can avoid needing to upload a file
 VIEW$YTlink	=	"aXd1ll_lNag"	#	ID string for YouTube tutorial video
@@ -61,10 +59,10 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		if (!require(readr))	install.packages("readr")
 		library(readr)
 		DATA$results	=	read_csv(datapath, guess_max = 10, lazy = TRUE, col_select=!all_of(noCOL),	show_col_types = FALSE)
-		DATA$results$GPU			=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
-		DATA$results$Quality		=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
-		DATA$results$Location		=	ordered(DATA$results$Location,	unique(DATA$results$Location))
-		DATA$results$API			=	ordered(DATA$results$API,		unique(DATA$results$API))
+		DATA$results$GPU		=	ordered(DATA$results$GPU,		unique(DATA$results$GPU))
+		DATA$results$Quality	=	ordered(DATA$results$Quality,	unique(DATA$results$Quality))
+		DATA$results$Location	=	ordered(DATA$results$Location,	unique(DATA$results$Location))
+		DATA$results$API		=	ordered(DATA$results$API,		unique(DATA$results$API))
 
 		DATA$GROUPS	=	list(GPU = DATA$results$GPU,	Quality = DATA$results$Quality, API = DATA$results$API,	Location = DATA$results$Location)
 		DATA$GPUs	=	LEVs(DATA$results$GPU)
@@ -77,8 +75,7 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		if (anyNA(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
 		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 	}
-	if (!require(data.table))	install.packages("data.table")
-	library(data.table)
+	if (!require(data.table))	install.packages("data.table")	;	library(data.table)
 	
 	DATA$results	<-	setDT(DATA$results)	|>	group_by(GPU, Quality, Location)
 	if (exists("API", DATA$results))	DATA$results	<-	DATA$results |> group_by(API, .add = TRUE)
@@ -89,7 +86,6 @@ noCOL	=	c("ProcessID", "SwapChainAddress", "SyncInterval", "PresentFlags", "Allo
 nodataCOL	=	c("Application", "Runtime", "WasBatched", "Dropped", "TimeInSeconds", "Width", "Height", "GPU", "Quality", "Location", "API")
 
 source("app_functions.r", local	=	TRUE)
-# source("app_functions_DT.r", local	=	TRUE)
 
 source("app_UI.r", local	=	TRUE)
 
@@ -227,7 +223,6 @@ server <- function(input, output, session) {
 	output$textTest	<-	renderText("Test")
 
 source("app_tables.r", local	=	TRUE)
-# source("app_tables_DT.r", local	=	TRUE)
 if (VIEW$GRAPHS)	source("app_graphs.r", local	=	TRUE)
 
 }
