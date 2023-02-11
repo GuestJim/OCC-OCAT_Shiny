@@ -28,7 +28,7 @@ ECDFdefa	<-	function(LIST = NULL, ECDF = defs$ECDFs)	{
 SUMMfunc	<-	function(IN, COL = "MsBetweenPresents", GEO = FALSE)	{
 	out	<-	IN	|>	reframe(
 		"Mean"		=	mean(.data[[COL]],	na.rm = TRUE),
-		"Median"	=	mean(.data[[COL]],	na.rm = TRUE),
+		"Median"	=	median(.data[[COL]],	na.rm = TRUE),
 		if (GEO)	"Geo. Mean"	=	exp(mean(log(.data[[COL]]),	na.rm = TRUE))
 	)
 	out$Unit	<-	"ms"
@@ -49,6 +49,19 @@ ECDFfunc	<-	function(IN, ECDF = defs$ECDFs, COL = "MsBetweenPresents")	{
 	ECDF	<-	ECDF |> unique() |> sort(decreasing = TRUE)
 	IN	|>	reframe("x" = 100 * (1 - ecdf(.data[[COL]])(1000 / ECDF)), "val" = ECDF) |>
 	pivot_wider(names_from = "val",	names_glue = "{val} FPS", values_from="x")
+}
+
+SUMMzoom	<-	function(IN, PERC = NULL)	{
+	PERC	<-	PERC	|>	append(defs$PERCs)	|>	sapply(function(IN) ifelse(IN < 1, IN, IN / 100)) |> unique() |> sort()
+	c(	Mean	=	mean(IN,	na.rm = TRUE),
+		Median	=	median(IN,	na.rm = TRUE),
+					quantile(IN,	PERC,	na.rm = TRUE)
+	)
+}
+
+ECDFzoom	<-	function(IN, ECDF = NULL)	{
+	ECDF	<-	ECDF |>	append(defs$ECDFs)	|> unique() |> sort(decreasing = TRUE)
+	setNames(100 * (1 - ecdf(IN)(1000 / ECDF)), paste0(ECDF, " FPS"))
 }
 
 DEVIfunc	<-	function(IN, COL = "MsBetweenPresents")	{
@@ -105,7 +118,7 @@ OCCHTML	=	function(IN)	{
 #	Graph stuff below
 
 # yrates	=	c(c(120, 60, 30, 20, 15, 12, 10), yratesEXT)
-yrates	=	c(c(120, 60, 30, 20, 15, 12, 10))
+yrates	=	c(c(120, 60, 30, 20, 15, 12, 10, 8, 6, 5))
 yrates	=	sort(c(yrates,-yrates))
 ytimes	=	sort(1000/yrates)
 ybreaks	=	sort(c(round(ytimes, 2), 0))

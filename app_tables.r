@@ -18,20 +18,24 @@ TABLES$GRPord	<-	reactive({	input$orderGROUPS[input$orderGROUPS	%in%	input$listG
 TABLES$summ	<-	reactive({
 	hold	<-	SUMMfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
+		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$perc	<-	reactive({
 	hold	<-	PERCfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
+		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$ecdf	<-	reactive({
 	ECDFfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
+		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	})
 TABLES$devi	<-	reactive({
 	DEVIfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
+		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 })
 
 tableFILT	=	function(TAB, COLS = TRUE)	{

@@ -265,12 +265,10 @@ observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupda
 	observeEvent(list(input$datatypeG, input$roundTerm),	{
 		req(BRUSH$courseFILT())
 		observeEvent(input$manuPERC,	{
-			out	=	cbind(Unit = "ms", as.data.frame(t(summMS(BRUSH$courseFILT(), to.NUM(c(input$manuPERC))))))
-
-			out$Unit	=	"ms"
-			colDATA	=	sapply(out, is.numeric)
-
-			out	=	rbind(c(Unit = "FPS", 1000/out[, colDATA]), out)
+			out	<-	SUMMzoom(BRUSH$courseFILT(), to.NUM(c(input$manuPERC)))	|>
+				t()	|>	as.data.frame(check.names = FALSE)|>	mutate(Unit = "ms", .before = Mean)
+				
+			out	<-	out	|>	bind_rows(FPSconv(out))
 
 			output$brushCOURSEsumm	=	renderTable({
 				filtCOL	=	names(out) %in% c("Unit", input$tabCOLs)
@@ -283,7 +281,7 @@ observeEvent(list(input$brushCOURSE, input$brushCOURSEdbl, input$brushCOURSEupda
 			},	digits	=	input$roundTerm)
 		})
 		observeEvent(input$manuECDF,	{
-			outECDF	=	as.data.frame(t(ecdfFPS(BRUSH$courseFILT(), to.NUM(c(input$manuECDF)))))
+			outECDF	=	ECDFzoom(BRUSH$courseFILT(), to.NUM(c(input$manuECDF)))	|>	t()	|>	as.data.frame()
 
 			outECDF$Unit	=	"%"
 			colDATA	=	sapply(outECDF, is.numeric)
