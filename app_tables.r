@@ -14,26 +14,38 @@ observeEvent(list(input$fileInput, input$manuPERC, input$manuECDF, input$dataSel
 
 TABLES$GRPrem	<-	reactive({	defs$GROUPS[!defs$GROUPS	%in%	input$listGROUPS]	})
 TABLES$GRPord	<-	reactive({	input$orderGROUPS[input$orderGROUPS	%in%	input$listGROUPS]	})
+TABLES$filtDATA	<-	reactive({
+	out	<-	DATA$results
+	if (length(TABLES$GRPrem())	!=	0)	out	<-	DATA$results	|>	filter(
+		GPU			%in%	input$listGPU	&
+		Quality		%in%	input$listQUA	&
+		Location	%in%	input$listLOC	&
+		if (!anyNA(DATA$results$API))	API	%in%	input$listAPI &
+		TRUE
+	)
+	out
+})	|>	bindEvent(input$listGROUPS, input$listGPU, input$listQUA, input$listLOC, input$listAPI, input$dataInput)
+#	for filtering data within groups, including disabled groups
 
 TABLES$summ	<-	reactive({
-	hold	<-	SUMMfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
+	hold	<-	SUMMfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$perc	<-	reactive({
-	hold	<-	PERCfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC))	)	|>
+	hold	<-	PERCfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$ecdf	<-	reactive({
-	ECDFfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF))	)	|>
+	ECDFfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	})
 TABLES$devi	<-	reactive({
-	DEVIfunc(DATA$results	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
+	DEVIfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 })
@@ -45,7 +57,7 @@ tableFILT	=	function(TAB, COLS = TRUE)	{
 	if ("GPU"		%in% colnames(TAB))	rowGPU	<-	TAB$GPU			%in% input$listGPU
 	if ("Quality"	%in% colnames(TAB))	rowQUA	<-	TAB$Quality		%in% input$listQUA
 	if ("Location"	%in% colnames(TAB))	rowLOC	<-	TAB$Location	%in% input$listLOC
-	if ("API"		%in% colnames(TAB))	rowAPI	<-	TAB$API			%in% input$listAPI
+	if ("API"		%in% colnames(TAB) & !anyNA(TAB$API))	rowAPI	<-	TAB$API			%in% input$listAPI
 
 	out	=	TAB[rowGPU & rowQUA & rowLOC & rowAPI, ]
 	#	the check above for API should be enough to handle if API is not present in the data

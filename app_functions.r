@@ -60,15 +60,16 @@ SUMMzoom	<-	function(IN, PERC = NULL)	{
 }
 
 ECDFzoom	<-	function(IN, ECDF = NULL)	{
-	ECDF	<-	ECDF |>	append(defs$ECDFs)	|> unique() |> sort(decreasing = TRUE)
+	ECDF	<-	ECDF	|>	append(defs$ECDFs)	|> unique() |> sort(decreasing = TRUE)
 	setNames(100 * (1 - ecdf(IN)(1000 / ECDF)), paste0(ECDF, " FPS"))
 }
 
 DEVIfunc	<-	function(IN, COL = "MsBetweenPresents")	{
 	out	<-	IN	|>	reframe(
-		SD		=	sd(.data[[COL]],	na.rm = TRUE),
-		SE		=	sd(.data[[COL]],	na.rm = TRUE) / sqrt(n()),
-		MAD 	=	mad(.data[[COL]],	na.rm = TRUE)
+		SD			=	sd(.data[[COL]],	na.rm = TRUE),
+		SE			=	sd(.data[[COL]],	na.rm = TRUE) / sqrt(n()),
+		"CoV (%)"	=	sd(.data[[COL]],	na.rm = TRUE) / mean(.data[[COL]],	na.rm = TRUE) * 100, 
+		MAD 		=	mad(.data[[COL]],	na.rm = TRUE)
 	)
 	out$Unit	<-	"ms"
 	out	|>	relocate(Unit, .before = SD)

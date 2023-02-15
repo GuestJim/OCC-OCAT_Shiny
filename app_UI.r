@@ -49,6 +49,7 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 			<table>
 				<tr><th>SD </th><td>Standard Deviation</td></tr>
 				<tr><th>SE </th><td>Standard Error</td></tr>
+				<tr><th>CoV </th><td>Coefficient of Variation (Ratio of SD to Mean as %)</td></tr>
 				<tr><th>MAD </th><td>Median Absolute Deviation</td></tr>
 			</table>
 		")),
