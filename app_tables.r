@@ -16,13 +16,12 @@ TABLES$GRPrem	<-	reactive({	defs$GROUPS[!defs$GROUPS	%in%	input$listGROUPS]	})
 TABLES$GRPord	<-	reactive({	input$orderGROUPS[input$orderGROUPS	%in%	input$listGROUPS]	})
 TABLES$filtDATA	<-	reactive({
 	out	<-	DATA$results
-	if (length(TABLES$GRPrem())	!=	0)	out	<-	DATA$results	|>	filter(
-		GPU			%in%	input$listGPU	&
-		Quality		%in%	input$listQUA	&
-		Location	%in%	input$listLOC	&
-		if (!anyNA(DATA$results$API))	API	%in%	input$listAPI &
-		TRUE
-	)
+	if (length(TABLES$GRPrem())	!=	0)	{
+		if (!"GPU"		%in%	input$listGROUPS)	out	<-	out	|>	filter(GPU		%in%	input$listGPU)
+		if (!"Quality"	%in%	input$listGROUPS)	out	<-	out	|>	filter(Quality	%in%	input$listQUA)
+		if (!"Location"	%in%	input$listGROUPS)	out	<-	out	|>	filter(Location	%in%	input$listLOC)
+		if (!anyNA(DATA$results$API))	if(!"API" %in% input$listGROUPS)	out	<-	out	|>	filter(API	%in%	input$listAPI)
+	}
 	out
 })	|>	bindEvent(input$listGROUPS, input$listGPU, input$listQUA, input$listLOC, input$listAPI, input$dataInput)
 #	for filtering data within groups, including disabled groups
