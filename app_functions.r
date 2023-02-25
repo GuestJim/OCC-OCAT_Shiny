@@ -1,6 +1,9 @@
 if (!require(data.table))	install.packages("data.table")	;	library(data.table)
 if (!require(tidyr))	install.packages("tidyr")			;	library(tidyr)
 if (!require(dplyr))	install.packages("dplyr")			;	library(dplyr)
+#	notice dtplyr is not being loaded, as it cannot be at the moment
+#		I have not found its lazy_dt to be reliable for my uses and the reframe feature of dplyr 1.1.0 is not supported yet
+#		it appears this means the outputs are tibbles instad of data.tables, but the performance is still superior, so I'm good with this
 
 LEVs	=	function(IN)	{
 	if (length(levels(IN)) == 0)	return(NULL)
