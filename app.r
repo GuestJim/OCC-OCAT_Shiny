@@ -75,9 +75,9 @@ dataLOAD	=	function(name, datapath	=	NULL)	{
 		if (anyNA(unique(DATA$GROUPS$API)))		DATA$checkAPI	=	FALSE
 		if (!DATA$checkAPI)	DATA$GROUPS$API		=	NULL
 	}
-	if (!require(data.table))	install.packages("data.table")	;	library(data.table)
+	if (!require(tibble))	install.packages("tibble")	;	library(tibble)
 	
-	DATA$results	<-	setDT(DATA$results)	|>	group_by(GPU, Quality, Location)
+	DATA$results	<-	tibble(DATA$results)	|>	group_by(GPU, Quality, Location)
 	if (exists("API", DATA$results))	DATA$results	<-	DATA$results |> group_by(API, .add = TRUE)
 	DATA$LOAD	<-	TRUE
 }

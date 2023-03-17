@@ -1,4 +1,7 @@
-if (!require(data.table))	install.packages("data.table")	;	library(data.table)
+# if (!require(data.table))	install.packages("data.table")	;	library(data.table)
+if (!require(tibble))	install.packages("tibble")			;	library(tibble)
+#	turns out it is making results a tibble, not a data.table that accelerates things
+#		handy as it removes the need for data.table or dyplyr
 if (!require(tidyr))	install.packages("tidyr")			;	library(tidyr)
 if (!require(dplyr))	install.packages("dplyr")			;	library(dplyr)
 #	notice dtplyr is not being loaded, as it cannot be at the moment
