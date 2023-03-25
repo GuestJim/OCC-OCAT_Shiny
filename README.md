@@ -30,14 +30,14 @@ In this case that means the ability to:
 	* double-click on a facet or select via lists and "Update Single-Plot" button
 * zoom in on certain graphs
 	* Course
-	* QQ
+	* Quantile
 * stats for brushed/highlighted sections of certain graphs
 	* Course
 	* Frequency
-	* QQ
+	* Quantile
 	* Consecutive Difference
 	* Consecutive Difference (Percentage)
-* experiment with theoretical line on QQ graph
+* experiment with theoretical line on Quantile graph
 
 The purpose is presently not to enable the downloading of data, statistics, or graphs. Downloading of tables can be toggled on via.
 
@@ -49,3 +49,5 @@ Since originally making them, I have learned about Lag graphs, which plot the da
 (The X axis is n + 1 and Y is n, for example.)
 My Consecutive Difference graphs then are possibly a variant of lag graphs, as they are the data on one axis and the difference between n and n + 1 on the other.
 Additional information: [NIST Lag Plot in Handbook](https://www.itl.nist.gov/div898/handbook/eda/section3/lagplot.htm)
+
+By using the tibble class to store the data, processing the stats can be significantly accelerated.
