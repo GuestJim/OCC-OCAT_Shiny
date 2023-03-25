@@ -362,7 +362,7 @@ graphQQ	=	function(FILT)	{
 	PERCS		=	sort(unique(	signif(c(PERCSdef, GRAPH$QUAN()))	))
 
 	ggplot(data = DATA$results[FILT, ], aes(sample = get(input$datatypeG))) +
-	ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - QQ Distribution")) +
+	ggtitle(DATA$game, subtitle = paste0(input$datatypeG, " - Quantile Distribution")) +
 	geom_hline(yintercept = 1000/60, color	=	"red") +
 		lapply(PERCS, function(IN) geom_qq_rect(Q = IN,	alpha = 0.1, fill = ifelse(IN <=0.5, "blue", "red"), color = "grey")) +
 	stat_qq_line(line.p = GRAPH$QUAN(), color = "green", size = 1.1, linetype = "dotted") +

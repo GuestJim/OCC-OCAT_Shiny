@@ -443,7 +443,7 @@ observeEvent(input$brushQQ, {	req(DATA$results)
 	brushQQzoom$CHANGE	<-	TRUE
 },	ignoreInit	=	TRUE)
 
-ends	=	0.00001
+ends	=	0.00001	#	cannot use 0 or 1 with qnorm as it gets upset, so using ~0
 observeEvent(list(input$brushQQupdate),	{	req(DATA$results)
 	brushQQzoom$x			=	qnorm(c(input$brushQQlowerX, input$brushQQupperX)/100)
 	if	(input$brushQQlowerX == 0)		brushQQzoom$x[1]	=	qnorm(ends)

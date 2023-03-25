@@ -224,23 +224,23 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 						if (BRUSH)	tableOutput('brushFREQfacetTAB')
 					)
 				),
-				tabPanel("QQ",
+				tabPanel("Quantile",
 					fixedRow(
 						column(3,
 							numericInput(inputId	=	"QUANlow",
-								label	=	"QQ Percentile - Low",
+								label	=	"Q Percentile - Low",
 								value	=	1,	min	=	0,	max	=	100
 								),
 							),
 						column(3,
 							numericInput(inputId	=	"QUANhigh",
-								label	=	"QQ Percentile - High",
+								label	=	"Q Percentile - High",
 								value	=	99,	min	=	0,	max	=	100
 								),
 							),
 						column(2,
 							actionButton(inputId	=	"QUANrefresh",
-								label	=	"Refresh QQ Points"
+								label	=	"Refresh green Q Line"
 								),
 							),
 						),
