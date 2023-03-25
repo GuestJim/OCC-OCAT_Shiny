@@ -1,3 +1,13 @@
+# if (!require(data.table))	install.packages("data.table")	;	library(data.table)
+if (!require(tibble))	install.packages("tibble")			;	library(tibble)
+#	turns out it is making results a tibble, not a data.table that accelerates things
+#		handy as it removes the need for data.table or dyplyr
+if (!require(tidyr))	install.packages("tidyr")			;	library(tidyr)
+if (!require(dplyr))	install.packages("dplyr")			;	library(dplyr)
+#	notice dtplyr is not being loaded, as it cannot be at the moment
+#		I have not found its lazy_dt to be reliable for my uses and the reframe feature of dplyr 1.1.0 is not supported yet
+#		it appears this means the outputs are tibbles instad of data.tables, but the performance is still superior, so I'm good with this
+
 LEVs	=	function(IN)	{
 	if (length(levels(IN)) == 0)	return(NULL)
 	return(levels(IN))
@@ -5,11 +15,73 @@ LEVs	=	function(IN)	{
 
 cutWithin	=	function(IN, LIMS, ..., INCLUDE = TRUE)	!is.na(cut(IN,	LIMS,	labels = FALSE,	include.lowest = INCLUDE, ...))
 
-sepCOL	=	function(aggOUT)	{
-	matCOL	=	sapply(aggOUT, is.matrix)
-	out	=	cbind(aggOUT[, !matCOL], as.data.frame(aggOUT[, matCOL]))
-	return(out)
+PERCdefa	<-	function(LIST = NULL, PERC = defs$PERCs)	{
+	if (!is.null(LIST))	if	(max(LIST) > 1)		LIST	=	LIST/100
+	out	<-	unique(sort(c(PERC, LIST), decreasing = FALSE))
+	out	<-	out[out >= 0 & out <= 1]
+
+	setNames(out, paste0(out * 100, "%"))
 }
+
+ECDFdefa	<-	function(LIST = NULL, ECDF = defs$ECDFs)	{
+	if (!is.null(LIST))	LIST[LIST < 0]	<-	0
+	out	<-	unique(sort(c(ECDF, LIST), decreasing = FALSE))
+	out	<-	out[out != 0]
+
+	setNames(out, paste0(out, " FPS"))
+}
+
+SUMMfunc	<-	function(IN, COL = "MsBetweenPresents", GEO = FALSE)	{
+	out	<-	IN	|>	reframe(
+		"Mean"		=	mean(.data[[COL]],	na.rm = TRUE),
+		"Median"	=	median(.data[[COL]],	na.rm = TRUE),
+		if (GEO)	"Geo. Mean"	=	exp(mean(log(.data[[COL]]),	na.rm = TRUE))
+	)
+	out$Unit	<-	"ms"
+	out	|>	relocate(Unit, .before = Mean)
+}
+# SUMMfunc(DATA$results)
+
+PERCfunc	<-	function(IN, PERC = defs$PERCs, COL = "MsBetweenPresents")	{
+	PERC	<-	sapply(PERC, function(IN) ifelse(IN < 1, IN, IN / 100)) |> unique() |> sort()
+	out	<-	IN	|>	reframe("x" = quantile(.data[[COL]], PERC), "val" = PERC*100) |>
+	pivot_wider(names_from = "val",	names_glue = "{val}%", values_from="x")
+	
+	out$Unit	<-	"ms"
+	out	|>	relocate(Unit, .before = "0.1%")
+}
+
+ECDFfunc	<-	function(IN, ECDF = defs$ECDFs, COL = "MsBetweenPresents")	{
+	ECDF	<-	ECDF |> unique() |> sort(decreasing = TRUE)
+	IN	|>	reframe("x" = 100 * (1 - ecdf(.data[[COL]])(1000 / ECDF)), "val" = ECDF) |>
+	pivot_wider(names_from = "val",	names_glue = "{val} FPS", values_from="x")
+}
+
+SUMMzoom	<-	function(IN, PERC = NULL)	{
+	PERC	<-	PERC	|>	append(defs$PERCs)	|>	sapply(function(IN) ifelse(IN < 1, IN, IN / 100)) |> unique() |> sort()
+	c(	Mean	=	mean(IN,	na.rm = TRUE),
+		Median	=	median(IN,	na.rm = TRUE),
+					quantile(IN,	PERC,	na.rm = TRUE)
+	)
+}
+
+ECDFzoom	<-	function(IN, ECDF = NULL)	{
+	ECDF	<-	ECDF	|>	append(defs$ECDFs)	|> unique() |> sort(decreasing = TRUE)
+	setNames(100 * (1 - ecdf(IN)(1000 / ECDF)), paste0(ECDF, " FPS"))
+}
+
+DEVIfunc	<-	function(IN, COL = "MsBetweenPresents")	{
+	out	<-	IN	|>	reframe(
+		SD			=	sd(.data[[COL]],	na.rm = TRUE),
+		SE			=	sd(.data[[COL]],	na.rm = TRUE) / sqrt(n()),
+		"CoV (%)"	=	sd(.data[[COL]],	na.rm = TRUE) / mean(.data[[COL]],	na.rm = TRUE) * 100, 
+		MAD 		=	mad(.data[[COL]],	na.rm = TRUE)
+	)
+	out$Unit	<-	"ms"
+	out	|>	relocate(Unit, .before = SD)
+}
+
+FPSconv	<-	function(IN)	IN	|>	mutate(across(where(is.numeric), ~ 1000/.x))	|>	mutate(Unit = "FPS")
 
 meanGEO	=	function(IN, na.rm = TRUE)	{
 	if (na.rm)	IN	=	na.omit(IN)
@@ -18,50 +90,11 @@ meanGEO	=	function(IN, na.rm = TRUE)	{
 	return(out)
 }
 
-summMS	=	function(IN, listPERC = NULL)	{
-	default	=	c(0.1, 1, 99, 99.9)/100
-	if (!is.null(listPERC))	if	(max(listPERC) > 1)		listPERC	=	listPERC/100
-	listPERC	=	unique(sort(c(default, listPERC), decreasing = FALSE))
-	if (any(listPERC > 1))	listPERC	<-	listPERC[-which(listPERC > 1)]
-	if (any(listPERC < 0))	listPERC	<-	listPERC[-which(listPERC < 0)]
-
-	setNames(c(mean(IN, na.rm = TRUE), median(IN, na.rm = TRUE), meanGEO(IN, na.rm = TRUE), quantile(IN, listPERC, na.rm = TRUE)), c("Mean", "Median", "Geo. Mean", paste0(listPERC * 100, "%")))
-}
-
-deviMS	=	function(IN)	{
-	c(
-		"SD"	=	sd(IN,	na.rm = TRUE),
-		"SE"	=	sd(IN,	na.rm = TRUE)/sqrt(length(IN)),
-		"MAD"	=	mad(IN,	na.rm = TRUE)
-	)
-}
-
-ecdfFPS	=	function(IN, listFPS = NULL)	{
-	# default		=	c(60, 50, 30, 20, 15)
-	default		=	c(60, 30)
-	listFPS		=	unique(sort(c(default, listFPS), decreasing = TRUE))
-	
-	setNames(100 * (1 - ecdf(IN)(1000 / listFPS)),	paste0(listFPS, " FPS"))
-}
-
-namePERC	=	function(listPERC = NULL)	{
-	default	=	c(0.1, 1, 99, 99.9)/100
-	if (!is.null(listPERC))	if	(max(listPERC) > 1)		listPERC	=	listPERC/100
-	listPERC	=	unique(sort(c(default, listPERC), decreasing = FALSE))
-
-	DATA$namePERC	=	paste0(listPERC * 100, "%")
-}
-nameECDF	=	function(listFPS = NULL)	{
-	default		=	c(60, 30)
-	listFPS		=	unique(sort(c(default, listFPS), decreasing = TRUE))
-
-	DATA$nameECDF	=	paste0(listFPS, " FPS")
-}
 DATA$nameMEAN	=	c("Mean", "Median")
 if (VIEW$GEO)	DATA$nameMEAN	=	c(DATA$nameMEAN, "Geo. Mean")
-DATA$nameDEVI	=	names(deviMS(NULL))
-DATA$namePERC	=	namePERC()
-DATA$nameECDF	=	nameECDF()
+DATA$namePERC	=	names(PERCdefa())
+DATA$nameECDF	=	names(ECDFdefa())
+DATA$nameDEVI	=	c("SD", "SE", "MAD")
 nameDEFs	=	c("Mean", "1%", "99%", "60 FPS")
 
 to.NUM	=	function(IN)	{
@@ -73,25 +106,26 @@ to.NUM	=	function(IN)	{
 	return(out)
 }
 tableROUND	=	function(TAB, r)	{
-	numCOL	=	sapply(TAB, is.numeric)
-	TAB[, numCOL]	=	round(TAB[, numCOL], r)
-	return(TAB)
+	TAB	|>	mutate(across(where(is.numeric), round(r)))
+	# numCOL	=	sapply(TAB, is.numeric)
+	# TAB[, numCOL]	=	round(TAB[, numCOL], r)
+	# return(TAB)
 }
 
 library(tableHTML)
 OCCHTML	=	function(IN)	{
-	tableHTML(IN, rownames = FALSE, class="OCC") %>%
-	replace_html('style="border-collapse:collapse;" class=OCC border=1', 'align="center" border="1" cellpadding="1" cellspacing="1" style="width: 90%;"') %>%
-	replace_html(' id=\"tableHTML_header_\\d\"', '', replace_all = TRUE) %>%
-	replace_html(' id=\"tableHTML_header_\\d\\d\"', '', replace_all = TRUE) %>%
-	replace_html(' id=\"tableHTML_column_\\d\"', '', replace_all = TRUE) %>%
+	tableHTML(IN, rownames = FALSE, class="OCC") |>
+	replace_html('style="border-collapse:collapse;" class=OCC border=1', 'align="center" border="1" cellpadding="1" cellspacing="1" style="width: 90%;"') |>
+	replace_html(' id=\"tableHTML_header_\\d\"', '', replace_all = TRUE) |>
+	replace_html(' id=\"tableHTML_header_\\d\\d\"', '', replace_all = TRUE) |>
+	replace_html(' id=\"tableHTML_column_\\d\"', '', replace_all = TRUE) |>
 	replace_html(' id=\"tableHTML_column_\\d\\d\"', '', replace_all = TRUE)
 }
 
 #	Graph stuff below
 
 # yrates	=	c(c(120, 60, 30, 20, 15, 12, 10), yratesEXT)
-yrates	=	c(c(120, 60, 30, 20, 15, 12, 10))
+yrates	=	c(c(120, 60, 30, 20, 15, 12, 10, 8, 6, 5))
 yrates	=	sort(c(yrates,-yrates))
 ytimes	=	sort(1000/yrates)
 ybreaks	=	sort(c(round(ytimes, 2), 0))

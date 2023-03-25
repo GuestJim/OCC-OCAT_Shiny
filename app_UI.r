@@ -1,3 +1,5 @@
+if (!require(sortable))	install.packages("sortable")	;	library(sortable)
+
 DataInputUI	<-	function(id, ..., label = "Data Loading")	{
 	ns	<-	NS(id)
 
@@ -47,6 +49,7 @@ tableExportUI	<-	function(id, SEP = FALSE, DOWN = FALSE, ..., label = "Data Savi
 			<table>
 				<tr><th>SD </th><td>Standard Deviation</td></tr>
 				<tr><th>SE </th><td>Standard Error</td></tr>
+				<tr><th>CoV </th><td>Coefficient of Variation (Ratio of SD to Mean as %)</td></tr>
 				<tr><th>MAD </th><td>Median Absolute Deviation</td></tr>
 			</table>
 		")),
@@ -221,23 +224,23 @@ GraphTabUI	<-	function(id, showGRAPHS = TRUE, BRUSH = TRUE, ..., label = "Graphs
 						if (BRUSH)	tableOutput('brushFREQfacetTAB')
 					)
 				),
-				tabPanel("QQ",
+				tabPanel("Quantile",
 					fixedRow(
 						column(3,
 							numericInput(inputId	=	"QUANlow",
-								label	=	"QQ Percentile - Low",
+								label	=	"Q Percentile - Low",
 								value	=	1,	min	=	0,	max	=	100
 								),
 							),
 						column(3,
 							numericInput(inputId	=	"QUANhigh",
-								label	=	"QQ Percentile - High",
+								label	=	"Q Percentile - High",
 								value	=	99,	min	=	0,	max	=	100
 								),
 							),
 						column(2,
 							actionButton(inputId	=	"QUANrefresh",
-								label	=	"Refresh QQ Points"
+								label	=	"Refresh green Q Line"
 								),
 							),
 						),
@@ -481,9 +484,9 @@ ui <- function(request)	{fluidPage(
 						),
 						tabPanel("Groups",
 							checkboxGroupInput(inputId	=	"listGROUPS",	label	=	"Groups to use:",
-								choices		=	c("GPU", "API", "Quality", "Location"),
-								selected	=	c("GPU", "API", "Quality", "Location")
+								choices		=	defs$GROUPS,	selected	=	defs$GROUPS
 							),
+							rank_list("Order of Groups:", defs$GROUPS, "orderGROUPS"),
 							checkboxGroupInput(inputId	=	"listGPU",	label	=	"GPUs to show:"),
 							checkboxGroupInput(inputId	=	"listAPI",	label	=	"APIs to show:"),
 							checkboxGroupInput(inputId	=	"listQUA",	label	=	"Qualities to show:"),
