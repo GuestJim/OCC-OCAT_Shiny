@@ -189,6 +189,12 @@ server <- function(input, output, session) {
 				choices		=	c("GPU", "Quality", "Location"),
 				selected	=	c("GPU", "Quality", "Location")
 			)
+			updateCheckboxGroupInput(	inputId	=	"listAPI",
+				choices		=	NA,	selected	=	NULL
+			)
+			updateCheckboxGroupInput(	inputId	=	"filtAPI",
+				choices		=	NA,	selected	=	NULL
+			)
 		}
 
 		updateVarSelectInput(
