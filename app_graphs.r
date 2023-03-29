@@ -140,6 +140,9 @@ observeEvent(input$flipFACETS, {
 	#	does take advantage of the fact it can only have one of two values, so it blindly flips the value when the UI flips
 })
 
+GRAPH$FONTsize	<-	reactive(input$graphFont)	|>	debounce(500)
+FONT	=	function(SIZE = 12)	theme(text = element_text(size = SIZE))
+
 FACET	=	function(graphtype, IN = c("Location", "Quality", "API", "GPU"), Fflip = FALSE)	{
 	FACS	=	c(
 		GPU			=	"GPU"		%in%	IN,
@@ -299,7 +302,7 @@ graphSUMM	=	function(FILT = TRUE, GEO = FALSE)	{
 
 output$graphMEANfacet	=	renderPlot({
 	req(DATA$results)
-	graphSUMM(GRAPH$FILT(), isTruthy(input$graphGEO)) + FACET("graphMEANS", input$listFACETS, Fflip = GRAPH$flipFACETS$SUMM)
+	graphSUMM(GRAPH$FILT(), isTruthy(input$graphGEO)) + FACET("graphMEANS", input$listFACETS, Fflip = GRAPH$flipFACETS$SUMM) + FONT(GRAPH$FONTsize())
 })
 
 graphCOURSE	=	function(FILT, zoom = FALSE)	{
@@ -321,7 +324,7 @@ graphCOURSE	=	function(FILT, zoom = FALSE)	{
 
 output$graphCOURSEfacet	=	renderPlot({
 	req(DATA$results)
-	graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE", Fflip = GRAPH$flipFACETS$COURSE)
+	graphCOURSE(GRAPH$FILT(), zoom = FALSE) + FACET("graphCOURSE", Fflip = GRAPH$flipFACETS$COURSE) + FONT(GRAPH$FONTsize())
 })
 
 graphFREQ	=	function(FILT, GEO = FALSE)	{
@@ -354,7 +357,7 @@ graphFREQ	=	function(FILT, GEO = FALSE)	{
 
 output$graphFREQfacet	=	renderPlot({
 	req(DATA$results)
-	graphFREQ(GRAPH$FILT(), isTruthy(input$graphGEO)) + FACET("graphFREQ", input$listFACETS, Fflip = GRAPH$flipFACETS$FREQ)
+	graphFREQ(GRAPH$FILT(), isTruthy(input$graphGEO)) + FACET("graphFREQ", input$listFACETS, Fflip = GRAPH$flipFACETS$FREQ) + FONT(GRAPH$FONTsize())
 })
 
 graphQQ	=	function(FILT)	{
@@ -377,7 +380,7 @@ graphQQ	=	function(FILT)	{
 
 output$graphQQfacet	=	renderPlot({
 	req(DATA$results)
-	graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ)
+	graphQQ(GRAPH$FILT()) + FACET("graphQQ", input$listFACETS, Fflip = GRAPH$flipFACETS$QQ) + FONT(GRAPH$FONTsize())
 })
 
 graphDIFF	=	function(FILT, PERC	=	FALSE)	{
@@ -476,13 +479,13 @@ graphDIFF	=	function(FILT, PERC	=	FALSE)	{
 
 output$graphDIFFfacet	=	renderPlot({
 	req(DATA$results)
-	graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
+	graphDIFF(GRAPH$FILT()) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) + FONT(GRAPH$FONTsize()) +
 	stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
 })
 
 output$graphDIFFpercfacet	=	renderPlot({
 	req(DATA$results)
-	graphDIFF(GRAPH$FILT(), TRUE) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) +
+	graphDIFF(GRAPH$FILT(), TRUE) + FACET("graphDIFF", input$listFACETS, Fflip = GRAPH$flipFACETS$DIFF) + FONT(GRAPH$FONTsize()) +
 	stat_density_2d(geom = "polygon", aes(fill = after_stat(nlevel)), show.legend = FALSE) + scale_fill_viridis_c()
 })
 

@@ -98,6 +98,13 @@ graphControlUI	<-	function(id, showGRAPHS = TRUE, ..., label = "Graphs Control")
 					actionButton(inputId	=	"FtimeLimitRefresh",
 						label	=	"Apply Scale"
 					),
+					numericInput(inputId	=	"graphFont",
+						label	=	"Graph Font Size",
+						value	=	12,	min = 10,	max = 32, step = 1
+					),
+					# actionButton(inputId	=	"graphFontRefresh",
+						# label	=	"Apply Scale"
+					# ),
 					checkboxGroupInput(inputId	=	"listFACETS",	label	=	"Facets to use:",
 						choices		=	c("GPU", "API", "Quality", "Location"),
 						selected	=	c("GPU", "API", "Quality", "Location")
