@@ -23,28 +23,28 @@ TABLES$filtDATA	<-	reactive({
 		if (!anyNA(DATA$results$API))	if(!"API" %in% input$listGROUPS)	out	<-	out	|>	filter(API	%in%	input$listAPI)
 	}
 	out
-})	|>	bindEvent(input$listGROUPS, input$listGPU, input$listQUA, input$listLOC, input$listAPI, input$dataInput)
+})	|>	bindEvent(input$listGROUPS, input$listGPU, input$listQUA, input$listLOC, input$listAPI, input$datatype)
 #	for filtering data within groups, including disabled groups
 
 TABLES$summ	<-	reactive({
-	hold	<-	SUMMfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
+	hold	<-	SUMMfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	COL = input$datatype	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$perc	<-	reactive({
-	hold	<-	PERCfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC))	)	|>
+	hold	<-	PERCfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	PERCdefa(to.NUM(input$manuPERC)),	COL = input$datatype	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	hold	|>	bind_rows(FPSconv(hold))
 })
 TABLES$ecdf	<-	reactive({
-	ECDFfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF))	)	|>
+	ECDFfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	ECDFdefa(to.NUM(input$manuECDF)),	COL = input$datatype	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 	})
 TABLES$devi	<-	reactive({
-	DEVIfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem()))	)	|>
+	DEVIfunc(TABLES$filtDATA()	|>	ungroup(all_of(TABLES$GRPrem())),	COL = input$datatype	)	|>
 		arrange(!!!rlang::syms(TABLES$GRPord()))
 		#	this !!!rlang::syms is necessary for the string to be converted into symbols that are then interpreted as symbols
 })
