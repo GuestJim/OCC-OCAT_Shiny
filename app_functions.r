@@ -149,9 +149,7 @@ labelDisp	=	function(breaks)	round(breaks * 60/1000, 1)
 labelDispB	=	function(breaks)	labelBreak(labelDisp(breaks))
 
 BoxPerc	=	function (IN)	{
-	out			=	quantile(IN, c(0.001, 0.01, 0.5, 0.99, 0.999))
-	names(out)	=	c("ymin", "lower", "middle", "upper", "ymax")
-	return(out)
+	IN	|>	quantile(c(0.001, 0.01, 0.5, 0.99, 0.999))	|>	setNames(c("ymin", "lower", "middle", "upper", "ymax"))
 }
 
 qqslope	=	function (IN, r = 2, quan = c(1, 99)/100)	{
@@ -163,9 +161,7 @@ qqslope	=	function (IN, r = 2, quan = c(1, 99)/100)	{
 }
 
 statGRAPH	=	function(IN, ...)	{
-	out			=	c(mean(IN), median(IN), median(diff(IN)), qqslope(IN, ...), quantile(IN, c(0.1, 1, 99, 99.9)/100))
-	names(out)	=	c("Mean", "Median", "DiffMedian", "Slope", "0.1", "1", "99", "99.9")
-	return(out)
+	c(mean(IN), median(IN), median(diff(IN)), qqslope(IN, ...), quantile(IN, c(0.1, 1, 99, 99.9)/100))	|>	setNames(c("Mean", "Median", "DiffMedian", "Slope", "0.1", "1", "99", "99.9"))
 }
 
 diff.CONS	=	function(IN, DIR = "Forward", lag = 1)	{
